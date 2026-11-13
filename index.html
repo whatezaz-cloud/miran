@@ -322,13 +322,13 @@ audio{height:36px;max-width:220px}
     <div id="rSegs"></div>
   </div>
   <div class="card stack">
-    <h2 style="margin:0">حفظ الجلسة</h2>
+    <h2 style="margin:0">ملاحظاتك</h2><p class="small muted" style="margin:0">التقرير انحفظ تلقائياً في السجل. هنا تضيف ملاحظاتك.</p>
     <div class="row">
       <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300"></label>
       <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
     </div>
     <label class="f">ملاحظات<textarea id="fNotes"></textarea></label>
-    <div class="row"><button class="btn primary" id="fSave">حفظ في السجل</button><button class="btn ghost" id="fDrop">حذف الجلسة</button></div>
+    <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" id="fFeedback">التقييم مو دقيق</button><button class="btn danger" id="fDrop" style="margin-right:auto">حذف الجلسة</button></div>
   </div>
 </section>
 
@@ -503,7 +503,7 @@ function scheduleOne(){
   const snd=!muted&&kind!=="M";
   if(snd){const v={A:S.settings.vA,N:S.settings.vN,S:S.settings.vS}[kind]/100;click(kind,v,M.next);}
   M.queue.push({t:M.next,beat,s,bar:M.bar,muted,pi:M.patIdx});
-  M.hist.push({t:M.next,pi:M.patIdx,muted,bar:M.bar,pl:60/S.settings.bpm/S.settings.sub,bpm:S.settings.bpm});
+  M.hist.push({t:M.next,pi:M.patIdx,muted,bar:M.bar,pl:60/S.settings.bpm/S.settings.sub,bpm:S.settings.bpm,run:M.run});
   if(M.hist.length>3000){M.hist.splice(0,1000);MIC.hi=Math.max(0,MIC.hi-1000);}
 }
 function advance(){
@@ -522,7 +522,7 @@ function onBarEnd(){
 function tick(){while(M.next<ctx.currentTime+0.12){scheduleOne();advance();}}
 function start(){
   if(!ensureCtx()) return;
-  M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.autoBars=0;M.autoNext=null;M.queue=[];M.hist=[];MIC.hi=0;
+  M.run=(M.run||0)+1;M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.autoBars=0;M.autoNext=null;M.queue=[];M.hist=[];MIC.hi=0;
   M.next=ctx.currentTime+0.08;
   M.timer=setInterval(tick,25);tick();requestAnimationFrame(draw);
   $$(".playBtn").forEach(b=>b.classList.add("on"));$$(".playIcon").forEach(e=>e.textContent="■");$$(".playLbl").forEach(e=>e.textContent="إيقاف");
@@ -611,7 +611,7 @@ function initMetro(){
 /* ================= mic measurement ================= */
 // Two listening bands: the oud (below 700 Hz on speaker / pick attack above 1.5 kHz with headphones)
 // and, on speaker, the metronome click itself (above 1.8 kHz) for the automatic latency check.
-const MIC={on:false,stream:null,src:null,sp:null,spC:null,level:0,pairs:[],hi:0,fr:null,cfr:null,calRaw:[],calibrating:false,checking:false};
+const MIC={expected:0,on:false,stream:null,src:null,sp:null,spC:null,level:0,pairs:[],hi:0,fr:null,cfr:null,calRaw:[],calibrating:false,checking:false};
 const calKey=()=>S.settings.monitor==="speaker"?"calib":"calibPh";
 const calVal=()=>S.settings[calKey()];
 async function micStart(){
@@ -660,6 +660,14 @@ function riseIn(fr,a,b,minRise,ratio){
   if(bi<0||bd<minRise||fr[bi].e<emin*ratio) return -1;
   return bi;
 }
+// level-independent onset: 50% point between the valley before the rise and the peak after it (interpolated)
+function onsetTime(fr,bi,a,b){
+  let v=bi;while(v>1&&fr[v-1].e<=fr[v].e&&fr[v-1].t>a-0.02) v--;
+  let p=bi;while(p+1<fr.length&&fr[p+1].e>=fr[p].e&&fr[p+1].t<b+0.03) p++;
+  const lo=fr[v].e,hi=fr[p].e,th=lo+0.5*(hi-lo);let j=v;while(j<p&&fr[j+1].e<th) j++;
+  const e0=fr[j].e,n=fr[j+1];if(!n||n.e<=e0) return fr[j].t;
+  return fr[j].t+Math.min(1,(th-e0)/(n.e-e0))*(n.t-fr[j].t);
+}
 function curPat(){const ex=SES.exId&&getEx(SES.exId);return parsePat(ex?ex.pattern:"");}
 function analyse(){
   if(!MIC.on||MIC.checking||!M.hist.length||!MIC.fr||!MIC.fr.length) return;
@@ -669,15 +677,17 @@ function analyse(){
     const a=MIC.calibrating?h.t-0.15*pl:h.t+cal-0.45*pl, b=MIC.calibrating?h.t+0.8*pl:h.t+cal+0.45*pl;
     if(b+0.03>lastT) break;
     MIC.hi++;
+    const countable=!MIC.calibrating&&h.bar>=1;
+    if(countable) MIC.expected++;
     const bi=riseIn(fr,a,b,0.0012,1.3); if(bi<0) continue;
     let pk=0;for(let i=bi;i<fr.length&&fr[i].t<fr[bi].t+0.03;i++) pk=Math.max(pk,fr[i].p);
-    const raw=fr[bi].t-h.t;
+    const raw=onsetTime(fr,bi,a,b)-h.t;
     if(MIC.calibrating){MIC.calRaw.push(raw);ovSub("معايرة: "+MIC.calRaw.length+" / 12");
       if(MIC.calRaw.length>=12){const q=MIC.calRaw.slice().sort((p,r)=>p-r);S.settings[calKey()]=q[6];save();endCalib(true);}
       continue;}
     if(h.bar<1) continue; // first bar = warm-up
     const toks=curPat(),tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
-    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm,bar:h.bar});
+    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm,bar:h.bar,pi:h.pi,run:h.run,pl:h.pl});
     if(MIC.pairs.length>120000) MIC.pairs.splice(0,20000);
   }
 }
@@ -706,7 +716,7 @@ function startCalib(){
   ovOpen("معايرة يدوية","اعزف على وتر فاضي مع كل نبضة (12 نبضة)",true);start();
 }
 function endCalib(ok){
-  MIC.calibrating=false;MIC.pairs=[];if(M.playing) stop();
+  MIC.calibrating=false;MIC.pairs=[];MIC.expected=0;if(M.playing) stop();
   if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}
   ovClose();showCal();if(ok) toast("تمت المعايرة");
 }
@@ -719,24 +729,44 @@ function setMonitor(v){
   $("monHint").innerHTML=v==="speaker"
     ?"صوت المترونوم يصير حاد، والبرنامج يسمع العود في المنطقة المنخفضة بس، فما يخلط بينهم. التأخير ينضبط تلقائياً أول مرة."
     :"البرنامج يسمع ضربة الريشة نفسها، فيكون أدق. سوّ معايرة يدوية لكل سماعة، والبلوتوث بالذات يحتاجها.";
-  MIC.pairs=[];showCal();
+  MIC.pairs=[];MIC.expected=0;showCal();
 }
 
-/* ================= stats ================= */
+/* ================= stats (robust) ================= */
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-function measStats(list){
+const median=a=>{if(!a.length) return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+const sdev=a=>{const m=avg(a);return Math.sqrt(avg(a.map(v=>(v-m)*(v-m))));};
+function measStats(list,expected){
   list=list||MIC.pairs; if(list.length<8) return null;
-  const devs=list.map(p=>p.dev*1000), mean=avg(devs), std=Math.sqrt(avg(devs.map(d=>(d-mean)*(d-mean))));
-  const dn=list.filter(p=>p.s==="∧"), up=list.filter(p=>p.s==="∨");
-  let bal=null; if(dn.length>=4&&up.length>=4){const md=avg(dn.map(p=>p.peak)),mu=avg(up.map(p=>p.peak));bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100)};}
+  const all=list.map(p=>p.dev*1000), med=median(all), mad=median(all.map(d=>Math.abs(d-med)))*1.4826;
+  const lim=Math.max(25,4*mad);
+  const keep=list.filter(p=>Math.abs(p.dev*1000-med)<=lim), outliers=list.length-keep.length;
+  if(keep.length<8) return null;
+  const devs=keep.map(p=>p.dev*1000), mean=avg(devs), std=sdev(devs);
+  const ioi=avg(keep.map(p=>(p.pl||0.25)*1000));
+  // strength balance, with significance (log amplitude difference)
+  const dn=keep.filter(p=>p.s==="∧"), up=keep.filter(p=>p.s==="∨");
+  let bal=null;
+  if(dn.length>=6&&up.length>=6){
+    const ld=dn.map(p=>Math.log(p.peak+1e-6)),lu=up.map(p=>Math.log(p.peak+1e-6));
+    const diff=avg(ld)-avg(lu),se=Math.sqrt(sdev(ld)**2/ld.length+sdev(lu)**2/lu.length)||1e-9;
+    const md=avg(dn.map(p=>p.peak)),mu=avg(up.map(p=>p.peak));
+    bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100),sig:Math.abs(diff/se)>3};
+  }
+  // timing limp from neighbouring strokes: (∧→∨ gap) vs (∨→∧ gap)
+  const srt=keep.slice().sort((a,b)=>a.t-b.t),v=[];
+  for(let i=0;i+1<srt.length;i++){const a=srt[i],b=srt[i+1];if(a.run!==b.run||b.pi-a.pi!==1) continue;
+    const d=(b.dev-a.dev)*1000; if(a.s==="∧"&&b.s==="∨") v.push(d); else if(a.s==="∨"&&b.s==="∧") v.push(-d);}
+  let limp=null;
+  if(v.length>=12){const m=avg(v),se=sdev(v)/Math.sqrt(v.length)||1e-9;limp={ms:Math.round(Math.abs(m)),pct:Math.round(Math.abs(m)/ioi*1000)/10,late:m>0?"∨":"∧",sig:Math.abs(m/se)>3};}
   const mD=dn.length>=4?Math.round(avg(dn.map(p=>p.dev*1000))):null, mU=up.length>=4?Math.round(avg(up.map(p=>p.dev*1000))):null;
   let drift=null;
-  if(list.length>=16&&list[list.length-1].t-list[0].t>=20){const t0=list[0].t,xs=list.map(p=>(p.t-t0)/60),mx=avg(xs),my=mean;let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(devs[i]-my);den+=(x-mx)*(x-mx);});drift=den?Math.round(num/den):null;}
-  // weakest tempo (Auto mode): bucket by 5 BPM
-  let weakBpm=null;const bk={};list.forEach(p=>{const k=Math.round(p.bpm/5)*5;(bk[k]=bk[k]||[]).push(p.dev*1000);});
-  const ks=Object.keys(bk).filter(k=>bk[k].length>=8);
-  if(ks.length>=2){let w=null,ws=-1;ks.forEach(k=>{const m=avg(bk[k]),s=Math.sqrt(avg(bk[k].map(d=>(d-m)*(d-m))));if(s>ws){ws=s;w=k;}});weakBpm={bpm:+w,std:Math.round(ws)};}
-  return {n:list.length,mean:Math.round(mean),std:Math.round(std),bal,mD,mU,drift,weakBpm};
+  if(keep.length>=16&&keep[keep.length-1].t-keep[0].t>=20){const t0=keep[0].t,xs=keep.map(p=>(p.t-t0)/60),mx=avg(xs);let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(devs[i]-mean);den+=(x-mx)*(x-mx);});drift=den?Math.round(num/den):null;}
+  let weakBpm=null;const bk={};keep.forEach(p=>{const k=Math.round(p.bpm/5)*5;(bk[k]=bk[k]||[]).push(p.dev*1000);});
+  const ks=Object.keys(bk).filter(k=>bk[k].length>=16);
+  if(ks.length>=2){let w=null,ws=-1;ks.forEach(k=>{const s=sdev(bk[k]);if(s>ws){ws=s;w=k;}});weakBpm={bpm:+w,std:Math.round(ws)};}
+  const cover=expected?Math.min(1,list.length/expected):null;
+  return {n:keep.length,outliers,mean:Math.round(mean),std:Math.round(std),bal,limp,mD,mU,drift,weakBpm,cover,ioi:Math.round(ioi)};
 }
 function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
 
@@ -745,7 +775,7 @@ const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
 function openPractice(id){
   const ex=getEx(id); if(!ex) return;
   if(M.playing) stop();
-  if(SES.exId!==id){if(rec) stopRec(true);SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];}
+  if(SES.exId!==id){if(rec) stopRec(true);SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];MIC.expected=0;}
   SES.active=true;
   S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
   const best=bestFor(id);setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
@@ -788,108 +818,152 @@ function segStats(list,minutes){
   if(!list.length) return [];
   const t0=list[0].t,seg=minutes*60,out=[];
   list.forEach(p=>{const k=Math.floor((p.t-t0)/seg);(out[k]=out[k]||[]).push(p);});
-  return out.map((L,k)=>L&&L.length>=16?{k,from:k*minutes,to:(k+1)*minutes,st:measStats(L)}:null).filter(Boolean);
+  return out.map((L,k)=>{if(!L||L.length<24) return null;const st=measStats(L);return st?{from:k*minutes,to:(k+1)*minutes,std:st.std,mean:st.mean,bal:st.bal?{weak:st.bal.weak,pct:st.bal.pct}:null}:null;}).filter(Boolean);
+}
+// 8-bar window with the worst value of a metric -> {t,t1,from,to,val}
+function worstBy(list,fn){
+  if(list.length<32) return null;
+  const byBar={};list.forEach(p=>{(byBar[p.bar+"_"+p.run]=byBar[p.bar+"_"+p.run]||[]).push(p);});
+  const keys=Object.keys(byBar).sort((a,b)=>byBar[a][0].t-byBar[b][0].t);let best=null;
+  const stepB=Math.max(2,Math.floor(keys.length/300));
+  for(let i=0;i+7<keys.length;i+=stepB){const L=[];for(let j=i;j<i+8;j++) L.push(...byBar[keys[j]]);if(L.length<16) continue;
+    const st=measStats(L);if(!st) continue;const val=fn(st);if(val==null) continue;
+    if(!best||val>best.val) best={val,t:L[0].t,t1:L[L.length-1].t,from:L[0].bar,to:L[L.length-1].bar};}
+  return best;
 }
 function buildReport(st,ex){
-  const items=[];let tip;
-  if(!st) return {items,overall:null,tip:"ما انقاس شي في هالجلسة. تأكد إن \"التسجيل والتحليل بالمايك\" شغّال، وإن التاب قريب من العود."};
+  const items=[];
+  if(!st) return {items,overall:null,quality:null,tip:"ما انقاس شي في هالجلسة. تأكد إن \"التسجيل والتحليل بالمايك\" شغّال، وإن التاب قريب من العود."};
+  const cov=st.cover!=null?Math.round(st.cover*100):null;
+  const quality=`لقط البرنامج <b class="ltr">${cov!=null?cov+"%":st.n}</b> من الضربات${st.outliers?` · تجاهل <b class="ltr">${st.outliers}</b> ضربة شاذة`:""}`;
+  if((cov!=null&&cov<70)||st.n<30){
+    return {items,overall:null,quality,tip:`القياس مو موثوق في هالجلسة، فما أعطيتك تقييم عشان ما أظلمك. جرّب: قرّب التاب من العود، وتأكد إن <b>التقسيم</b> في البرنامج نفس اللي تعزفه (مثلاً لو تعزف ∧∨ على كل نبضة، خله 2).`};
+  }
   const gStd=grade(st.std,[12,20,30]);
-  items.push({lab:"ثبات التوقيت",g:gStd,txt:`التذبذب حول النبضة <b class="ltr">±${st.std} ms</b>`});
-  const am=Math.abs(st.mean),gMean=grade(am,[10,20,35]);
-  items.push({lab:"التوقيت",g:gMean,txt:am<=10?"على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${am} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${am} ms</b>`});
+  items.push({key:"std",lab:"ثبات التوقيت",g:gStd,txt:`التذبذب حول النبضة <b class="ltr">±${st.std} ms</b>`});
+  const am=Math.abs(st.mean),gMean=grade(am,[12,22,35]);
+  items.push({key:"mean",lab:"التوقيت",g:gMean,txt:am<=12?"على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${am} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${am} ms</b>`});
   let gBal=null,gLimp=null;
-  if(st.bal){gBal=grade(st.bal.pct,[8,15,25]);items.push({lab:"توازن القوة",g:gBal,txt:st.bal.pct<=8?"∧ و∨ بنفس القوة تقريباً":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`});}
-  if(st.mD!=null&&st.mU!=null){const d=Math.abs(st.mU-st.mD);gLimp=grade(d,[6,12,20]);
-    items.push({lab:"تساوي المسافات",g:gLimp,txt:d<=6?"المسافة بين الضربات متساوية":`<span class="ltr">${st.mU>st.mD?"∨":"∧"}</span> تتأخر عن مكانها بحوالي <b class="ltr">${d} ms</b>، فيطلع الإيقاع طويل-قصير`});}
-  if(st.drift!=null){const ad=Math.abs(st.drift);items.push({lab:"ثبات السرعة",g:grade(ad,[4,8,15]),txt:ad<=4?"حافظت على السرعة طول الجلسة":st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});}
-  if(st.weakBpm) items.push({lab:"أضعف سرعة",g:2,txt:`ثباتك كان أضعف حول <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
+  const inverted=!!(ex&&parsePat(ex.pattern)[0]&&parsePat(ex.pattern)[0].s==="∨");
+  if(st.bal){
+    // the mic and the tablet position add their own error, so a small difference counts as equal
+    const within=!st.bal.sig||st.bal.pct<=10;
+    gBal=within?0:grade(st.bal.pct,[10,16,25]);
+    const it={key:"bal",lab:"توازن القوة",g:gBal,txt:within?`∧ و∨ متساويين${st.bal.pct>3?` <span class="small muted">(الفرق <span class="ltr">${st.bal.pct}%</span> ضمن هامش خطأ الجهاز)</span>`:""}`:`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>${inverted&&st.bal.weak==="∨"?" — وهذا تمرين يبدأ بـ ∨، فركّز إنها تكون بنفس قوة ∧":""}`};
+    if(inverted) items.unshift(it); else items.push(it);}
+  if(st.limp){gLimp=st.limp.sig?grade(st.limp.pct,[2,4,7]):0;
+    items.push({key:"limp",lab:"تساوي المسافات",g:gLimp,txt:gLimp===0?"المسافات بين الضربات متساوية":`<span class="ltr">${st.limp.late}</span> تتأخر عن مكانها بحوالي <b class="ltr">${st.limp.ms} ms</b> (<span class="ltr">${st.limp.pct}%</span> من المسافة)، فيطلع الإيقاع طويل-قصير`});}
+  if(st.drift!=null){const ad=Math.abs(st.drift);items.push({key:"drift",lab:"ثبات السرعة",g:grade(ad,[5,10,18]),txt:ad<=5?"حافظت على السرعة طول الجلسة":st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});}
+  if(st.weakBpm) items.push({key:"wbpm",lab:"أضعف سرعة",g:2,txt:`ثباتك كان أضعف حول <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
   const core=[gStd,gMean,gBal,gLimp].filter(v=>v!=null);
-  const overall=Math.round(core.reduce((a,b)=>a+b,0)/core.length);
-  if(gBal!=null&&gBal>=2) tip=`ركّز على قوة ${st.bal.weak}: جرّب تمرين الضغوط والأكسنت عليها.`;
+  const overall=Math.max(Math.round(core.reduce((a,b)=>a+b,0)/core.length),Math.max(...core)-1);
+  let tip;
+  if(gBal!=null&&gBal>=1) tip=`المطلوب إن ∧ و∨ يكونون بنفس القوة. ركّز على ${st.bal.weak}، وجرّب تمرين الضغوط بحيث يكون الأكسنت عليها.`;
   else if(gLimp!=null&&gLimp>=2) tip="المسافات مو متساوية. نزّل السرعة وعدّ في داخلك بالتساوي، وخلّ الريشة تمشي مثل المشي.";
   else if(gStd>=2) tip="نزّل السرعة 8 BPM، وخل الريشة ترتاح لين يثبت التوقيت.";
   else if(gMean>=2) tip=st.mean<0?"لا تسبق النبضة. استرخِ وخلها تجيك.":"انتبه لا تتأخر. حس بالنبضة قبل ما تضرب.";
   else tip=`ممتاز. ارفع السرعة 4 BPM المرة الجاية${ex&&ex.target?` (هدفك ${ex.target})`:""}.`;
-  return {items,overall,tip};
+  return {items,overall,quality,tip};
 }
-function worstWindow(list){
-  if(list.length<32) return null;
-  const byBar={};list.forEach(p=>{(byBar[p.bar]=byBar[p.bar]||[]).push(p);});
-  const bars=Object.keys(byBar).map(Number).sort((a,b)=>a-b);let best=null;
-  const stepB=Math.max(2,Math.floor(bars.length/400));
-  for(let i=0;i+7<bars.length;i+=stepB){const L=[];for(let j=i;j<i+8;j++) L.push(...byBar[bars[j]]);if(L.length<12) continue;
-    const st=measStats(L);if(st&&(!best||st.std>best.std)) best={std:st.std,from:bars[i],to:bars[i+7],t:L[0].t,t1:L[L.length-1].t};}
-  return best;
-}
-function timelineSVG(list,width){
+function timelineData(list){const step=Math.max(1,Math.ceil(list.length/500)),out=[];for(let i=0;i<list.length;i+=step){const p=list[i];out.push([Math.round(p.t*10)/10,Math.round(p.dev*1000),p.s==="∨"?1:0]);}return out;}
+function timelineSVG(pts,width){
   const W=Math.max(320,width||900),H=170,R=60,P=24;
-  if(!list.length) return `<div class="empty">ما فيه ضربات مقاسة.</div>`;
-  const t0=list[0].t,t1=Math.max(t0+1,list[list.length-1].t),X=t=>P+(t-t0)/(t1-t0)*(W-2*P),Y=v=>H/2-Math.max(-R,Math.min(R,v))/R*(H/2-14);
+  if(!pts||!pts.length) return `<div class="empty">ما فيه ضربات مقاسة.</div>`;
+  const t0=pts[0][0],t1=Math.max(t0+1,pts[pts.length-1][0]),X=t=>P+(t-t0)/(t1-t0)*(W-2*P),Y=v=>H/2-Math.max(-R,Math.min(R,v))/R*(H/2-14);
   let g=`<rect x="${P}" y="${Y(20)}" width="${W-2*P}" height="${Y(-20)-Y(20)}" fill="#E3EFE3"/><line x1="${P}" x2="${W-P}" y1="${H/2}" y2="${H/2}" stroke="#5E554B"/>`+
     `<text x="${P}" y="12" font-size="11" fill="#5E554B">متأخر</text><text x="${P}" y="${H-3}" font-size="11" fill="#5E554B">متقدم</text>`;
-  const step=Math.max(1,Math.ceil(list.length/900));
-  for(let i=0;i<list.length;i+=step){const p=list[i];g+=`<circle cx="${X(p.t).toFixed(1)}" cy="${Y(p.dev*1000).toFixed(1)}" r="3" fill="${p.s==="∨"?"#155E68":"#8A3F12"}" opacity=".8"/>`;}
+  pts.forEach(p=>{g+=`<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="3" fill="${p[2]?"#155E68":"#8A3F12"}" opacity=".8"/>`;});
   const mins=(t1-t0)/60,stepM=mins>60?15:mins>30?10:mins>8?2:1;
   for(let m=stepM;m<mins;m+=stepM){const x=X(t0+m*60);g+=`<line x1="${x}" x2="${x}" y1="18" y2="${H-16}" stroke="#E2D6C4"/><text x="${x}" y="${H-3}" text-anchor="middle" font-size="11" fill="#5E554B">${m}m</text>`;}
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="توزيع الضربات على مدة الجلسة" style="display:block;max-width:100%;direction:ltr;background:#fff;border:1px solid #E2D6C4;border-radius:10px;cursor:pointer" data-t0="${t0}" data-t1="${t1}" data-p="${P}" data-w="${W}">${g}</svg>`;
 }
-let REP=null;
+// previous saved report + personal average for this exercise
+function history(exId,exceptId){
+  const L=S.sessions.filter(s=>s.exId===exId&&s.id!==exceptId&&s.report&&s.report.overall!=null);
+  const last=L[L.length-1]||null, recent=L.slice(-5).filter(s=>s.meas);
+  return {last,avgStd:recent.length>=2?Math.round(avg(recent.map(s=>s.meas.std))):null};
+}
+let REP=null; // {id, from:"practice"|"log"}
 async function openReport(){
   if(M.playing) stop();
   await stopRec(false);
   if(SES.secs<5){toast("ابدأ التمرين أول");return;}
-  const ex=getEx(SES.exId),list=MIC.pairs.slice(),st=measStats(list),r=buildReport(st,ex);
-  REP={list,st,ex};
-  location.hash="report";
-  $("rName").textContent=ex?ex.name:"";
-  $("rMeta").innerHTML=`المدة <b class="ltr">${fmt(SES.secs)}</b>${st?` · <b class="ltr">${st.n}</b> ضربة`:""}`;
-  $("rOverall").innerHTML=r.overall!=null?`<span class="muted">التقييم العام</span> <span class="g" style="color:${GR[r.overall].c}">${GR[r.overall].t}</span>`:"";
-  $("rItems").innerHTML=r.items.map(i=>`<div class="it"><span class="lab">${i.lab}</span><span class="txt">${i.txt}</span>${chip(i.g)}</div>`).join("");
-  $("rTip").innerHTML=r.tip;
-  $("rTimeCard").hidden=!st;
-  if(st){
-    $("rTimeline").innerHTML=timelineSVG(list,$("rTimeline").clientWidth||900);
-    const w=worstWindow(list);
-    $("rWorst").innerHTML=w?`<span>أكثر مقطع فيه تذبذب: المازورات <b class="ltr">${w.from+1}–${w.to+1}</b> (<span class="ltr">±${w.std} ms</span>)</span><button class="btn ghost" id="rWorstPlay">اسمعه</button>`:"";
-    if(w&&$("rWorstPlay")) $("rWorstPlay").onclick=()=>playAt(w.t,w.t1-w.t+1);
+  const ex=getEx(SES.exId),list=MIC.pairs.slice(),st=measStats(list,MIC.expected),r=buildReport(st,ex);
+  const worst={};
+  if(st&&r.overall!=null){
+    const w1=worstBy(list,x=>x.std);if(w1) worst.std=w1;
+    const w2=worstBy(list,x=>x.limp?x.limp.ms:null);if(w2) worst.limp=w2;
+    const w3=worstBy(list,x=>x.bal&&x.bal.weak===st.bal.weak?x.bal.pct:null);if(w3) worst.bal=w3;
   }
-  const segs=segStats(list,(SES.secs>1800?10:5));
-  $("rFatigue").hidden=segs.length<2;
-  if(segs.length>=2){
-    const a=segs[0].st.std,b=segs[segs.length-1].st.std;
-    $("rSegs").innerHTML=`<table><thead><tr><th>الوقت</th><th>الثبات</th><th>التوقيت</th><th>توازن القوة</th></tr></thead><tbody>${segs.map(x=>`<tr><td>${x.from}–${x.to} دقيقة</td><td>${chip(grade(x.st.std,[12,20,30]))} <span class="ltr">±${x.st.std} ms</span></td><td class="num">${x.st.mean>0?"+":""}${x.st.mean} ms</td><td>${x.st.bal?(x.st.bal.pct<=8?"متوازنة":`<span class="ltr">${x.st.bal.weak}</span> −${x.st.bal.pct}%`):"—"}</td></tr>`).join("")}</tbody></table>`+
-      (b-a>=6?`<p class="small" style="margin:8px 0 0">ثباتك نزل من <b class="ltr">±${a}</b> في البداية إلى <b class="ltr">±${b}</b> في الآخر. خذ استراحة قصيرة كل فترة.</p>`:`<p class="small muted" style="margin:8px 0 0">ثباتك كان متقارب طول الجلسة.</p>`);
-  }
-  $("fMax").value=SES.max||S.settings.bpm;$("fRelax").checked=true;$("fNotes").value="";
-  $("rAudio").hidden=true;
+  const sess={id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:SES.max||S.settings.bpm,relaxed:true,notes:"",
+    rec:SES.recId||null,recT0:SES.recT0||0,
+    meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,limp:st.limp,drift:st.drift,cover:st.cover}:null,
+    report:{overall:r.overall,items:r.items,tip:r.tip,quality:r.quality,worst,segs:st?segStats(list,(SES.secs>1800?10:5)):[],tl:st?timelineData(list):[]}};
+  S.sessions.push(sess);
+  // keep storage small: drop timelines of very old sessions
+  const withTl=S.sessions.filter(s=>s.report&&s.report.tl&&s.report.tl.length);if(withTl.length>60) withTl.slice(0,withTl.length-60).forEach(s=>s.report.tl=[]);
+  save();
+  SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];MIC.expected=0;$("sessTime").textContent="00:00";
+  renderLibrary();
+  REP={id:sess.id,from:"practice"};location.hash="report";renderReport();
+}
+function openSavedReport(id){REP={id,from:"log"};location.hash="report";renderReport();}
+function renderReport(){
+  const sess=REP&&S.sessions.find(s=>s.id===REP.id);if(!sess) return;
+  const ex=getEx(sess.exId),r=sess.report||{items:[],tip:"",overall:null};
+  $("repBack").textContent=REP.from==="log"?"→ رجوع للسجل":"→ رجوع للتمرين";$("repBack").setAttribute("href",REP.from==="log"?"#progress":"#practice");
+  $("rName").textContent=ex?ex.name:"تمرين محذوف";
+  $("rMeta").innerHTML=`${fmtDay(new Date(sess.date))} · المدة <b class="ltr">${fmt(sess.dur)}</b>${sess.meas?` · <b class="ltr">${sess.meas.n}</b> ضربة`:""}`;
+  const h=history(sess.exId,sess.id);
+  let cmp="";
+  if(h.last&&r.overall!=null) cmp+=`<span class="small muted">المرة اللي قبل: ${GR[h.last.report.overall].t} ← اليوم: <b>${GR[r.overall].t}</b></span>`;
+  if(h.avgStd!=null&&sess.meas){const d=h.avgStd-sess.meas.std;cmp+=`<span class="small muted">${cmp?" · ":""}معدل ثباتك <span class="ltr">±${h.avgStd}</span>${Math.abs(d)>=2?(d>0?` · اليوم أثبت بـ <b class="ltr">${d} ms</b>`:` · اليوم أقل ثبات بـ <b class="ltr">${-d} ms</b>`):""}</span>`;}
+  $("rOverall").innerHTML=(r.overall!=null?`<span class="muted">التقييم العام</span> <span class="g" style="color:${GR[r.overall].c}">${GR[r.overall].t}</span>`:"")+(cmp?`<div style="flex-basis:100%">${cmp}</div>`:"");
+  $("rOverall").style.flexWrap="wrap";
+  const W=r.worst||{};
+  $("rItems").innerHTML=(r.quality?`<div class="small muted">${r.quality}</div>`:"")+r.items.map(i=>`<div class="it"><span class="lab">${i.lab}</span><span class="txt">${i.txt}</span>${W[i.key]&&sess.rec&&i.g>0?`<button class="btn ghost" data-listen="${i.key}" style="min-height:36px">اسمع</button>`:""}${chip(i.g)}</div>`).join("");
+  $("rTip").innerHTML=r.tip||"";$("rTip").hidden=!r.tip;
+  $("rTimeCard").hidden=!(r.tl&&r.tl.length);
+  if(r.tl&&r.tl.length){$("rTimeline").innerHTML=timelineSVG(r.tl,$("rTimeline").clientWidth||900);
+    $("rWorst").innerHTML=W.std?`<span>أكثر مقطع فيه تذبذب: المازورات <b class="ltr">${W.std.from+1}–${W.std.to+1}</b></span>${sess.rec?`<button class="btn ghost" data-listen="std">اسمعه</button>`:""}`:"";}
+  const segs=r.segs||[];$("rFatigue").hidden=segs.length<2;
+  if(segs.length>=2){const a=segs[0].std,b=segs[segs.length-1].std;
+    $("rSegs").innerHTML=`<table><thead><tr><th>الوقت</th><th>الثبات</th><th>التوقيت</th><th>توازن القوة</th></tr></thead><tbody>${segs.map(x=>`<tr><td>${x.from}–${x.to} دقيقة</td><td>${chip(grade(x.std,[12,20,30]))} <span class="ltr">±${x.std} ms</span></td><td class="num">${x.mean>0?"+":""}${x.mean} ms</td><td>${x.bal?(x.bal.pct<=8?"متوازنة":`<span class="ltr">${x.bal.weak}</span> −${x.bal.pct}%`):"—"}</td></tr>`).join("")}</tbody></table>`+
+      (b-a>=6?`<p class="small" style="margin:8px 0 0">ثباتك نزل من <b class="ltr">±${a}</b> في البداية إلى <b class="ltr">±${b}</b> في الآخر. خذ استراحة قصيرة كل فترة.</p>`:`<p class="small muted" style="margin:8px 0 0">ثباتك كان متقارب طول الجلسة.</p>`);}
+  $("fMax").value=sess.max||"";$("fRelax").checked=sess.relaxed!==false;$("fNotes").value=sess.notes||"";
+  $("fFeedback").textContent=sess.feedback?"✓ سجلت إن التقييم مو دقيق":"التقييم مو دقيق";
+  $("fDrop").textContent="حذف الجلسة";
+  $("rAudio").hidden=true;$("rAudio").removeAttribute("src");
 }
 async function playAt(t,dur){
-  if(!SES.recId){toast("ما فيه تسجيل صوتي لهالجلسة");return;}
-  try{const b=await getRec(SES.recId);const a=$("rAudio");if(!a.getAttribute("src")) a.src=URL.createObjectURL(b);a.hidden=false;
-    a.currentTime=Math.max(0,t-(SES.recT0||0)-0.5);await a.play();if(dur){clearTimeout(playAt._t);playAt._t=setTimeout(()=>a.pause(),(dur+1)*1000);}}catch(e){toast("ما قدرت أشغّل التسجيل");}
+  const sess=REP&&S.sessions.find(s=>s.id===REP.id);
+  if(!sess||!sess.rec){toast("ما فيه تسجيل صوتي لهالجلسة");return;}
+  try{const b=await getRec(sess.rec);if(!b){toast("التسجيل مو موجود في هذا الجهاز");return;}const a=$("rAudio");if(!a.getAttribute("src")) a.src=URL.createObjectURL(b);a.hidden=false;
+    a.currentTime=Math.max(0,t-(sess.recT0||0)-0.5);await a.play();if(dur){clearTimeout(playAt._t);playAt._t=setTimeout(()=>a.pause(),(dur+1)*1000);}}catch(e){toast("ما قدرت أشغّل التسجيل");}
 }
 $("rTimeline").addEventListener("click",e=>{const svg=e.target.closest("svg");if(!svg||!REP) return;
   const r=svg.getBoundingClientRect(),W=+svg.dataset.w,P=+svg.dataset.p,x=(e.clientX-r.left)*W/r.width;
   const t=+svg.dataset.t0+(x-P)/(W-2*P)*(+svg.dataset.t1-+svg.dataset.t0);playAt(t,4);});
-function resetSession(){SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];REP=null;$("sessTime").textContent="00:00";$("rAudio").removeAttribute("src");}
-$("fSave").onclick=()=>{
-  const st=REP&&REP.st,before=recordsFor(SES.exId);
-  S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,drift:st.drift,mD:st.mD,mU:st.mU}:null});
-  save();const after=recordsFor(SES.exId),news=[];
+$("v-report").addEventListener("click",e=>{const b=e.target.closest("[data-listen]");if(!b) return;const sess=S.sessions.find(s=>s.id===REP.id);const w=sess&&sess.report&&sess.report.worst[b.dataset.listen];if(w) playAt(w.t,Math.min(20,w.t1-w.t+1));});
+function curSess(){return REP&&S.sessions.find(s=>s.id===REP.id);}
+$("fSave").onclick=()=>{const sess=curSess();if(!sess) return;
+  const before=recordsFor(sess.exId);
+  sess.max=+$("fMax").value||sess.max;sess.relaxed=$("fRelax").checked;sess.notes=$("fNotes").value.trim();save();
+  const after=recordsFor(sess.exId),news=[];
   if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
-  if(after.std!=null&&before.std!=null&&after.std<before.std) news.push("أفضل ثبات ±"+after.std+" ms");
-  toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت الجلسة");
-  resetSession();renderLibrary();renderProgress();location.hash="practice";
+  toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت");
+  renderLibrary();renderProgress();location.hash=REP.from==="log"?"progress":"practice";
 };
-$("fDrop").onclick=()=>openConfirm("تحذف هذي الجلسة بدون حفظ؟",()=>{resetSession();toast("انحذفت الجلسة");location.hash="practice";});
+$("fFeedback").onclick=()=>{const sess=curSess();if(!sess) return;sess.feedback=!sess.feedback;save();renderReport();if(sess.feedback) toast("انحفظت ملاحظتك. قل لي وش اللي ما كان دقيق عشان أضبطه");};
+$("fDrop").onclick=()=>openConfirm("تحذف هذي الجلسة وتقريرها؟",()=>{const sess=curSess();S.sessions=S.sessions.filter(s=>s!==sess);save();renderLibrary();renderProgress();toast("انحذفت الجلسة");location.hash=REP.from==="log"?"progress":"practice";REP=null;});
 $("sessSave").onclick=openReport;
-
 $("measOn").onchange=async()=>{S.settings.measure=$("measOn").checked;save();
   if(S.settings.measure){const ok=await micStart();if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null&&!M.playing) autoCheck();}
   else micStop();};
 $("monSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setMonitor(b.dataset.mon);});
 $("calBtn").onclick=async()=>{if(!(await micStart())) return;startCalib();};
 $("pGoalEdit").onclick=()=>goalDialog(SES.exId);
+
 
 /* ================= overlay ================= */
 function ovOpen(t,s,cancel){$("ovT").textContent=t;$("ovS").innerHTML=esc(s)+(cancel?`<br><button class="btn" id="ovCancel" style="margin-top:12px">إلغاء</button>`:"");$("overlay").classList.add("open");if(cancel) $("ovCancel").onclick=()=>endCalib(false);}
@@ -1015,12 +1089,13 @@ function renderProgress(){
   if(prev&&withS.some(e=>e.id===prev)) sel.value=prev;
   drawCharts(sel.value);
   const list=S.sessions.slice().reverse().slice(0,30);
-  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>مرتاح</th><th>ملاحظات</th><th></th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
+  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>التقييم</th><th>ملاحظات</th><th></th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
     const bal=s.meas&&s.meas.bal?(s.meas.bal.pct<=10?"متوازنة":`<span class="ltr">${s.meas.bal.weak}</span> −<span class="ltr">${s.meas.bal.pct}%</span>`):"—";
-    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${bal}</td><td>${s.relaxed?"✓":"—"}</td><td class="small">${esc(s.notes||"")}</td><td>${s.rec?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
+    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${bal}</td><td>${s.report&&s.report.overall!=null?chip(s.report.overall):"—"}${s.feedback?` <span class="small muted">(مو دقيق)</span>`:""}</td><td class="small">${esc(s.notes||"")}</td><td>${s.report?`<button class="btn ghost" data-rep="${s.id}" style="min-height:36px">التقرير</button>`:""}${s.rec&&!s.report?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
 }
 $("chartEx").addEventListener("change",e=>drawCharts(e.target.value));
 $("sessTable").addEventListener("click",async e=>{
+  const rp=e.target.closest("[data-rep]");if(rp){openSavedReport(rp.dataset.rep);return;}
   const p=e.target.closest("[data-play]"),d=e.target.closest("[data-sdel]");
   if(p){try{const b=await getRec(p.dataset.play);if(!b){toast("التسجيل مو موجود في هذا الجهاز");return;}const a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(b);p.replaceWith(a);a.play().catch(()=>{});}catch(err){toast("ما قدرت أشغّل التسجيل");}}
   if(d) openConfirm("تحذف هذه الجلسة؟",()=>{S.sessions=S.sessions.filter(s=>s.id!==d.dataset.sdel);save();renderProgress();renderLibrary();});
@@ -1075,7 +1150,7 @@ let lastView=null;
 function route(){
   let v=view();if(!["metronome","library","practice","report","progress"].includes(v)) v="metronome";
   if(v==="practice"&&!SES.exId) v="library";
-  if(v==="report"&&!REP) v=SES.exId?"practice":"library";
+  if(v==="report"&&!REP) v=SES.exId?"practice":"progress";
   if(lastView&&lastView!==v&&M.playing) stop();
   if(lastView==="practice"&&v!=="practice"){SES.active=false;}
   if(v==="practice") SES.active=true;
@@ -1085,6 +1160,7 @@ function route(){
   $$("nav a").forEach(a=>{if(a.dataset.view===navv) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
   if(v==="progress") renderProgress();
   if(v==="metronome"){renderAuto();}
+  if(v==="report") renderReport();
 }
 window.addEventListener("hashchange",route);
 initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
