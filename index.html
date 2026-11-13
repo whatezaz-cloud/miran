@@ -12,41 +12,32 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Noto+Music&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#FAF3E6; --card:#FFFFFF; --ink:#221C16; --muted:#5E554B; --line:#E2D6C4;
-  --chip:#F0E5D1; --down:#8A3F12; --up:#155E68; --ok:#2F6B3A; --warn:#8A5A00;
-  --r:14px;
-}
+:root{--paper:#FAF3E6;--card:#FFFFFF;--ink:#221C16;--muted:#5E554B;--line:#E2D6C4;--chip:#F0E5D1;--down:#8A3F12;--up:#155E68;--good:#2F6B3A;--mid:#8A5A00;--bad:#9B2C1F;--r:14px}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Almarai',system-ui,sans-serif;font-size:16px;line-height:1.55}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 .ltr{direction:ltr;unicode-bidi:isolate}
-.wrap{max-width:1320px;margin:0 auto;padding:16px 20px 40px}
-
-/* header */
-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:5}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 20px 40px}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:5}
 .brand{display:flex;flex-direction:column;line-height:1.2}
 .brand b{font-size:26px;font-weight:800}
 .brand span{font-size:13px;color:var(--muted)}
 nav{display:flex;gap:6px;margin-right:auto;background:var(--chip);border-radius:12px;padding:4px}
 nav a{min-height:44px;display:flex;align-items:center;padding:0 18px;border-radius:9px;text-decoration:none;color:var(--ink);font-weight:700}
 nav a[aria-current="page"]{background:var(--ink);color:var(--paper)}
-
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
 h2{margin:0 0 10px;font-size:19px;font-weight:800}
 h3{margin:0 0 8px;font-size:16px;font-weight:700}
-.muted{color:var(--muted)}
-.small{font-size:13px}
+.muted{color:var(--muted)} .small{font-size:13px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px}
-@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
-
+.stack{display:flex;flex-direction:column;gap:14px}
 .btn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid var(--ink);background:var(--card);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn.primary{background:var(--ink);color:var(--paper)}
 .btn.ghost{border-color:var(--line)}
-.btn.danger{border-color:#9B2C1F;color:#9B2C1F}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
+.btn[aria-pressed="true"]{background:var(--up);border-color:var(--up);color:#fff}
 .seg{display:flex;background:var(--chip);border-radius:10px;padding:3px;gap:3px;flex-wrap:wrap}
 .seg button{min-height:40px;min-width:44px;padding:0 12px;border:0;border-radius:8px;background:transparent;font-weight:700}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
@@ -54,27 +45,42 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:70
 input[type=number],input[type=text],select,textarea{min-height:44px;border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff}
 textarea{min-height:80px;resize:vertical}
 input[type=range]{width:100%;accent-color:var(--ink);height:32px}
+.switch{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px}
+.switch input{width:22px;height:22px;accent-color:var(--ink)}
+details > summary{min-height:44px;display:flex;align-items:center;font-weight:800;cursor:pointer}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* metronome */
-.tempo{display:flex;align-items:center;justify-content:center;gap:14px}
-.bpm{font-size:96px;font-weight:800;line-height:1;min-width:190px;text-align:center}
+/* tempo block */
+.tempo{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.bpm{font-size:92px;font-weight:800;line-height:1;min-width:180px;text-align:center}
 .bpm small{display:block;font-size:15px;font-weight:700;color:var(--muted);letter-spacing:2px}
-.round{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font-size:22px;font-weight:800}
+.bpm.sm{font-size:64px;min-width:130px}
+.round{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font-size:20px;font-weight:800}
 .play{width:100%;min-height:68px;border-radius:14px;border:0;background:var(--ink);color:var(--paper);font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px}
 .play.on{background:var(--down)}
-.beats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0}
+.beats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
 .beat{width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;transition:transform .05s}
 .beat[data-k="A"]{background:var(--chip)}
-.beat[data-k="A"]::after{content:"";}
 .beat[data-k="M"]{border-style:dashed;color:#9A8F80}
 .beat.now{transform:scale(1.18);background:var(--ink);color:var(--paper)}
 .beat.now[data-k="A"]{background:var(--down);border-color:var(--down)}
-.sigrow{display:flex;align-items:center;gap:8px}
-.sig{display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:22px;line-height:1.05}
+.beats.mini .beat{width:30px;height:30px;font-size:12px;border-width:1.5px}
+.automsg{min-height:26px;text-align:center;font-size:15px;color:var(--up);font-weight:700}
 .status{display:flex;justify-content:center;gap:14px;font-size:14px;color:var(--muted);min-height:22px}
-.status b{color:var(--ink)}
 .gapflag{color:var(--up);font-weight:800}
+.ctlgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.ctlgrid{grid-template-columns:minmax(0,1fr)}}
+.vol{display:grid;grid-template-columns:70px 1fr 36px;gap:8px;align-items:center;font-size:14px}
+.trainer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trainer input{width:100%}
 
+/* practice */
+.phead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.phead .name{font-weight:800;font-size:22px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:var(--chip)}
+.goal{display:inline-flex;align-items:center;gap:8px;font-weight:700;background:var(--chip);border-radius:10px;padding:6px 12px}
+.staff{display:flex;justify-content:center;overflow-x:auto}
 .pat{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;direction:ltr;padding:10px;background:var(--chip);border-radius:12px}
 .tok{min-width:46px;padding:6px 4px;border-radius:9px;background:#fff;border:1.5px solid transparent;display:flex;flex-direction:column;align-items:center;line-height:1.15}
 .tok .s{font-size:24px;font-weight:800}
@@ -83,27 +89,25 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px}
 .tok .l{font-size:12px;color:var(--muted);direction:rtl;min-height:16px}
 .tok.now{border-color:var(--ink);background:var(--ink)}
 .tok.now .s,.tok.now .l,.tok.now .acc{color:var(--paper)}
-
-.panel{display:flex;flex-direction:column;gap:14px}
-.ctl{display:flex;flex-direction:column;gap:6px}
-.ctl > .lab{font-size:14px;font-weight:700}
-.vol{display:grid;grid-template-columns:70px 1fr 36px;gap:8px;align-items:center;font-size:14px}
-.switch{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px}
-.switch input{width:22px;height:22px;accent-color:var(--ink)}
-.trainer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.trainer input{width:100%}
-details.more > summary{min-height:44px;display:flex;align-items:center;font-weight:800;cursor:pointer}
-
-.exbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.exbar .name{font-weight:800;font-size:18px}
-.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--chip)}
-.staff{display:flex;justify-content:center;overflow-x:auto}
+.pmain{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.pmain{grid-template-columns:minmax(0,1fr)}}
+.light{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
+.ring{width:170px;height:170px;border-radius:50%;border:10px solid #D8CDBB;display:flex;align-items:center;justify-content:center;text-align:center;font-size:24px;font-weight:800;transition:border-color .3s,background .3s;background:#fff}
+.ring[data-s="good"]{border-color:var(--good);background:#EEF5EE}
+.ring[data-s="mid"]{border-color:#C98A12;background:#FBF1DC}
+.ring[data-s="bad"]{border-color:var(--bad);background:#F8E4E1}
+.lhint{min-height:28px;font-size:17px;font-weight:700;text-align:center}
 .sess{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px}
 .timer{font-weight:800;font-size:20px;min-width:70px;text-align:center}
 .rec-dot{width:12px;height:12px;border-radius:50%;background:#B3261E;display:inline-block}
+.meter{height:10px;background:var(--chip);border-radius:8px;overflow:hidden;flex:1;min-width:120px;direction:ltr}
+.meter i{display:block;height:100%;width:0;background:var(--up);transition:width .05s}
+.res{display:flex;flex-direction:column;gap:8px}
+.res .it{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.res .dot{width:12px;height:12px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.tip{background:var(--ink);color:var(--paper);border-radius:12px;padding:10px 14px;font-weight:700}
 
 /* library */
-.lib-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .group-title{font-size:17px;font-weight:800;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 .ex{display:flex;flex-direction:column;gap:8px}
@@ -113,7 +117,7 @@ details.more > summary{min-height:44px;display:flex;align-items:center;font-weig
 .prog{height:8px;background:var(--chip);border-radius:6px;overflow:hidden}
 .prog i{display:block;height:100%;background:var(--down);border-radius:6px}
 
-/* log */
+/* progress */
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .tile .n{font-size:40px;font-weight:800;line-height:1.1}
 .tile .k{font-size:14px;color:var(--muted);font-weight:700}
@@ -128,42 +132,20 @@ th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:right;verti
 th{font-size:13px;color:var(--muted)}
 td.num{direction:ltr;text-align:right;font-weight:700}
 .chartbox{position:relative}
-.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-115%);display:none}
+.ctip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-115%);display:none}
 audio{height:36px;max-width:220px}
-
-/* modal + toast */
 .modal{position:fixed;inset:0;background:rgba(34,28,22,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
 .modal.open{display:flex}
-.sheet{background:var(--paper);border-radius:16px;max-width:620px;width:100%;max-height:92vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.sheet{background:var(--paper);border-radius:16px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-weight:700;display:none;z-index:30;max-width:90vw;text-align:center}
 .inserts{display:flex;gap:6px;flex-wrap:wrap;direction:ltr}
 .inserts button{min-width:48px;min-height:44px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:18px}
 .empty{padding:22px;text-align:center;color:var(--muted)}
-[hidden]{display:none !important}
-.tun{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0}
-.tun .note{font-size:64px;font-weight:800;line-height:1.1;min-height:72px}
-.tun .west{font-size:22px;font-weight:700;color:var(--muted);font-family:'Noto Music','Almarai',sans-serif;direction:ltr}
-.tun .hz{font-size:14px;color:var(--muted);direction:ltr}
-.gauge{width:100%;max-width:560px;direction:ltr}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--line);background:#fff;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.deg{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:8px 6px;border-radius:12px;border:1.5px solid var(--line);background:#fff}
-.deg .n{font-weight:800;font-size:16px}
-.deg .w{font-size:12px;color:var(--muted);font-family:'Noto Music','Almarai',sans-serif;direction:ltr}
-.deg .c{font-size:12px;font-weight:700;direction:ltr;min-height:16px}
-.deg.next{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink) inset}
-.deg.g{background:#E3EFE3;border-color:#2F6B3A}.deg.o{background:#FBEBD0;border-color:#8A5A00}.deg.r{background:#F6DCD8;border-color:#9B2C1F}
-.degs{display:flex;flex-wrap:wrap;gap:6px;direction:rtl}
-.meas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-@media (max-width:700px){.meas{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.mt{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.mt .k{font-size:13px;color:var(--muted);font-weight:700}
-.mt .v{font-size:26px;font-weight:800;line-height:1.2}
-.mt .d{font-size:12px;color:var(--muted)}
-.meter{height:12px;background:var(--chip);border-radius:8px;overflow:hidden;flex:1;min-width:120px;direction:ltr}
-.meter i{display:block;height:100%;width:0;background:var(--up);transition:width .05s}
 .hint{font-size:13px;color:var(--muted);background:var(--paper);border-radius:10px;padding:8px 12px}
+.overlay{position:fixed;inset:0;background:rgba(250,243,230,.94);display:none;align-items:center;justify-content:center;z-index:25;flex-direction:column;gap:10px;text-align:center;padding:20px}
+.overlay.open{display:flex}
+.overlay b{font-size:24px}
+[hidden]{display:none !important}
 </style>
 </head>
 <body>
@@ -172,249 +154,200 @@ audio{height:36px;max-width:220px}
   <nav aria-label="الأقسام">
     <a href="#metronome" data-view="metronome">المترونوم</a>
     <a href="#library" data-view="library">التمارين</a>
-    <a href="#tuner" data-view="tuner">الدوزان والمقامات</a>
     <a href="#progress" data-view="progress">السجل والتقدم</a>
   </nav>
 </header>
 
 <main class="wrap">
 
-<!-- ============ METRONOME ============ -->
-<section id="v-metronome" data-v>
-  <div class="card" id="exCard" style="margin-bottom:16px" hidden>
-    <div class="exbar">
-      <span class="name" id="exName"></span>
-      <span class="tag" id="exGroup"></span>
-      <span class="muted small" id="exTarget"></span>
-      <button class="btn ghost" id="exClear" style="margin-right:auto">بدون تمرين</button>
+<!-- ============ METRONOME (metronome only) ============ -->
+<section id="v-metronome" data-v class="stack">
+  <div class="card stack">
+    <div class="tempo">
+      <button class="round" data-d="-5" aria-label="ناقص 5">−5</button>
+      <button class="round" data-d="-1" aria-label="ناقص 1">−</button>
+      <div class="bpm ltr"><span class="bpmVal">80</span><small>BPM</small></div>
+      <button class="round" data-d="1" aria-label="زائد 1">+</button>
+      <button class="round" data-d="5" aria-label="زائد 5">+5</button>
     </div>
-    <div class="staff" id="exStaff" style="margin-top:8px"></div>
-    <div class="pat" id="exPat" style="margin-top:8px"></div>
-    <div class="muted small" id="exNotes" style="margin-top:8px"></div>
-    <div class="sess" style="margin-top:12px">
-      <b>الجلسة</b>
-      <span class="timer ltr" id="sessTime">00:00</span>
-      <span class="small muted">أعلى سرعة: <b class="ltr" id="sessMax">—</b> BPM</span>
-      <button class="btn ghost" id="recBtn" style="margin-right:auto"><span class="rec-dot"></span><span id="recLbl">تسجيل</span></button>
-      <button class="btn primary" id="sessSave">حفظ الجلسة</button>
+    <input type="range" class="bpmRange ltr" min="30" max="300" value="80" aria-label="السرعة">
+    <div class="row" style="justify-content:center">
+      <button class="btn tapBtn" style="min-width:110px">Tap</button>
+      <button class="btn autoBtn" aria-pressed="false" style="min-width:110px">Auto</button>
+      <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
+      <span class="row autoRange small"><span>من</span><input type="number" id="autoMin" class="ltr" min="30" max="300" style="width:78px" aria-label="أقل سرعة"><span>إلى</span><input type="number" id="autoMax" class="ltr" min="30" max="300" style="width:78px" aria-label="أعلى سرعة"></span>
     </div>
+    <div class="automsg autoMsg" aria-live="polite"></div>
+    <div class="beats ltr" id="beats"></div>
+    <div class="small muted" style="text-align:center">اضغط على أي ضربة لتغييرها: قوية ← عادية ← صامتة</div>
+    <div class="status mStatus"></div>
+    <button class="play playBtn"><span class="playIcon">▶</span><span class="playLbl">تشغيل</span></button>
   </div>
 
-  <div class="grid2">
-    <div class="card" style="display:flex;flex-direction:column;gap:14px">
-      <div class="tempo">
-        <button class="round" id="m5" aria-label="ناقص 5">−5</button>
-        <button class="round" id="m1" aria-label="ناقص 1">−</button>
-        <div class="bpm ltr"><span id="bpmVal">80</span><small>BPM</small></div>
-        <button class="round" id="p1" aria-label="زائد 1">+</button>
-        <button class="round" id="p5" aria-label="زائد 5">+5</button>
-      </div>
-      <input type="range" id="bpmRange" min="30" max="300" value="80" aria-label="السرعة" class="ltr">
-      <div class="beats ltr" id="beats"></div>
-      <div class="small muted" style="text-align:center">اضغط على أي ضربة لتغييرها: قوية ← عادية ← صامتة</div>
-      <div class="status" id="status"></div>
-      <div class="row" style="justify-content:center">
-        <button class="btn" id="tapBtn" style="min-width:130px">Tap</button>
-      </div>
-      <button class="play" id="playBtn"><span id="playIcon">▶</span><span id="playLbl">تشغيل</span></button>
+  <div class="card">
+    <div class="ctlgrid">
+      <label class="f">الوزن
+        <select id="sigSel" class="ltr"></select>
+      </label>
+      <label class="f">التقسيم
+        <select id="subSel"><option value="1">بدون تقسيم</option><option value="2">2 (نصين)</option><option value="3">3 (تريولا)</option><option value="4">4 (أربعة)</option></select>
+      </label>
+      <label class="f">الصوت
+        <select id="sndSel" class="ltr"><option value="soft">Soft</option><option value="wood">Woodblock</option><option value="clave">Clave</option><option value="rim">Rim</option></select>
+      </label>
     </div>
-
-    <div class="card panel">
-      <div class="ctl">
-        <span class="lab">الوزن</span>
-        <div class="seg ltr" id="sigPresets"></div>
-        <div class="row">
-          <label class="f" style="flex-direction:row;align-items:center;gap:8px">مخصص
-            <input type="number" id="sigNum" min="1" max="32" value="4" style="width:76px" class="ltr" aria-label="عدد الضربات">
-            <span style="font-weight:800">/</span>
-            <select id="sigDen" class="ltr" aria-label="وحدة الضربة"><option>2</option><option selected>4</option><option>8</option><option>16</option></select>
-          </label>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="lab">التقسيم</span>
-        <div class="seg ltr" id="subSeg">
-          <button data-sub="1" aria-label="بدون تقسيم">1</button>
-          <button data-sub="2" aria-label="نصين">2</button>
-          <button data-sub="3" aria-label="تريولا">3</button>
-          <button data-sub="4" aria-label="أربعة">4</button>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="lab">الصوت</span>
-        <div class="seg ltr" id="soundSeg">
-          <button data-snd="soft">Soft</button>
-          <button data-snd="wood">Woodblock</button>
-          <button data-snd="clave">Clave</button>
-          <button data-snd="rim">Rim</button>
-        </div>
-        <div class="vol"><span>القوية</span><input type="range" min="0" max="100" id="volA" class="ltr" aria-label="صوت الضربة القوية"><span class="ltr small" id="volAv"></span></div>
-        <div class="vol"><span>العادية</span><input type="range" min="0" max="100" id="volN" class="ltr" aria-label="صوت الضربة العادية"><span class="ltr small" id="volNv"></span></div>
-        <div class="vol"><span>التقسيم</span><input type="range" min="0" max="100" id="volS" class="ltr" aria-label="صوت التقسيم"><span class="ltr small" id="volSv"></span></div>
-      </div>
-      <details class="more" id="trainers">
-        <summary>المدرّب</summary>
-        <div class="ctl">
-          <label class="switch"><input type="checkbox" id="alOn"> ارفع السرعة لما يثبت توقيتك (يحتاج المايك)</label>
-          <label class="switch"><input type="checkbox" id="spOn"> مدرب السرعة (كل كم مازورة)</label>
-          <div class="trainer">
-            <label class="f">زِد BPM<input type="number" id="spInc" min="1" max="20" value="4" class="ltr"></label>
-            <label class="f">كل كم مازورة<input type="number" id="spEvery" min="1" max="64" value="4" class="ltr"></label>
-            <label class="f">لين توصل<input type="number" id="spTo" min="30" max="300" value="120" class="ltr"></label>
-          </div>
-        </div>
-        <div class="ctl" style="margin-top:10px">
-          <label class="switch"><input type="checkbox" id="gapOn"> الصمت المتقطع</label>
-          <div class="trainer">
-            <label class="f">مازورات صوت<input type="number" id="gapPlay" min="1" max="16" value="2" class="ltr"></label>
-            <label class="f">مازورات صمت<input type="number" id="gapMute" min="1" max="16" value="1" class="ltr"></label>
-          </div>
-        </div>
-      </details>
+    <div class="row" id="customSig" style="margin-top:10px" hidden>
+      <span class="small">وزن مخصص:</span>
+      <input type="number" id="sigNum" min="1" max="32" value="4" style="width:76px" class="ltr" aria-label="عدد الضربات"><b>/</b>
+      <select id="sigDen" class="ltr" aria-label="وحدة الضربة"><option>2</option><option selected>4</option><option>8</option><option>16</option></select>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
-    <div class="row">
-      <h2 style="margin:0">القياس بالمايك</h2>
-      <div class="seg" id="monSeg" style="margin-right:auto">
-        <button data-mon="speaker">بدون سماعة</button>
-        <button data-mon="phones">مع سماعة</button>
+    <details style="margin-top:8px">
+      <summary>مستوى الصوت</summary>
+      <div class="vol"><span>القوية</span><input type="range" min="0" max="100" id="volA" class="ltr" aria-label="صوت الضربة القوية"><span class="ltr small" id="volAv"></span></div>
+      <div class="vol"><span>العادية</span><input type="range" min="0" max="100" id="volN" class="ltr" aria-label="صوت الضربة العادية"><span class="ltr small" id="volNv"></span></div>
+      <div class="vol"><span>التقسيم</span><input type="range" min="0" max="100" id="volS" class="ltr" aria-label="صوت التقسيم"><span class="ltr small" id="volSv"></span></div>
+    </details>
+    <details>
+      <summary>المدرّب</summary>
+      <label class="switch"><input type="checkbox" id="spOn"> مدرب السرعة (يزيد كل كم مازورة)</label>
+      <div class="trainer">
+        <label class="f">زِد BPM<input type="number" id="spInc" min="1" max="20" class="ltr"></label>
+        <label class="f">كل كم مازورة<input type="number" id="spEvery" min="1" max="64" class="ltr"></label>
+        <label class="f">لين توصل<input type="number" id="spTo" min="30" max="300" class="ltr"></label>
       </div>
-      <button class="btn" id="micBtn">تشغيل المايك</button>
-      <button class="btn ghost" id="calBtn" disabled>معايرة</button>
-      <button class="btn ghost" id="measReset" disabled>تصفير</button>
-    </div>
-    <div class="row"><span class="small muted">مستوى الصوت</span><div class="meter" aria-hidden="true"><i id="meterBar"></i></div><span class="small ltr muted" id="calInfo"></span></div>
-    <div class="meas">
-      <div class="mt"><div class="k">ثبات التوقيت</div><div class="v ltr" id="mStd">—</div><div class="d">كل ما قل الرقم كان أثبت</div></div>
-      <div class="mt"><div class="k">التوقيت</div><div class="v" id="mMean">—</div><div class="d" id="mMeanD">متقدم أو متأخر عن النبضة</div></div>
-      <div class="mt"><div class="k">الانجراف</div><div class="v" id="mDrift">—</div><div class="d">هل تسرّع أو تبطّئ مع الوقت</div></div>
-      <div class="mt"><div class="k">الريشة العرجاء</div><div class="v" id="mBal">—</div><div class="d" id="mBalD">مقارنة قوة ∧ و∨</div></div>
-      <div class="mt"><div class="k">السلسلة</div><div class="v ltr" id="mCombo">0</div><div class="d" id="mComboD">ضربات متتالية في حدود ±25 ms</div></div>
-      <div class="mt"><div class="k">ضربات مقاسة</div><div class="v ltr" id="mN">0</div><div class="d" id="mState">المايك مطفي</div></div>
-    </div>
-    <div>
-      <div class="row small muted" style="margin-bottom:4px"><span>آخر الضربات</span><span style="margin-right:auto"><span style="color:#8A3F12;font-weight:800">●</span> ∧ &nbsp; <span style="color:#155E68;font-weight:800">●</span> ∨ &nbsp; المنطقة الخضراء = ±25 ms</span></div>
-      <div id="dots"></div>
-    </div>
-    <div class="hint" id="monHint"></div>
+      <label class="switch" style="margin-top:8px"><input type="checkbox" id="gapOn"> الصمت المتقطع</label>
+      <div class="trainer">
+        <label class="f">مازورات صوت<input type="number" id="gapPlay" min="1" max="16" class="ltr"></label>
+        <label class="f">مازورات صمت<input type="number" id="gapMute" min="1" max="16" class="ltr"></label>
+      </div>
+      <label class="f" style="margin-top:8px;max-width:220px">Auto: يغيّر السرعة كل
+        <select id="autoEvery"><option value="2">2 مازورة</option><option value="4">4 مازورات</option><option value="8">8 مازورات</option></select>
+      </label>
+    </details>
   </div>
 </section>
 
 <!-- ============ LIBRARY ============ -->
 <section id="v-library" data-v hidden>
-  <div class="lib-head">
-    <h2 style="margin:0">مكتبة التمارين</h2>
+  <div class="row" style="margin-bottom:12px">
+    <h2 style="margin:0">التمارين</h2>
     <button class="btn primary" id="addEx" style="margin-right:auto">+ تمرين جديد</button>
   </div>
   <div id="libList"></div>
 </section>
 
-<!-- ============ TUNER & MAQAM ============ -->
-<section id="v-tuner" data-v hidden>
-  <div class="row" style="margin-bottom:12px">
-    <div class="seg" id="tunTabs"><button data-t="tune" aria-pressed="true">الدوزان</button><button data-t="maq" aria-pressed="false">المقامات</button></div>
-    <button class="btn" id="micBtn2" style="margin-right:auto">تشغيل المايك</button>
+<!-- ============ PRACTICE (focused) ============ -->
+<section id="v-practice" data-v hidden class="stack">
+  <div class="card stack">
+    <div class="phead">
+      <a href="#library" class="btn ghost" aria-label="رجوع للتمارين">→ التمارين</a>
+      <span class="name" id="pName"></span>
+      <span class="tag" id="pGroup"></span>
+      <span class="goal" style="margin-right:auto">الهدف <b class="ltr" id="pGoal">—</b> BPM <button class="btn ghost" id="pGoalEdit" style="min-height:36px;padding:0 10px">تعديل</button></span>
+    </div>
+    <div class="staff" id="pStaff"></div>
+    <div class="pat" id="pPat"></div>
+    <div class="muted small" id="pNotes"></div>
   </div>
 
-  <div id="tunePane" class="card">
-    <div class="row">
-      <span class="small muted">النغمات</span>
-      <div class="seg ltr" id="gridSeg"><button data-g="12">12</button><button data-g="24">24 ربع تون</button></div>
-      <label class="f" style="flex-direction:row;align-items:center;gap:6px;margin-right:auto">A4 = <input type="number" id="aRef" min="400" max="480" step="0.5" class="ltr" style="width:90px"> Hz</label>
+  <div class="pmain">
+    <div class="card stack">
+      <div class="tempo">
+        <button class="round" data-d="-5" aria-label="ناقص 5">−5</button>
+        <button class="round" data-d="-1" aria-label="ناقص 1">−</button>
+        <div class="bpm sm ltr"><span class="bpmVal">80</span><small>BPM</small></div>
+        <button class="round" data-d="1" aria-label="زائد 1">+</button>
+        <button class="round" data-d="5" aria-label="زائد 5">+5</button>
+      </div>
+      <div class="row" style="justify-content:center">
+        <button class="btn tapBtn">Tap</button>
+        <button class="btn autoBtn" aria-pressed="false">Auto</button>
+        <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
+        <span class="small muted autoRangeP"></span>
+      </div>
+      <div class="automsg autoMsg" aria-live="polite"></div>
+      <div class="beats mini ltr" id="pBeats"></div>
+      <div class="status mStatus"></div>
+      <button class="play playBtn"><span class="playIcon">▶</span><span class="playLbl">ابدأ التمرين</span></button>
     </div>
-    <div class="tun">
-      <div class="note" id="tNote">—</div>
-      <div class="west" id="tWest">&nbsp;</div>
-      <svg class="gauge" viewBox="0 0 560 70" role="img" aria-label="مقياس الانحراف بالسنت">
-        <rect x="250" y="14" width="60" height="30" rx="6" fill="#E3EFE3"/>
-        <line x1="30" x2="530" y1="44" y2="44" stroke="#5E554B"/>
-        <g id="ticks"></g>
-        <line id="needle" x1="280" x2="280" y1="6" y2="50" stroke="#221C16" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-      <div class="row" style="justify-content:center"><b class="ltr" id="tCents" style="font-size:22px">— cents</b><span class="hz" id="tHz"></span></div>
-    </div>
-    <div class="small muted" style="margin:6px 0">أوتار العود (اختر وتر عشان تدوزن عليه، أو خلها تلقائي)</div>
-    <div class="chips" id="strChips"></div>
-  </div>
 
-  <div id="maqPane" class="card" hidden>
-    <div class="row">
-      <label class="f">المقام<select id="mqSel"></select></label>
-      <label class="f">القرار (النغمة الأساسية)<select id="mqTonic"></select></label>
-      <button class="btn ghost" id="mqRand" style="align-self:flex-end">نغمة عشوائية</button>
-      <button class="btn primary" id="mqGo" style="align-self:flex-end;margin-right:auto">ابدأ</button>
+    <div class="card stack">
+      <div class="light">
+        <div class="ring" id="ring" data-s="off" role="status" aria-live="polite"><span id="ringTxt">القياس مطفي</span></div>
+        <div class="lhint" id="lhint"></div>
+      </div>
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="measOn"> القياس بالمايك</label>
+        <div class="meter" aria-hidden="true"><i id="meterBar"></i></div>
+      </div>
+      <div class="sess">
+        <span class="timer ltr" id="sessTime">00:00</span>
+        <button class="btn ghost" id="recBtn"><span class="rec-dot"></span><span id="recLbl">تسجيل</span></button>
+        <button class="btn primary" id="sessSave" style="margin-right:auto">إنهاء وعرض النتيجة</button>
+      </div>
+      <details>
+        <summary>إعدادات القياس</summary>
+        <div class="stack">
+          <div class="seg" id="monSeg"><button data-mon="speaker">بدون سماعة</button><button data-mon="phones">مع سماعة</button></div>
+          <div class="small muted" id="monHint"></div>
+          <div class="row"><button class="btn ghost" id="calBtn">معايرة يدوية</button><span class="small ltr muted" id="calInfo"></span></div>
+        </div>
+      </details>
     </div>
-    <div style="margin-top:12px" id="mqPrompt" class="hint">اختر المقام والقرار واضغط ابدأ، وبعدين اعزف السلم طالع ونازل نغمة نغمة.</div>
-    <div class="degs" id="mqDegs" style="margin-top:12px"></div>
-    <div class="row" style="margin-top:10px"><span class="small muted">تسمعك الحين:</span><b id="mqNow" class="ltr">—</b><span id="mqMsg" class="small" style="margin-right:auto"></span></div>
-    <div id="mqSum" style="margin-top:10px"></div>
-    <p class="small muted" style="margin:10px 0 0">الأبعاد تقريبية بنظام 24 ربع تون، وتختلف بين المدارس. إذا منهج الأستاذ يختلف (مثلاً موقع السيكاه في الراست)، قل لي ونعدلها.</p>
-    <h3 style="margin-top:14px">آخر المحاولات</h3>
-    <div id="mqRuns"></div>
   </div>
 </section>
 
 <!-- ============ PROGRESS ============ -->
-<section id="v-progress" data-v hidden>
+<section id="v-progress" data-v hidden class="stack">
   <div class="tiles">
     <div class="card tile"><div class="n ltr" id="tWeekS">0</div><div class="k">جلسات هذا الأسبوع</div></div>
     <div class="card tile"><div class="n ltr" id="tWeekM">0</div><div class="k">دقائق هذا الأسبوع</div></div>
     <div class="card tile"><div class="n ltr" id="tStreak">0</div><div class="k">أيام متتالية</div></div>
   </div>
-  <div class="card" style="margin-top:16px">
-    <h2>هذا الأسبوع</h2>
-    <div class="week" id="week"></div>
-  </div>
-  <div class="card" style="margin-top:16px">
+  <div class="card"><h2>هذا الأسبوع</h2><div class="week" id="week"></div></div>
+  <div class="card">
     <div class="row" style="margin-bottom:8px">
-      <h2 style="margin:0">تطور السرعة</h2>
+      <h2 style="margin:0">التطور</h2>
       <select id="chartEx" style="margin-right:auto;min-width:240px" aria-label="اختر التمرين"></select>
     </div>
-    <div class="chartbox" id="chartBox"></div>
+    <h3>منحنى السرعة <span class="small muted">(أعلى سرعة نظيفة كل يوم)</span></h3>
+    <div class="chartbox" id="chartSpeed"></div>
+    <h3 style="margin-top:14px">منحنى الثبات <span class="small muted">(كل ما نزل المنحنى كان توقيتك أثبت)</span></h3>
+    <div class="chartbox" id="chartStab"></div>
     <div class="small muted" id="chartNote"></div>
   </div>
-  <div class="card" style="margin-top:16px">
-    <h2>آخر الجلسات</h2>
-    <div id="sessTable"></div>
-  </div>
-  <div class="card" style="margin-top:16px">
+  <div class="card"><h2>آخر الجلسات</h2><div id="sessTable"></div></div>
+  <div class="card">
     <h2>نسخة احتياطية</h2>
-    <p class="small muted" style="margin:0 0 10px">البيانات محفوظة في هذا المتصفح بس. انسخها واحفظها عندك بين فترة وفترة.</p>
-    <div class="row">
-      <button class="btn" id="copyData">نسخ البيانات</button>
-      <button class="btn ghost" id="importData">استيراد</button>
-    </div>
+    <p class="small muted" style="margin:0 0 10px">البيانات محفوظة في هذا الجهاز بس. انسخها واحفظها عندك بين فترة وفترة.</p>
+    <div class="row"><button class="btn" id="copyData">نسخ البيانات</button><button class="btn ghost" id="importData">استيراد</button></div>
   </div>
 </section>
 </main>
 
-<!-- modal -->
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-  <div class="sheet" id="sheet"></div>
-</div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
+<div class="overlay" id="overlay" role="status" aria-live="polite"><b id="ovT">لحظة…</b><span id="ovS" class="muted"></span></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script>
 (function(){
 "use strict";
 /* ================= storage ================= */
 const KEY="miran.v1";
-const DEF={custom:[],over:{},sessions:[],settings:{bpm:80,num:4,den:4,sub:1,sound:"soft",vA:90,vN:65,vS:35,spInc:4,spEvery:4,spTo:120,gapPlay:2,gapMute:1,calib:null,calibPh:null,monitor:"speaker",aRef:440,grid:24},accents:{},maqRuns:[]};
+const DEF={custom:[],over:{},sessions:[],accents:{},
+  settings:{bpm:80,num:4,den:4,sub:1,sound:"soft",vA:90,vN:65,vS:35,spInc:4,spEvery:4,spTo:120,gapPlay:2,gapMute:1,
+    calib:null,calibPh:null,monitor:"speaker",measure:true,autoOn:false,autoLvl:"medium",autoEvery:4,autoMin:60,autoMax:120}};
 let S;
-function load(){
-  try{const r=localStorage.getItem(KEY); S=r?JSON.parse(r):null;}catch(e){S=null;}
-  if(!S) S=JSON.parse(JSON.stringify(DEF));
-  for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));
-  for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];
-}
+function fill(){for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));
+  for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];}
+function load(){try{const r=localStorage.getItem(KEY);S=r?JSON.parse(r):null;}catch(e){S=null;} if(!S) S=JSON.parse(JSON.stringify(DEF)); fill();}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 load();
 const $=id=>document.getElementById(id);
-function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display="none",3200);}
+const $$=sel=>Array.from(document.querySelectorAll(sel));
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display="none",3400);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const view=()=>(location.hash||"#metronome").slice(1);
 
 /* ================= staff notation ================= */
 const INK="#221C16",DOWN="#8A3F12",UP="#155E68";
@@ -476,24 +409,25 @@ function allEx(){
   return seeds.concat(S.custom);
 }
 function getEx(id){return allEx().find(e=>e.id===id);}
+function bestFor(id){let b=0;S.sessions.forEach(s=>{if(s.exId===id&&s.relaxed!==false) b=Math.max(b,s.max||0);});return b;}
+function tokHTML(t,i){const c=t.s==="∧"?"d":t.s==="∨"?"u":"p";
+  return `<div class="tok" data-i="${i}"><span class="acc">${t.a?"&gt;":""}</span><span class="s ${c}">${esc(t.s)}</span><span class="l">${esc(t.l)}</span></div>`;}
+
+
 function recordsFor(id){
-  const r={bpm:0,std:null,combo:0};
+  const r={bpm:0,std:null};
   S.sessions.forEach(s=>{if(s.exId!==id) return; if(s.relaxed!==false) r.bpm=Math.max(r.bpm,s.max||0);
-    if(s.meas){if(s.meas.n>=16&&(r.std==null||s.meas.std<r.std)) r.std=s.meas.std; r.combo=Math.max(r.combo,s.meas.combo||0);}});
+    if(s.meas&&s.meas.n>=16&&(r.std==null||s.meas.std<r.std)) r.std=s.meas.std;});
   return r;
 }
 function levelFor(e){
   const r=recordsFor(e.id),pct=e.target?r.bpm/e.target:0;
   if(!r.bpm) return {t:"ما بديت",c:"#5E554B"};
-  if(pct>=1&&r.std!=null&&r.std<=20) return {t:"متقن",c:"#2F6B3A"};
   if(pct>=1) return {t:"وصلت الهدف",c:"#2F6B3A"};
   if(pct>=0.8) return {t:"متقدم",c:"#155E68"};
   if(pct>=0.5) return {t:"متوسط",c:"#8A5A00"};
   return {t:"مبتدئ",c:"#8A3F12"};
 }
-function bestFor(id){let b=0;S.sessions.forEach(s=>{if(s.exId===id&&s.relaxed!==false) b=Math.max(b,s.max||0);});return b;}
-function tokHTML(t,i){const c=t.s==="∧"?"d":t.s==="∨"?"u":"p";
-  return `<div class="tok" data-i="${i}"><span class="acc">${t.a?"&gt;":""}</span><span class="s ${c}">${esc(t.s)}</span><span class="l">${esc(t.l)}</span></div>`;}
 
 /* ================= audio engine ================= */
 let ctx=null,master=null,noise=null,outHP=null;
@@ -510,6 +444,7 @@ function ensureCtx(){
 function env(g,t,peak,att,dec){g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec);}
 function tone(type,f,t,peak,dec,dest){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);env(g,t,peak,0.002,dec);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dec+0.05);}
 function burst(f,q,t,peak,dec){const n=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),g=ctx.createGain();n.buffer=noise;bp.type="bandpass";bp.frequency.value=f;bp.Q.value=q;env(g,t,peak,0.001,dec);n.connect(bp);bp.connect(g);g.connect(master);n.start(t);n.stop(t+dec+0.05);}
+// in "no headphones" mode every click is moved above 1.8 kHz so the mic can tell it apart from the oud
 function click(kind,lvl,t){
   if(lvl<=0.001) return; const sn=S.settings.sound, spk=S.settings.monitor==="speaker", mul=spk?2.4:1;
   if(sn==="soft"){const f={A:1568,N:1175,S:880}[kind]*mul;const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=spk?9000:2600;lp.connect(master);
@@ -518,8 +453,9 @@ function click(kind,lvl,t){
   else if(sn==="clave"){const f={A:3000,N:2500,S:2100}[kind];tone("sine",f,t,lvl*0.75,0.035);}
   else {const f={A:2600,N:2000,S:1600}[kind]*(spk?1.5:1);burst(f,6,t,lvl*1.4,0.028);if(!spk) tone("sine",420,t,lvl*0.35,0.02);}
 }
-/* scheduler */
-const M={playing:false,next:0,pulse:0,bar:0,patIdx:0,timer:null,queue:[],barsSince:0,hist:[]};
+
+/* ================= scheduler ================= */
+const M={playing:false,next:0,pulse:0,bar:0,patIdx:0,timer:null,queue:[],barsSince:0,autoBars:0,autoNext:null,hist:[]};
 function ppb(){return S.settings.num*S.settings.sub;}
 function accents(){const n=S.settings.num,k=n+"/"+S.settings.den;let a=S.accents[k];
   if(!a||a.length!==n){a=[];for(let i=0;i<n;i++) a.push(i===0?"A":"N");S.accents[k]=a;}
@@ -528,440 +464,350 @@ function inGap(bar){if(!$("gapOn").checked) return false;const p=+S.settings.gap
 function scheduleOne(){
   const sub=S.settings.sub, beat=Math.floor(M.pulse/sub), s=M.pulse%sub, acc=accents();
   const muted=inGap(M.bar); let kind=s===0?acc[beat]:"S";
-  if(s!==0 && acc[beat]==="M") kind="M";
-  if(!muted && kind!=="M"){const v={A:S.settings.vA,N:S.settings.vN,S:S.settings.vS}[kind]/100;click(kind,v,M.next);}
+  if(s!==0&&acc[beat]==="M") kind="M";
+  const snd=!muted&&kind!=="M";
+  if(snd){const v={A:S.settings.vA,N:S.settings.vN,S:S.settings.vS}[kind]/100;click(kind,v,M.next);}
   M.queue.push({t:M.next,beat,s,bar:M.bar,muted,pi:M.patIdx});
-  M.hist.push({t:M.next,pi:M.patIdx,muted,pl:60/S.settings.bpm/S.settings.sub}); if(M.hist.length>3000){M.hist.splice(0,1000);MIC.hi=Math.max(0,MIC.hi-1000);}
+  M.hist.push({t:M.next,pi:M.patIdx,muted,bar:M.bar,pl:60/S.settings.bpm/S.settings.sub,bpm:S.settings.bpm});
+  if(M.hist.length>3000){M.hist.splice(0,1000);MIC.hi=Math.max(0,MIC.hi-1000);}
 }
 function advance(){
   M.next+=60/S.settings.bpm/S.settings.sub; M.pulse++; M.patIdx++;
-  if(M.pulse>=ppb()){M.pulse=0;M.bar++;M.barsSince++;
-    if($("spOn").checked && M.barsSince>=(+S.settings.spEvery||4)){M.barsSince=0;
-      const to=+S.settings.spTo||300; if(S.settings.bpm<to){setBpm(Math.min(to,S.settings.bpm+(+S.settings.spInc||1)),true);}}}
+  if(M.pulse>=ppb()){M.pulse=0;M.bar++;M.barsSince++;onBarEnd();}
+}
+function onBarEnd(){
+  if($("spOn").checked&&M.barsSince>=(+S.settings.spEvery||4)){M.barsSince=0;
+    const to=+S.settings.spTo||300; if(S.settings.bpm<to) setBpm(Math.min(to,S.settings.bpm+(+S.settings.spInc||1)));}
+  if(S.settings.autoOn){
+    const ev=+S.settings.autoEvery||4; M.autoBars++;
+    if(M.autoBars===ev-1||ev===1){M.autoNext=pickAuto();announce(M.autoNext);}
+    if(M.autoBars>=ev){M.autoBars=0;if(M.autoNext){setBpm(M.autoNext);M.autoNext=null;announce(null);}}
+  }
 }
 function tick(){while(M.next<ctx.currentTime+0.12){scheduleOne();advance();}}
 function start(){
   if(!ensureCtx()) return;
-  M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.queue=[];M.hist=[];MIC.hi=0;M.next=ctx.currentTime+0.08;
+  M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.autoBars=0;M.autoNext=null;M.queue=[];M.hist=[];MIC.hi=0;
+  M.next=ctx.currentTime+0.08;
   M.timer=setInterval(tick,25);tick();requestAnimationFrame(draw);
-  $("playBtn").classList.add("on");$("playIcon").textContent="■";$("playLbl").textContent="إيقاف";
-  wake(true); sessionPlay(true);
+  $$(".playBtn").forEach(b=>b.classList.add("on"));$$(".playIcon").forEach(e=>e.textContent="■");$$(".playLbl").forEach(e=>e.textContent="إيقاف");
+  announce(null);wake(true);sessionPlay(true);
 }
 function stop(){
-  if(MIC.calibrating&&!stop._inner){stop._inner=true;MIC.calibrating=false;if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}$("mState").textContent="انلغت المعايرة";stop._inner=false;}
   M.playing=false;clearInterval(M.timer);M.queue=[];
-  $("playBtn").classList.remove("on");$("playIcon").textContent="▶";$("playLbl").textContent="تشغيل";
-  document.querySelectorAll(".beat.now,.tok.now").forEach(e=>e.classList.remove("now"));
-  $("status").innerHTML=""; wake(false); sessionPlay(false);
+  $$(".playBtn").forEach(b=>b.classList.remove("on"));$$(".playIcon").forEach(e=>e.textContent="▶");
+  $$(".playLbl").forEach(e=>e.textContent=e.closest("#v-practice")?"ابدأ التمرين":"تشغيل");
+  $$(".beat.now,.tok.now").forEach(e=>e.classList.remove("now"));
+  $$(".mStatus").forEach(e=>e.innerHTML="");announce(null);wake(false);sessionPlay(false);
 }
-let lastBeatEl=null,lastTok=null;
 function draw(){
   if(!M.playing) return;
   let cur=null; while(M.queue.length&&M.queue[0].t<=ctx.currentTime) cur=M.queue.shift();
   if(cur){
-    if(cur.s===0){const el=$("beats").children[cur.beat];if(lastBeatEl) lastBeatEl.classList.remove("now");if(el){el.classList.add("now");lastBeatEl=el;}}
-    const toks=$("exPat").children; if(toks.length){const el=toks[cur.pi%toks.length];if(lastTok) lastTok.classList.remove("now");if(el){el.classList.add("now");lastTok=el;}}
-    $("status").innerHTML=`<span>مازورة <b class="ltr">${cur.bar+1}</b></span>`+(cur.muted?`<span class="gapflag">صمت — كمّل لحالك</span>`:"");
+    if(cur.s===0){["beats","pBeats"].forEach(id=>{const box=$(id);if(!box) return;box.querySelectorAll(".beat.now").forEach(e=>e.classList.remove("now"));const el=box.children[cur.beat];if(el) el.classList.add("now");});}
+    const toks=$("pPat").children; if(toks.length&&view()==="practice"){const prev=$("pPat").querySelector(".tok.now");if(prev) prev.classList.remove("now");const el=toks[cur.pi%toks.length];if(el) el.classList.add("now");}
+    const st=`<span>مازورة <b class="ltr">${cur.bar+1}</b></span>`+(cur.muted?`<span class="gapflag">صمت — كمّل لحالك</span>`:"");
+    $$(".mStatus").forEach(e=>e.innerHTML=st);
   }
   requestAnimationFrame(draw);
 }
 let wl=null;async function wake(on){try{if(on&&navigator.wakeLock){wl=await navigator.wakeLock.request("screen");}else if(wl){await wl.release();wl=null;}}catch(e){}}
 
-/* ================= metronome UI ================= */
-function setBpm(v,fromTrainer){v=Math.max(30,Math.min(300,Math.round(v)));S.settings.bpm=v;$("bpmVal").textContent=v;$("bpmRange").value=v;
-  if(SES.active&&M.playing) SES.max=Math.max(SES.max,v), $("sessMax").textContent=SES.max;
-  save();}
-function renderBeats(){const a=accents();$("beats").innerHTML=a.map((k,i)=>`<button class="beat" data-k="${k}" data-i="${i}" aria-label="ضربة ${i+1}">${i+1}</button>`).join("");}
-const PRESETS=[[2,4],[3,4],[4,4],[5,4],[6,8],[7,8],[9,8],[10,8],[12,8]];
-function renderSig(){
-  $("sigPresets").innerHTML=PRESETS.map(([n,d])=>`<button data-n="${n}" data-d="${d}" aria-pressed="${S.settings.num===n&&S.settings.den===d}">${n}/${d}</button>`).join("");
-  $("sigNum").value=S.settings.num;$("sigDen").value=S.settings.den;renderBeats();
+/* ================= Auto tempo ================= */
+function autoRange(){
+  if(view()==="practice"&&SES.exId){const ex=getEx(SES.exId);let lo=+ex.start||60,hi=+ex.target||120;if(lo>=hi) lo=Math.max(30,hi-20);return [lo,hi];}
+  let lo=+S.settings.autoMin||60,hi=+S.settings.autoMax||120;if(lo>hi){const t=lo;lo=hi;hi=t;}return [lo,hi];
 }
-function setSig(n,d){n=Math.max(1,Math.min(32,n|0));S.settings.num=n;S.settings.den=+d;save();renderSig();if(M.playing){M.pulse=0;}}
-function setSub(v){S.settings.sub=+v;save();document.querySelectorAll("#subSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sub==v));}
-function setSound(v){S.settings.sound=v;save();document.querySelectorAll("#soundSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.snd===v));}
-function bindNum(id,key){const el=$(id);el.value=S.settings[key];el.addEventListener("change",()=>{S.settings[key]=+el.value;save();});}
-function initMetro(){
-  setBpm(S.settings.bpm);renderSig();setSub(S.settings.sub);setSound(S.settings.sound);
-  [["m5",-5],["m1",-1],["p1",1],["p5",5]].forEach(([id,d])=>$(id).addEventListener("click",()=>setBpm(S.settings.bpm+d)));
-  $("bpmRange").addEventListener("input",e=>setBpm(+e.target.value));
-  $("beats").addEventListener("click",e=>{const b=e.target.closest(".beat");if(!b) return;const a=accents(),i=+b.dataset.i;a[i]={A:"N",N:"M",M:"A"}[a[i]];save();renderBeats();});
-  $("sigPresets").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setSig(+b.dataset.n,+b.dataset.d);});
-  $("sigNum").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
-  $("sigDen").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
-  $("subSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setSub(b.dataset.sub);});
-  $("soundSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b) return;setSound(b.dataset.snd);if(!M.playing&&ensureCtx()) click("A",S.settings.vA/100,ctx.currentTime+0.02);});
-  ["A","N","S"].forEach(k=>{const el=$("vol"+k),lab=$("vol"+k+"v");el.value=S.settings["v"+k];lab.textContent=el.value;
-    el.addEventListener("input",()=>{S.settings["v"+k]=+el.value;lab.textContent=el.value;save();});});
-  bindNum("spInc","spInc");bindNum("spEvery","spEvery");bindNum("spTo","spTo");bindNum("gapPlay","gapPlay");bindNum("gapMute","gapMute");
-  $("playBtn").addEventListener("click",()=>M.playing?stop():start());
-  let taps=[];$("tapBtn").addEventListener("click",()=>{const n=performance.now();if(taps.length&&n-taps[taps.length-1]>2000) taps=[];taps.push(n);taps=taps.slice(-5);
-    if(taps.length>=2){let sum=0;for(let i=1;i<taps.length;i++) sum+=taps[i]-taps[i-1];setBpm(60000/(sum/(taps.length-1)));}});
-  document.addEventListener("keydown",e=>{if(e.code==="Space"&&location.hash.replace("#","")!=="library"&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$("modal").classList.contains("open")){e.preventDefault();M.playing?stop():start();}});
+function pickAuto(){
+  const [lo,hi]=autoRange(),cur=S.settings.bpm,lvl=S.settings.autoLvl;let n=cur;
+  if(hi-lo<2) return lo;
+  if(lvl==="hard"){let tries=0;do{n=lo+Math.round(Math.random()*(hi-lo));}while(Math.abs(n-cur)<5&&++tries<20);}
+  else{const st=lvl==="light"?5:10;let d=0;while(Math.abs(d)<2) d=Math.round((Math.random()*2-1)*st);n=cur+d;
+    if(n<lo) n=lo+(lo-n); if(n>hi) n=hi-(n-hi);}
+  return Math.max(lo,Math.min(hi,Math.round(n)));
+}
+function announce(n){$$(".autoMsg").forEach(e=>e.innerHTML=n?`بعد مازورة: <b class="ltr">${n}</b> BPM`:"");}
+function renderAuto(){
+  $$(".autoBtn").forEach(b=>b.setAttribute("aria-pressed",!!S.settings.autoOn));
+  $$(".autoLvl").forEach(s=>{s.value=S.settings.autoLvl;s.hidden=!S.settings.autoOn;});
+  $$(".autoRange").forEach(e=>e.hidden=!S.settings.autoOn);
+  const [lo,hi]=SES.exId?(()=>{const ex=getEx(SES.exId);return ex?[ex.start,ex.target]:[0,0];})():[0,0];
+  $$(".autoRangeP").forEach(e=>{e.hidden=!S.settings.autoOn;e.innerHTML=`بين <b class="ltr">${lo}</b> و<b class="ltr">${hi}</b>`;});
 }
 
-/* ================= current exercise & session ================= */
-const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
-function loadExercise(id){
-  const ex=getEx(id); if(!ex) return;
-  if(SES.active&&SES.exId===id&&SES.secs>0){location.hash="metronome";return;}
-  if(SES.active&&SES.exId!==id&&SES.secs>5){toast("احفظ الجلسة الحالية أول، أو اختر \"بدون تمرين\"");return;}
-  if(M.playing) stop();
-  SES.active=true;SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];MIC.combo=0;MIC.bestCombo=0;
-  S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
-  const best=bestFor(id); setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
-  $("spTo").value=S.settings.spTo=ex.target||120;save();
-  $("exCard").hidden=false;$("exName").textContent=ex.name;$("exGroup").textContent=ex.group||"";
-  $("exTarget").innerHTML=`الهدف <b class="ltr">${ex.target||"—"}</b> BPM`+(best?` · أفضل سرعة <b class="ltr">${best}</b>`:"");
-  const st=ex.staff?autoStaff(ex):""; $("exStaff").innerHTML=st||""; $("exStaff").hidden=!st;
-  $("exPat").innerHTML=parsePat(ex.pattern).map(tokHTML).join("");
-  $("exNotes").textContent=ex.notes||"";
-  $("sessTime").textContent="00:00";$("sessMax").textContent="—";
-  location.hash="metronome";
+/* ================= metronome UI ================= */
+function setBpm(v){v=Math.max(30,Math.min(300,Math.round(v)));S.settings.bpm=v;
+  $$(".bpmVal").forEach(e=>e.textContent=v);$$(".bpmRange").forEach(e=>e.value=v);
+  if(SES.active&&M.playing){SES.max=Math.max(SES.max,v);}
+  save();}
+function renderBeats(){const a=accents();const h=a.map((k,i)=>`<button class="beat" data-k="${k}" data-i="${i}" aria-label="ضربة ${i+1}">${i+1}</button>`).join("");$("beats").innerHTML=h;$("pBeats").innerHTML=h;}
+const SIGS=["2/4","3/4","4/4","5/4","6/4","7/4","2/2","3/8","5/8","6/8","7/8","9/8","10/8","12/8"];
+function renderSig(){
+  const cur=S.settings.num+"/"+S.settings.den, known=SIGS.includes(cur);
+  $("sigSel").innerHTML=SIGS.map(x=>`<option ${x===cur?"selected":""}>${x}</option>`).join("")+`<option value="custom" ${known?"":"selected"}>${known?"مخصص…":cur+" (مخصص)"}</option>`;
+  $("customSig").hidden=known;$("sigNum").value=S.settings.num;$("sigDen").value=S.settings.den;renderBeats();
 }
-function clearExercise(){
-  if(SES.active&&SES.secs>5){openConfirm("فيه جلسة ما انحفظت. تبي تتركها بدون حفظ؟",()=>{if(M.playing) stop();SES.active=false;SES.secs=0;$("exCard").hidden=true;$("exPat").innerHTML="";stopRec(true);});return;}
-  if(M.playing) stop();SES.active=false;SES.secs=0;$("exCard").hidden=true;$("exPat").innerHTML="";
-}
-function fmt(sec){sec=Math.round(sec);return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
-function sessionPlay(on){
-  if(!SES.active) return;
-  if(on){SES.t0=performance.now();SES.max=Math.max(SES.max,S.settings.bpm);$("sessMax").textContent=SES.max;
-    SES.timer=setInterval(()=>{$("sessTime").textContent=fmt(SES.secs+(performance.now()-SES.t0)/1000);},500);}
-  else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);}
-}
-function saveSessionDialog(){
-  if(M.playing) stop();
-  if(SES.secs<5){toast("شغّل المترونوم وتمرّن أول");return;}
-  const ex=getEx(SES.exId);
-  openModal(`<h2 id="mTitle">حفظ الجلسة — ${esc(ex?ex.name:"")}</h2>
-   <div class="row small muted">المدة <b class="ltr">${fmt(SES.secs)}</b></div>
-   <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300" value="${SES.max||S.settings.bpm}"></label>
-   ${(()=>{const st=measStats();return st?`<div class="hint">القياس: الثبات <b class="ltr">±${st.std} ms</b>${st.bal?` · ${st.bal.pct<=8?"الريشة متوازنة":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`}`:""} · <span class="ltr">${st.n}</span> ضربة</div>`:"";})()}
-   <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
-   <label class="f">ملاحظات<textarea id="fNotes" placeholder="مثلاً: ∨ أضعف في السرعات العالية"></textarea></label>
-   <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" data-close>إلغاء</button></div>`);
-  $("fSave").onclick=()=>{
-    stopRec(false).then(()=>{
-      const before=recordsFor(SES.exId);
-      S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:measStats()});
-      save();closeModal();
-      const after=recordsFor(SES.exId),news=[];
-      if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
-      if(after.std!=null&&before.std!=null&&after.std<before.std) news.push("أفضل ثبات ±"+after.std+" ms");
-      if(after.combo>before.combo&&before.combo>0) news.push("أطول سلسلة "+after.combo);
-      toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت الجلسة");
-      const id=SES.exId;SES.active=false;loadExercise(id);renderLibrary();renderProgress();
-    });
-  };
+function setSig(n,d){n=Math.max(1,Math.min(32,n|0));S.settings.num=n;S.settings.den=+d;save();renderSig();if(M.playing) M.pulse=0;}
+function setSub(v){S.settings.sub=+v;save();$("subSel").value=String(v);}
+function bindNum(id,key){const el=$(id);el.value=S.settings[key];el.addEventListener("change",()=>{S.settings[key]=+el.value;save();});}
+function initMetro(){
+  setBpm(S.settings.bpm);renderSig();setSub(S.settings.sub);$("sndSel").value=S.settings.sound;
+  $$(".round[data-d]").forEach(b=>b.addEventListener("click",()=>setBpm(S.settings.bpm+(+b.dataset.d))));
+  $$(".bpmRange").forEach(r=>r.addEventListener("input",e=>setBpm(+e.target.value)));
+  ["beats","pBeats"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest(".beat");if(!b) return;const a=accents(),i=+b.dataset.i;a[i]={A:"N",N:"M",M:"A"}[a[i]];save();renderBeats();}));
+  $("sigSel").addEventListener("change",()=>{const v=$("sigSel").value;if(v==="custom"){$("customSig").hidden=false;return;}const [n,d]=v.split("/");setSig(+n,+d);});
+  $("sigNum").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
+  $("sigDen").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
+  $("subSel").addEventListener("change",()=>setSub($("subSel").value));
+  $("sndSel").addEventListener("change",()=>{S.settings.sound=$("sndSel").value;save();if(!M.playing&&ensureCtx()) click("A",S.settings.vA/100,ctx.currentTime+0.02);});
+  ["A","N","S"].forEach(k=>{const el=$("vol"+k),lab=$("vol"+k+"v");el.value=S.settings["v"+k];lab.textContent=el.value;
+    el.addEventListener("input",()=>{S.settings["v"+k]=+el.value;lab.textContent=el.value;save();});});
+  ["spInc","spEvery","spTo","gapPlay","gapMute","autoMin","autoMax"].forEach(k=>bindNum(k,k));
+  $("autoEvery").value=String(S.settings.autoEvery);$("autoEvery").onchange=()=>{S.settings.autoEvery=+$("autoEvery").value;save();};
+  $$(".playBtn").forEach(b=>b.addEventListener("click",()=>{if(M.playing){stop();return;} if(view()==="practice") practiceStart(); else start();}));
+  $$(".autoBtn").forEach(b=>b.addEventListener("click",()=>{S.settings.autoOn=!S.settings.autoOn;save();renderAuto();if(!S.settings.autoOn){M.autoNext=null;announce(null);}}));
+  $$(".autoLvl").forEach(s=>s.addEventListener("change",()=>{S.settings.autoLvl=s.value;save();renderAuto();}));
+  let taps=[];$$(".tapBtn").forEach(b=>b.addEventListener("click",()=>{const n=performance.now();if(taps.length&&n-taps[taps.length-1]>2000) taps=[];taps.push(n);taps=taps.slice(-5);
+    if(taps.length>=2){let sum=0;for(let i=1;i<taps.length;i++) sum+=taps[i]-taps[i-1];setBpm(60000/(sum/(taps.length-1)));}}));
+  document.addEventListener("keydown",e=>{if(e.code==="Space"&&(view()==="metronome"||view()==="practice")&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$("modal").classList.contains("open")){e.preventDefault();$$(".playBtn")[0].click();}});
+  renderAuto();
 }
 
 /* ================= mic measurement ================= */
-const MIC={on:false,stream:null,src:null,sp:null,level:0,pairs:[],calRaw:[],calibrating:false,hi:0,fr:null,combo:0,bestCombo:0};
+// Two listening bands: the oud (below 700 Hz on speaker / pick attack above 1.5 kHz with headphones)
+// and, on speaker, the metronome click itself (above 1.8 kHz) for the automatic latency check.
+const MIC={on:false,stream:null,src:null,sp:null,spC:null,level:0,pairs:[],hi:0,fr:null,cfr:null,calRaw:[],calibrating:false,checking:false};
 const calKey=()=>S.settings.monitor==="speaker"?"calib":"calibPh";
 const calVal=()=>S.settings[calKey()];
-function setCal(v){S.settings[calKey()]=v;save();}
-function autoLevel(){
-  if(!$("alOn").checked||MIC.combo<32) return;
-  MIC.combo=0;const to=+S.settings.spTo||300;
-  if(S.settings.bpm<to){setBpm(Math.min(to,S.settings.bpm+(+S.settings.spInc||4)));toast("ثابت! رفعنا السرعة إلى "+S.settings.bpm+" BPM");}
-}
-function curPat(){return parsePat(SES.active&&getEx(SES.exId)?getEx(SES.exId).pattern:"");}
-async function micToggle(){
-  if(MIC.on){micOff();return;}
-  if(!ensureCtx()) return;
+async function micStart(){
+  if(MIC.on) return true;
+  if(!ensureCtx()) return false;
   try{
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error("no");
     MIC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-  }catch(e){toast("المايك مو متاح هنا. افتح البرنامج من نسخته المثبتة على التاب.");return;}
+  }catch(e){toast("المايك مو متاح. افتح البرنامج من نسخته المثبتة واسمح بالمايك.");$("measOn").checked=false;S.settings.measure=false;save();return false;}
   MIC.src=ctx.createMediaStreamSource(MIC.stream);
-  MIC.sp=ctx.createScriptProcessor(1024,1,1);
-  MIC.pp=ctx.createScriptProcessor(2048,1,1);
   MIC.sink=ctx.createGain();MIC.sink.gain.value=0;MIC.sink.connect(ctx.destination);
-  MIC.sp.connect(MIC.sink);MIC.pp.connect(MIC.sink);
-  MIC.src.connect(MIC.pp);
-  buildDetChain();
-  MIC.sp.onaudioprocess=micProcess;
-  MIC.pp.onaudioprocess=pitchProcess;
-  MIC.on=true;syncMicUI();
-  requestAnimationFrame(meterLoop);
+  MIC.sp=ctx.createScriptProcessor(1024,1,1);MIC.sp.onaudioprocess=e=>frames(e,"fr");MIC.sp.connect(MIC.sink);
+  MIC.spC=ctx.createScriptProcessor(1024,1,1);MIC.spC.onaudioprocess=e=>frames(e,"cfr");MIC.spC.connect(MIC.sink);
+  buildChains();MIC.on=true;requestAnimationFrame(meterLoop);return true;
 }
-// detection band: with headphones listen to the pick attack (high band); on speaker listen below 700 Hz so the (high) click is ignored
-function buildDetChain(){
-  if(!MIC.src) return;
-  (MIC.filt||[]).forEach(f=>{try{f.disconnect();}catch(e){}});
-  try{MIC.src.disconnect(MIC.filt&&MIC.filt[0]);}catch(e){}
-  const mk=(type,f)=>{const b=ctx.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=0.707;return b;};
-  MIC.filt=S.settings.monitor==="speaker"?[mk("lowpass",700),mk("lowpass",700)]:[mk("highpass",1500)];
-  let n=MIC.src;MIC.filt.forEach(f=>{n.connect(f);n=f;});n.connect(MIC.sp);
-  MIC.fr=null;MIC.sq=null;
-}
-function syncMicUI(){
-  ["micBtn","micBtn2"].forEach(id=>{const b=$(id);if(!b) return;b.textContent=MIC.on?"إطفاء المايك":"تشغيل المايك";b.classList.toggle("primary",MIC.on);});
-  $("calBtn").disabled=!MIC.on;$("measReset").disabled=!MIC.on;$("mState").textContent=MIC.on?"يسمعك":"المايك مطفي";
-  if(!MIC.on){$("meterBar").style.width="0";}
-}
-let setMonitor=function(v){
-  S.settings.monitor=v;save();
-  if(outHP) outHP.frequency.value=v==="speaker"?1800:10;
-  if(MIC.on) buildDetChain();
-  document.querySelectorAll("#monSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mon===v));
-  MIC.pairs=[];showCal();
-};
-function micOff(){
-  try{MIC.sp.disconnect();MIC.pp.disconnect();MIC.src.disconnect();(MIC.filt||[]).forEach(f=>f.disconnect());}catch(e){}
+function micStop(){
+  try{MIC.sp.disconnect();MIC.spC.disconnect();MIC.src.disconnect();(MIC.filt||[]).forEach(f=>f.disconnect());}catch(e){}
   if(!(rec&&rec.state==="recording")){try{MIC.stream.getTracks().forEach(t=>t.stop());}catch(e){}MIC.stream=null;}
-  MIC.on=false;MIC.calibrating=false;MIC.src=null;MIC.filt=null;syncMicUI();
+  MIC.on=false;MIC.src=null;MIC.filt=null;$("meterBar").style.width="0";setRing("off");
 }
-function micProcess(e){
+function buildChains(){
+  if(!MIC.src) return;
+  (MIC.filt||[]).forEach(f=>{try{f.disconnect();}catch(e){}});try{MIC.src.disconnect();}catch(e){}
+  const mk=(type,f)=>{const b=ctx.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=0.707;return b;};
+  const spk=S.settings.monitor==="speaker";
+  const oud=spk?[mk("lowpass",700),mk("lowpass",700)]:[mk("highpass",1500)], clk=[mk("highpass",1800)];
+  let n=MIC.src;oud.forEach(f=>{n.connect(f);n=f;});n.connect(MIC.sp);
+  n=MIC.src;clk.forEach(f=>{n.connect(f);n=f;});n.connect(MIC.spC);
+  MIC.filt=oud.concat(clk);MIC.fr=null;MIC.cfr=null;MIC.st={};
+}
+function frames(e,key){
   const x=e.inputBuffer.getChannelData(0),sr=ctx.sampleRate,N=x.length,hop=128,W=256;
-  const tBlock=e.playbackTime-N/sr;
-  if(!MIC.sq){MIC.sq=new Float32Array(W);MIC.qi=0;MIC.acc=0;MIC.fr=[];}
-  for(let h=0;h<N;h+=hop){
-    let p=0;
-    for(let i=h;i<h+hop&&i<N;i++){const v=x[i]*x[i];MIC.acc+=v-MIC.sq[MIC.qi];MIC.sq[MIC.qi]=v;MIC.qi=(MIC.qi+1)%W;const a=Math.abs(x[i]);if(a>p) p=a;}
-    MIC.level=Math.max(p,MIC.level*0.97);
-    MIC.fr.push({t:tBlock+(h+hop-W/2)/sr,e:Math.sqrt(Math.max(MIC.acc,0)/W),p});
-  }
-  if(MIC.fr.length>2400) MIC.fr.splice(0,800);
+  const tBlock=e.playbackTime-N/sr; MIC.st=MIC.st||{};
+  let st=MIC.st[key]; if(!st||!MIC[key]){st=MIC.st[key]={sq:new Float32Array(W),qi:0,acc:0};MIC[key]=[];}
+  const out=MIC[key];
+  for(let h=0;h<N;h+=hop){let p=0;
+    for(let i=h;i<h+hop&&i<N;i++){const v=x[i]*x[i];st.acc+=v-st.sq[st.qi];st.sq[st.qi]=v;st.qi=(st.qi+1)%W;const a=Math.abs(x[i]);if(a>p) p=a;}
+    if(key==="fr") MIC.level=Math.max(p,MIC.level*0.97);
+    out.push({t:tBlock+(h+hop-W/2)/sr,e:Math.sqrt(Math.max(st.acc,0)/W),p});}
+  if(out.length>2400) out.splice(0,800);
 }
-// analyse each metronome pulse inside its own time window (guided by the click grid)
+// strongest energy rise inside [a,b]
+function riseIn(fr,a,b,minRise,ratio){
+  let bi=-1,bd=0,emin=1;
+  for(let i=1;i<fr.length;i++){if(fr[i].t<a) continue;if(fr[i].t>b) break;emin=Math.min(emin,fr[i].e);const d=fr[i].e-fr[i-1].e;if(d>bd){bd=d;bi=i;}}
+  if(bi<0||bd<minRise||fr[bi].e<emin*ratio) return -1;
+  return bi;
+}
+function curPat(){const ex=SES.exId&&getEx(SES.exId);return parsePat(ex?ex.pattern:"");}
 function analyse(){
-  if(!MIC.on||!M.hist.length||!MIC.fr||!MIC.fr.length) return;
-  const lastT=MIC.fr[MIC.fr.length-1].t, cal=MIC.calibrating?0:(calVal()!=null?calVal():0.05);
+  if(!MIC.on||MIC.checking||!M.hist.length||!MIC.fr||!MIC.fr.length) return;
+  const fr=MIC.fr,lastT=fr[fr.length-1].t, cal=MIC.calibrating?0:(calVal()!=null?calVal():0.05);
   while(MIC.hi<M.hist.length){
-    const h=M.hist[MIC.hi], pl=h.pl;
+    const h=M.hist[MIC.hi],pl=h.pl;
     const a=MIC.calibrating?h.t-0.15*pl:h.t+cal-0.45*pl, b=MIC.calibrating?h.t+0.8*pl:h.t+cal+0.45*pl;
     if(b+0.03>lastT) break;
     MIC.hi++;
-    const fr=MIC.fr;let bi=-1,bd=0,emin=1;
-    for(let i=1;i<fr.length;i++){if(fr[i].t<a) continue;if(fr[i].t>b) break;emin=Math.min(emin,fr[i].e);const d=fr[i].e-fr[i-1].e;if(d>bd){bd=d;bi=i;}}
-    if(bi<0||bd<0.0012||fr[bi].e<emin*1.3) continue;
+    const bi=riseIn(fr,a,b,0.0012,1.3); if(bi<0) continue;
     let pk=0;for(let i=bi;i<fr.length&&fr[i].t<fr[bi].t+0.03;i++) pk=Math.max(pk,fr[i].p);
     const raw=fr[bi].t-h.t;
-    if(MIC.calibrating){MIC.calRaw.push(raw);$("mState").textContent="معايرة: "+MIC.calRaw.length+" / 12";
-      if(MIC.calRaw.length>=12){const q=MIC.calRaw.slice().sort((p,r)=>p-r);setCal(q[6]);endCalib();toast("تمت المعايرة");}
+    if(MIC.calibrating){MIC.calRaw.push(raw);ovSub("معايرة: "+MIC.calRaw.length+" / 12");
+      if(MIC.calRaw.length>=12){const q=MIC.calRaw.slice().sort((p,r)=>p-r);S.settings[calKey()]=q[6];save();endCalib(true);}
       continue;}
-    const toks=curPat(); const tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
-    const dv=raw-cal;
-    MIC.pairs.push({dev:dv,peak:pk,s:tk.s,muted:h.muted,t:h.t});
+    if(h.bar<1) continue; // first bar = warm-up
+    const toks=curPat(),tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
+    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm});
     if(MIC.pairs.length>4000) MIC.pairs.splice(0,1000);
-    if(Math.abs(dv)<=0.025){MIC.combo++;MIC.bestCombo=Math.max(MIC.bestCombo,MIC.combo);}else MIC.combo=0;
-    autoLevel();
   }
 }
 setInterval(analyse,100);
+
+/* automatic latency check (speaker mode): 8 quiet clicks, the mic hears them, no playing needed */
+function autoCheck(){
+  return new Promise(res=>{
+    if(!ensureCtx()){res(false);return;}
+    MIC.checking=true;ovOpen("لحظة… نضبط الصوت","لا تعزف لين تخلص النقرات");
+    const t0=ctx.currentTime+0.3,times=[];
+    for(let i=0;i<8;i++){const t=t0+i*0.45;times.push(t);click("A",Math.max(0.6,S.settings.vA/100),t);}
+    setTimeout(()=>{
+      const fr=MIC.cfr||[],lats=[];
+      times.forEach(t=>{const bi=riseIn(fr,t,t+0.4,0.002,2);if(bi>=0) lats.push(fr[bi].t-t);});
+      MIC.checking=false;ovClose();
+      if(lats.length>=5){lats.sort((a,b)=>a-b);const med=lats[lats.length>>1],iqr=lats[Math.floor(lats.length*0.75)]-lats[Math.floor(lats.length*0.25)];
+        if(iqr<0.02){S.settings.calib=med;save();showCal();res(true);return;}}
+      toast("ما قدرت أضبط الصوت تلقائياً. ارفع صوت التاب، أو سوّ معايرة يدوية من إعدادات القياس.");res(false);
+    },t0*1000-ctx.currentTime*1000+8*450+500);
+  });
+}
 function startCalib(){
-  MIC.saved={bpm:S.settings.bpm,sub:S.settings.sub,num:S.settings.num,den:S.settings.den};
-  if(M.playing) stop();
-  setBpm(60);setSub(1);
-  MIC.calibrating=true;MIC.calRaw=[];$("mState").textContent="معايرة: اعزف مع كل نبضة";start();
+  MIC.saved={bpm:S.settings.bpm,sub:S.settings.sub};if(M.playing) stop();
+  setBpm(60);setSub(1);MIC.calibrating=true;MIC.calRaw=[];
+  ovOpen("معايرة يدوية","اعزف على وتر فاضي مع كل نبضة (12 نبضة)",true);start();
 }
-function endCalib(){
-  MIC.calibrating=false;MIC.pairs=[];stop();
+function endCalib(ok){
+  MIC.calibrating=false;MIC.pairs=[];if(M.playing) stop();
   if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}
-  showCal();$("mState").textContent="يسمعك";
+  ovClose();showCal();if(ok) toast("تمت المعايرة");
 }
+function showCal(){const c=calVal();$("calInfo").textContent=c!=null?"التأخير المحفوظ: "+Math.round(c*1000)+" ms":"ما فيه معايرة محفوظة";}
+function setMonitor(v){
+  S.settings.monitor=v;save();
+  if(outHP) outHP.frequency.value=v==="speaker"?1800:10;
+  if(MIC.on) buildChains();
+  $$("#monSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mon===v));
+  $("monHint").innerHTML=v==="speaker"
+    ?"صوت المترونوم يصير حاد، والبرنامج يسمع العود في المنطقة المنخفضة بس، فما يخلط بينهم. التأخير ينضبط تلقائياً أول مرة."
+    :"البرنامج يسمع ضربة الريشة نفسها، فيكون أدق. سوّ معايرة يدوية لكل سماعة، والبلوتوث بالذات يحتاجها.";
+  MIC.pairs=[];showCal();
+}
+
+/* ================= stats ================= */
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 function measStats(list){
-  list=list||MIC.pairs; if(list.length<4) return null;
-  const devs=list.map(p=>p.dev*1000), mean=devs.reduce((a,b)=>a+b,0)/devs.length;
-  const std=Math.sqrt(devs.reduce((a,b)=>a+(b-mean)*(b-mean),0)/devs.length);
-  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  list=list||MIC.pairs; if(list.length<8) return null;
+  const devs=list.map(p=>p.dev*1000), mean=avg(devs), std=Math.sqrt(avg(devs.map(d=>(d-mean)*(d-mean))));
   const dn=list.filter(p=>p.s==="∧"), up=list.filter(p=>p.s==="∨");
-  let bal=null; if(dn.length>=3&&up.length>=3){const md=avg(dn.map(p=>p.peak)),mu=avg(up.map(p=>p.peak));
-    bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100)};}
-  const mD=dn.length>=3?Math.round(avg(dn.map(p=>p.dev*1000))):null, mU=up.length>=3?Math.round(avg(up.map(p=>p.dev*1000))):null;
-  // drift: slope of deviation over time (ms per minute)
-  let drift=null; const ts=list.filter(p=>p.t!=null);
-  if(ts.length>=16&&ts[ts.length-1].t-ts[0].t>=20){const t0=ts[0].t,xs=ts.map(p=>(p.t-t0)/60),ys=ts.map(p=>p.dev*1000),mx=avg(xs),my=avg(ys);
-    let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(ys[i]-my);den+=(x-mx)*(x-mx);});drift=den?Math.round(num/den):null;}
-  return {n:list.length,mean:Math.round(mean),std:Math.round(std),bal,cal:calVal()!=null,mD,mU,drift,combo:MIC.bestCombo};
+  let bal=null; if(dn.length>=4&&up.length>=4){const md=avg(dn.map(p=>p.peak)),mu=avg(up.map(p=>p.peak));bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100)};}
+  const mD=dn.length>=4?Math.round(avg(dn.map(p=>p.dev*1000))):null, mU=up.length>=4?Math.round(avg(up.map(p=>p.dev*1000))):null;
+  let drift=null;
+  if(list.length>=16&&list[list.length-1].t-list[0].t>=20){const t0=list[0].t,xs=list.map(p=>(p.t-t0)/60),mx=avg(xs),my=mean;let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(devs[i]-my);den+=(x-mx)*(x-mx);});drift=den?Math.round(num/den):null;}
+  // weakest tempo (Auto mode): bucket by 5 BPM
+  let weakBpm=null;const bk={};list.forEach(p=>{const k=Math.round(p.bpm/5)*5;(bk[k]=bk[k]||[]).push(p.dev*1000);});
+  const ks=Object.keys(bk).filter(k=>bk[k].length>=8);
+  if(ks.length>=2){let w=null,ws=-1;ks.forEach(k=>{const m=avg(bk[k]),s=Math.sqrt(avg(bk[k].map(d=>(d-m)*(d-m))));if(s>ws){ws=s;w=k;}});weakBpm={bpm:+w,std:Math.round(ws)};}
+  return {n:list.length,mean:Math.round(mean),std:Math.round(std),bal,mD,mU,drift,weakBpm};
 }
-function showCal(){const c=calVal();$("calInfo").textContent=c!=null?"calib "+Math.round(c*1000)+" ms":"بدون معايرة";}
-function renderMeas(){
-  const st=measStats(); $("mN").textContent=MIC.pairs.length;
-  $("mCombo").textContent=MIC.combo; $("mComboD").innerHTML=`أطول سلسلة <b class="ltr">${MIC.bestCombo}</b> · حدود ±25 ms`;
-  if(!st){["mStd","mMean","mBal","mDrift"].forEach(id=>$(id).textContent="—");$("mMeanD").textContent="متقدم أو متأخر عن النبضة";renderDots();return;}
-  $("mStd").textContent="±"+st.std+" ms";
-  const lab=v=>Math.abs(v)<=5?"على النبضة":(v<0?"متقدم ":"متأخر ")+`<span class="ltr">${Math.abs(v)} ms</span>`;
-  $("mMean").innerHTML=!st.cal?`<span class="small">سوّ معايرة</span>`:lab(st.mean);
-  $("mMeanD").innerHTML=st.cal&&st.mD!=null&&st.mU!=null?`∧ <span class="ltr">${st.mD>0?"+":""}${st.mD}</span> · ∨ <span class="ltr">${st.mU>0?"+":""}${st.mU}</span> ms`:"متقدم أو متأخر عن النبضة";
-  $("mDrift").innerHTML=st.drift==null?`<span class="small">يحتاج 20 ثانية</span>`:Math.abs(st.drift)<=5?"ثابت":(st.drift<0?"تسرّع ":"تبطّئ ")+`<span class="ltr small">${Math.abs(st.drift)} ms/min</span>`;
-  if(st.bal){$("mBal").innerHTML=st.bal.pct<=8?"متوازنة":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <span class="ltr">${st.bal.pct}%</span>`;}
-  else $("mBal").textContent="—";
-  renderDots();
+// one simple light while playing: last 16 hits
+function setRing(state,txt){const r=$("ring");r.dataset.s=state;$("ringTxt").textContent=txt||({off:"القياس مطفي",wait:"اعزف…",good:"ثابت",mid:"متذبذب",bad:"بعيد عن النبضة"}[state]);}
+function live(){
+  if(view()!=="practice") return;
+  if(!MIC.on){setRing("off");$("lhint").textContent="";return;}
+  if(!M.playing){if($("ring").dataset.s==="off") setRing("wait");return;}
+  const L=MIC.pairs.slice(-16);
+  if(L.length<8){setRing("wait");$("lhint").textContent="";return;}
+  const st=measStats(L);
+  const s=st.std<=20&&Math.abs(st.mean)<=25?"good":st.std<=35&&Math.abs(st.mean)<=45?"mid":"bad";
+  setRing(s);
+  let h="";
+  if(st.bal&&st.bal.pct>=18) h=st.bal.weak+" أضعف";
+  else if(st.mean<-25) h="تستعجل شوي";
+  else if(st.mean>25) h="تتأخر شوي";
+  $("lhint").textContent=h;
 }
-function renderDots(){
-  const box=$("dots"); if(!box) return; const L=MIC.pairs.slice(-64);
-  const W=Math.max(300,box.clientWidth||700),H=120,R=60,Y=v=>H/2-Math.max(-R,Math.min(R,v))/R*(H/2-8);
-  let g=`<rect x="0" y="${Y(25)}" width="${W}" height="${Y(-25)-Y(25)}" fill="#E3EFE3"/>`+
-    `<line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" stroke="#5E554B" stroke-width="1"/>`+
-    `<text x="4" y="12" font-size="11" fill="#5E554B">متأخر</text><text x="4" y="${H-4}" font-size="11" fill="#5E554B">متقدم</text>`;
-  const step=(W-40)/64;
-  L.forEach((p,i)=>{const x=W-8-(L.length-1-i)*step;g+=`<circle cx="${x.toFixed(1)}" cy="${Y(p.dev*1000).toFixed(1)}" r="4.5" fill="${p.s==="∨"?"#155E68":"#8A3F12"}" stroke="#fff" stroke-width="1.5"/>`;});
-  box.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="توزيع آخر الضربات حول النبضة" style="display:block;max-width:100%;direction:ltr;background:#fff;border:1px solid #E2D6C4;border-radius:10px">${g}</svg>`;
-}
+setInterval(live,350);
 function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
-setInterval(()=>{if(MIC.on) renderMeas();},400);
-$("micBtn").onclick=micToggle;
-$("calBtn").onclick=()=>{if(MIC.calibrating){endCalib();return;}startCalib();};
-$("measReset").onclick=()=>{MIC.pairs=[];MIC.combo=0;MIC.bestCombo=0;renderMeas();};
-document.getElementById("monSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setMonitor(b.dataset.mon);});
-function monHint(){$("monHint").innerHTML=S.settings.monitor==="speaker"
-  ?"<b>بدون سماعة:</b> صوت المترونوم يصير حاد، والبرنامج يسمع العود في المنطقة المنخفضة بس، عشان ما يخلط بين النقرة وعزفك. خلّ التاب قريب من العود. سوّ <b>معايرة</b> أول مرة: المترونوم يشتغل على 60، واعزف على وتر فاضي مع 12 نبضة."
-  :"<b>مع سماعة:</b> البرنامج يسمع ضربة الريشة نفسها، فيكون أدق في التوقيت. سوّ <b>معايرة</b> لكل سماعة، والبلوتوث بالذات يحتاجها.";}
-const _sm=setMonitor;setMonitor=function(v){_sm(v);monHint();};
-setMonitor(S.settings.monitor||"speaker");
-showCal();
 
-/* ================= pitch: McLeod (NSDF) ================= */
-const TUN={hist:[],str:null,tab:"tune",skip:0};
-function mpm(x,sr){
-  // decimate by 2 to save CPU (oud range is well below 6 kHz)
-  const N=x.length>>1, y=new Float32Array(N); let rms=0;
-  for(let i=0;i<N;i++){y[i]=(x[2*i]+x[2*i+1])*0.5;rms+=y[i]*y[i];}
-  rms=Math.sqrt(rms/N); if(rms<0.006) return null;
-  const fs=sr/2, minT=Math.max(2,Math.floor(fs/1400)), maxT=Math.min(N-2,Math.floor(fs/55));
-  const nsdf=new Float32Array(maxT+2);
-  for(let t=minT;t<=maxT+1;t++){let r=0,m=0;for(let i=0;i<N-t;i++){const a=y[i],b=y[i+t];r+=a*b;m+=a*a+b*b;}nsdf[t]=m>0?2*r/m:0;}
-  let t=minT; while(t<maxT&&nsdf[t]>0) t++;
-  const peaks=[];let cm=-1,ci=-1;
-  for(;t<=maxT;t++){if(nsdf[t]>0){if(nsdf[t]>cm){cm=nsdf[t];ci=t;}}else if(ci>=0){peaks.push(ci);cm=-1;ci=-1;}}
-  if(ci>=0) peaks.push(ci);
-  if(!peaks.length) return null;
-  const hi=Math.max(...peaks.map(p=>nsdf[p])), p=peaks.find(q=>nsdf[q]>=0.9*hi);
-  let tau=p; const a=nsdf[p-1],b=nsdf[p],c=nsdf[p+1],d=a-2*b+c; if(d) tau=p+0.5*(a-c)/d;
-  return {f:fs/tau,clarity:b,rms};
+/* ================= practice screen ================= */
+const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
+function openPractice(id){
+  const ex=getEx(id); if(!ex) return;
+  if(M.playing) stop();
+  if(SES.exId!==id){SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];}
+  SES.active=true;
+  S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
+  const best=bestFor(id);setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
+  $("pName").textContent=ex.name;$("pGroup").textContent=ex.group||"";$("pGoal").textContent=ex.target||"—";
+  const st=ex.staff?autoStaff(ex):"";$("pStaff").innerHTML=st;$("pStaff").hidden=!st;
+  $("pPat").innerHTML=parsePat(ex.pattern).map(tokHTML).join("");
+  $("pNotes").textContent=ex.notes||"";
+  $("sessTime").textContent=fmt(SES.secs);$("measOn").checked=!!S.settings.measure;
+  setRing(MIC.on?"wait":"off");$("lhint").textContent="";renderAuto();
+  if(location.hash!=="#practice") location.hash="practice";
 }
-const W12=["C","C♯","D","E♭","E","F","F♯","G","A♭","A","B♭","B"], A12=["دو","دو دييز","ري","مي بيمول","مي","فا","فا دييز","صول","لا بيمول","لا","سي بيمول","سي"], NAT=[1,0,1,0,1,1,0,1,0,1,0,1];
-function midiOf(f){return 69+12*Math.log2(f/(S.settings.aRef||440));}
-function nameOf(m,quarter){
-  const q=quarter?Math.round(m*2)/2:Math.round(m), cents=Math.round((m-q)*100), oct=Math.floor(Math.round(q*2)/24)-1;
-  let w,a;
-  if(Number.isInteger(q)){const k=((q%12)+12)%12;w=W12[k];a=A12[k];}
-  else{const lo=Math.floor(q),k=((lo%12)+12)%12,u=(k+1)%12;
-    if(NAT[u]){w=W12[u]+"𝄳";a=A12[u]+" نصف بيمول";}else{w=W12[k]+"𝄲";a=A12[k]+" نصف دييز";}}
-  if(a==="مي نصف بيمول") a="سيكاه (مي نصف بيمول)"; if(a==="سي نصف بيمول") a="أوج (سي نصف بيمول)";
-  return {w,a,oct:Math.floor(q/12)-1,cents,q};
+async function practiceStart(){
+  if(S.settings.measure){
+    const ok=await micStart();
+    if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null) await autoCheck();
+  }
+  start();
 }
-const STRINGS=[{n:"دو قرار",m:36},{n:"فا",m:41},{n:"لا",m:45},{n:"ري",m:50},{n:"صول",m:55},{n:"دو",m:60}];
-function pitchProcess(e){
-  if(location.hash.replace("#","")!=="tuner") return;
-  if((TUN.skip=(TUN.skip+1)%2)) return;
-  const r=mpm(e.inputBuffer.getChannelData(0),ctx.sampleRate);
-  const ok=r&&r.clarity>0.85&&r.f>55&&r.f<1400;
-  if(!ok){TUN.hist=[];onPitch(null);return;}
-  TUN.hist.push(midiOf(r.f));if(TUN.hist.length>5) TUN.hist.shift();
-  const sorted=TUN.hist.slice().sort((a,b)=>a-b), m=sorted[sorted.length>>1];
-  onPitch(m,r.f);
+function fmt(sec){sec=Math.round(sec);return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
+function sessionPlay(on){
+  if(!SES.active||view()!=="practice") return;
+  if(on){SES.t0=performance.now();SES.max=Math.max(SES.max,S.settings.bpm);
+    SES.timer=setInterval(()=>{$("sessTime").textContent=fmt(SES.secs+(performance.now()-SES.t0)/1000);},500);}
+  else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);}
 }
-let lastPitchUI=0;
-function onPitch(m,f){
-  if(TUN.tab==="maq") maqPitch(m);
-  const now=performance.now(); if(now-lastPitchUI<60&&m!=null) return; lastPitchUI=now;
-  if(m==null){ if(TUN.tab==="maq") $("mqNow").textContent="—"; return; }
-  const quarter=S.settings.grid===24;
-  if(TUN.tab==="maq"){const nm=nameOf(m,true);$("mqNow").textContent=nm.w+" "+(nm.cents>0?"+":"")+nm.cents+"c";return;}
-  let nm,cents;
-  if(TUN.str!=null){const st=STRINGS[TUN.str];cents=Math.round((m-st.m)*100);nm={a:st.n,w:W12[st.m%12]+(Math.floor(st.m/12)-1)};
-    if(Math.abs(cents)>600){$("tNote").textContent=st.n;$("tWest").textContent="بعيد عن الوتر";setNeedle(null);$("tCents").textContent="— cents";return;}}
-  else{const n=nameOf(m,quarter);cents=n.cents;nm={a:n.a,w:n.w+n.oct};}
-  $("tNote").textContent=nm.a;$("tWest").textContent=nm.w;
-  $("tCents").textContent=(cents>0?"+":"")+cents+" cents";$("tHz").textContent=f?f.toFixed(1)+" Hz":"";
-  setNeedle(cents);
+function verdictItems(st,ex){
+  const it=[];const col=c=>({g:"#2F6B3A",m:"#C98A12",b:"#9B2C1F",n:"#5E554B"}[c]);
+  if(!st){it.push({c:"n",t:"ما فيه قياس لهالجلسة. شغّل <b>القياس بالمايك</b> عشان تشوف ثباتك."});return {it,tip:null,col};}
+  const sv=st.std<=15?["g","ممتاز"]:st.std<=25?["m","زين"]:["b","يحتاج شغل"];
+  it.push({c:sv[0],t:`ثبات التوقيت <b class="ltr">±${st.std} ms</b> — ${sv[1]}`});
+  it.push({c:Math.abs(st.mean)<=15?"g":Math.abs(st.mean)<=35?"m":"b",t:Math.abs(st.mean)<=15?"توقيتك على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${-st.mean} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${st.mean} ms</b>`});
+  if(st.mD!=null&&st.mU!=null&&Math.abs(st.mD-st.mU)>=12){const late=st.mU>st.mD?"∨":"∧";it.push({c:"m",t:`<span class="ltr">${late}</span> متأخرة عن الثانية بحوالي <b class="ltr">${Math.abs(st.mD-st.mU)} ms</b>`});}
+  if(st.bal) it.push({c:st.bal.pct<=10?"g":st.bal.pct<=20?"m":"b",t:st.bal.pct<=10?"الريشة متوازنة بين ∧ و∨":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`});
+  if(st.drift!=null&&Math.abs(st.drift)>8) it.push({c:"m",t:st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});
+  if(st.weakBpm) it.push({c:"m",t:`أضعف سرعة عندك كانت حوالي <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
+  let tip;
+  if(st.bal&&st.bal.pct>20) tip=`ركّز على قوة ${st.bal.weak}، وجرّب تمرين الضغوط بحيث يكون الأكسنت عليها.`;
+  else if(st.std>25) tip="نزّل السرعة 8 BPM، وخل الريشة ترتاح لين يثبت التوقيت.";
+  else if(st.mean<-35) tip="لا تسبق النبضة. استرخِ وخلها تجيك.";
+  else if(st.drift!=null&&Math.abs(st.drift)>8) tip="جرّب الصمت المتقطع من المدرّب عشان تثبت السرعة في داخلك.";
+  else tip=`ممتاز. ارفع السرعة 4 BPM المرة الجاية${ex&&ex.target?` (هدفك ${ex.target})`:""}.`;
+  return {it,tip,col};
 }
-function setNeedle(c){const nd=$("needle");if(c==null){nd.setAttribute("x1",280);nd.setAttribute("x2",280);nd.setAttribute("stroke","#B9AB97");return;}
-  const x=280+Math.max(-50,Math.min(50,c))*5;nd.setAttribute("x1",x);nd.setAttribute("x2",x);nd.setAttribute("stroke",Math.abs(c)<=5?"#2F6B3A":Math.abs(c)<=15?"#8A5A00":"#9B2C1F");}
-function initTuner(){
-  let tk="";for(let c=-50;c<=50;c+=10){const x=280+c*5;tk+=`<line x1="${x}" x2="${x}" y1="${c%50===0||c===0?30:36}" y2="44" stroke="#5E554B"/><text x="${x}" y="64" text-anchor="middle" font-size="12" fill="#5E554B">${c}</text>`;}
-  $("ticks").innerHTML=tk;
-  $("aRef").value=S.settings.aRef;$("aRef").onchange=()=>{S.settings.aRef=+$("aRef").value||440;save();};
-  const setGrid=g=>{S.settings.grid=g;save();document.querySelectorAll("#gridSeg button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.g===g));};
-  setGrid(S.settings.grid||24);$("gridSeg").onclick=e=>{const b=e.target.closest("button");if(b) setGrid(+b.dataset.g);};
-  const renderStr=()=>{$("strChips").innerHTML=`<button class="chip" data-s="" aria-pressed="${TUN.str==null}">تلقائي</button>`+STRINGS.map((st,i)=>`<button class="chip" data-s="${i}" aria-pressed="${TUN.str===i}">${st.n} <span class="ltr small">${W12[st.m%12]}${Math.floor(st.m/12)-1}</span></button>`).join("");};
-  renderStr();$("strChips").onclick=e=>{const b=e.target.closest("button");if(!b) return;TUN.str=b.dataset.s===""?null:+b.dataset.s;renderStr();};
-  $("tunTabs").onclick=e=>{const b=e.target.closest("button");if(!b) return;TUN.tab=b.dataset.t;
-    document.querySelectorAll("#tunTabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));
-    $("tunePane").hidden=TUN.tab!=="tune";$("maqPane").hidden=TUN.tab!=="maq";};
-  $("micBtn2").onclick=micToggle;
-  initMaq();
+function saveSessionDialog(){
+  if(M.playing) stop();
+  if(SES.secs<5){toast("ابدأ التمرين أول");return;}
+  const ex=getEx(SES.exId),st=measStats(),v=verdictItems(st,ex);
+  openModal(`<h2 id="mTitle">نتيجة الجلسة — ${esc(ex?ex.name:"")}</h2>
+   <div class="row small muted">المدة <b class="ltr">${fmt(SES.secs)}</b>${st?` · <b class="ltr">${st.n}</b> ضربة مقاسة`:""}</div>
+   <div class="res">${v.it.map(i=>`<div class="it"><span class="dot" style="background:${v.col(i.c)}"></span><span>${i.t}</span></div>`).join("")}</div>
+   ${v.tip?`<div class="tip">${v.tip}</div>`:""}
+   <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300" value="${SES.max||S.settings.bpm}"></label>
+   <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
+   <label class="f">ملاحظات<textarea id="fNotes"></textarea></label>
+   <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" id="fDrop">حذف الجلسة</button><button class="btn ghost" data-close>رجوع</button></div>`);
+  $("fSave").onclick=()=>{stopRec(false).then(()=>{
+    const before=recordsFor(SES.exId);
+    S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,drift:st.drift}:null});
+    save();closeModal();
+    const after=recordsFor(SES.exId),news=[];
+    if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
+    if(after.std!=null&&before.std!=null&&after.std<before.std) news.push("أفضل ثبات ±"+after.std+" ms");
+    toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت الجلسة");
+    SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];$("sessTime").textContent="00:00";renderLibrary();renderProgress();
+  });};
+  $("fDrop").onclick=()=>{stopRec(true);SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];$("sessTime").textContent="00:00";closeModal();toast("انحذفت الجلسة");};
 }
+$("sessSave").onclick=saveSessionDialog;
+$("measOn").onchange=async()=>{S.settings.measure=$("measOn").checked;save();
+  if(S.settings.measure){const ok=await micStart();if(ok){setRing(M.playing?"wait":"wait");if(S.settings.monitor==="speaker"&&S.settings.calib==null&&!M.playing) autoCheck();}}
+  else micStop();};
+$("monSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setMonitor(b.dataset.mon);});
+$("calBtn").onclick=async()=>{if(!(await micStart())) return;startCalib();};
+$("pGoalEdit").onclick=()=>goalDialog(SES.exId);
 
-/* ================= maqam trainer ================= */
-const MAQ=[
- {n:"عجم",c:[0,200,400,500,700,900,1100,1200],t:0},
- {n:"نهاوند",c:[0,200,300,500,700,800,1100,1200],t:0},
- {n:"كرد",c:[0,100,300,500,700,800,1000,1200],t:2},
- {n:"حجاز",c:[0,100,400,500,700,800,1000,1200],t:2},
- {n:"راست",c:[0,200,350,500,700,900,1050,1200],t:0},
- {n:"بياتي",c:[0,150,300,500,700,800,1000,1200],t:2},
- {n:"صبا",c:[0,150,300,400,700,800,1000,1200],t:2}
-];
-const MQ={maq:0,tonic:0,seq:[],idx:0,res:[],running:false,cand:null,since:0,done:false};
-function initMaq(){
-  $("mqSel").innerHTML=MAQ.map((q,i)=>`<option value="${i}">${q.n}</option>`).join("");
-  $("mqTonic").innerHTML=A12.map((a,i)=>`<option value="${i}">${a} (${W12[i]})</option>`).join("");
-  $("mqSel").onchange=()=>{MQ.maq=+$("mqSel").value;$("mqTonic").value=MAQ[MQ.maq].t;MQ.tonic=MAQ[MQ.maq].t;resetMaq();};
-  $("mqTonic").onchange=()=>{MQ.tonic=+$("mqTonic").value;resetMaq();};
-  $("mqRand").onclick=()=>{MQ.tonic=Math.floor(Math.random()*12);$("mqTonic").value=MQ.tonic;resetMaq();startMaq();};
-  $("mqGo").onclick=()=>{MQ.running?resetMaq():startMaq();};
-  resetMaq();renderRuns();
-}
-const LET=["C","D","E","F","G","A","B"],LETA=["دو","ري","مي","فا","صول","لا","سي"],LETPC=[0,2,4,5,7,9,11];
-const TONLET=[0,0,1,2,2,3,3,4,5,5,6,6];
-// name each scale degree on its own letter (so صبا shows صول بيمول, not فا دييز)
-function degName(cents,i){
-  if(i==null) i=MQ.deg?MQ.deg[MQ.seq.indexOf(cents)]:0;
-  const L=(TONLET[MQ.tonic]+i)%7, pc=((MQ.tonic*100+cents)%1200+1200)%1200;
-  const diff=Math.round(((pc-LETPC[L]*100+1800)%1200)-600);
-  const acc={0:["",""],"-100":["♭"," بيمول"],"100":["♯"," دييز"],"-50":["𝄳"," نصف بيمول"],"50":["𝄲"," نصف دييز"],"-200":["𝄫"," دبل بيمول"],"200":["𝄪"," دبل دييز"]}[diff]||["",""];
-  let a=LETA[L]+acc[1]; if(a==="مي نصف بيمول") a="سيكاه"; if(a==="سي نصف بيمول") a="أوج";
-  return {a,w:LET[L]+acc[0]};
-}
-function resetMaq(){
-  const q=MAQ[MQ.maq];MQ.seq=q.c.concat(q.c.slice(0,-1).reverse());MQ.deg=[0,1,2,3,4,5,6,7,6,5,4,3,2,1,0];MQ.idx=0;MQ.res=[];MQ.running=false;MQ.cand=null;
-  $("mqGo").textContent="ابدأ";$("mqSum").innerHTML="";$("mqMsg").textContent="";
-  $("mqPrompt").innerHTML=`اضغط <b>ابدأ</b>، وبعدين اعزف <b>${q.n}</b> من <b>${A12[MQ.tonic]}</b> طالع ونازل، نغمة نغمة.`;
-  renderDegs();
-}
-function startMaq(){
-  if(!MIC.on){toast("شغّل المايك أول");}
-  resetMaq();MQ.running=true;$("mqGo").textContent="إعادة";
-  $("mqPrompt").innerHTML=`اعزف <b>${MAQ[MQ.maq].n}</b> من <b>${A12[MQ.tonic]}</b>. النغمة المطلوبة عليها إطار.`;
-  renderDegs();
-}
-function renderDegs(){
-  $("mqDegs").innerHTML=MQ.seq.map((c,i)=>{const n=degName(c,MQ.deg[i]),r=MQ.res[i];
-    const cls=r?(Math.abs(r)<=15?"g":Math.abs(r)<=35?"o":"r"):(MQ.running&&i===MQ.idx?"next":"");
-    return `<div class="deg ${cls}"><span class="n">${esc(n.a)}</span><span class="w">${n.w}</span><span class="c">${r!=null?(r>0?"+":"")+r+"c":""}</span></div>`;}).join("");
-}
-function maqPitch(m){
-  if(!MQ.running) return;
-  if(m==null){MQ.cand=null;MQ.done=false;return;}
-  const now=performance.now();
-  if(MQ.cand==null||Math.abs(m-MQ.cand)>0.3){MQ.cand=m;MQ.since=now;MQ.done=false;return;}
-  MQ.cand=MQ.cand*0.7+m*0.3;
-  if(MQ.done||now-MQ.since<150) return;
-  MQ.done=true;
-  const T=((MQ.tonic*100+MQ.seq[MQ.idx])%1200+1200)%1200, P=((MQ.cand*100)%1200+1200)%1200;
-  const dev=Math.round(((P-T+1800)%1200)-600);
-  if(Math.abs(dev)<=60){MQ.res[MQ.idx]=dev;MQ.idx++;$("mqMsg").textContent="";
-    if(MQ.idx>=MQ.seq.length){finishMaq();}
-    renderDegs();}
-  else{const want=degName(MQ.seq[MQ.idx],MQ.deg[MQ.idx]),got=nameOf(MQ.cand,true);$("mqMsg").innerHTML=`المطلوب <b>${esc(want.a)}</b>، وعزفت <b>${esc(got.a)}</b>`;}
-}
-function finishMaq(){
-  MQ.running=false;$("mqGo").textContent="ابدأ";
-  const abs=MQ.res.map(Math.abs),avg=Math.round(abs.reduce((a,b)=>a+b,0)/abs.length),wi=abs.indexOf(Math.max(...abs));
-  const worst=degName(MQ.seq[wi],MQ.deg[wi]);
-  $("mqSum").innerHTML=`<div class="meas"><div class="mt"><div class="k">متوسط الانحراف</div><div class="v ltr">${avg}c</div><div class="d">${avg<=10?"ممتاز":avg<=20?"زين":"يحتاج تمرين"}</div></div><div class="mt"><div class="k">أبعد نغمة</div><div class="v">${esc(worst.a)}</div><div class="d ltr">${MQ.res[wi]>0?"+":""}${MQ.res[wi]}c</div></div></div>`;
-  $("mqPrompt").innerHTML="خلصت! اضغط <b>نغمة عشوائية</b> عشان تختبر نفسك من قرار ثاني.";
-  S.maqRuns=(S.maqRuns||[]);S.maqRuns.push({d:new Date().toISOString(),m:MAQ[MQ.maq].n,t:MQ.tonic,avg,worst:worst.a});if(S.maqRuns.length>40) S.maqRuns.shift();save();renderRuns();
-}
-function renderRuns(){
-  const L=(S.maqRuns||[]).slice().reverse().slice(0,8);
-  $("mqRuns").innerHTML=L.length?`<table><thead><tr><th>التاريخ</th><th>المقام</th><th>القرار</th><th>متوسط الانحراف</th><th>أبعد نغمة</th></tr></thead><tbody>${L.map(r=>`<tr><td>${fmtDay(new Date(r.d))}</td><td>${esc(r.m)}</td><td>${A12[r.t]}</td><td class="num">${r.avg}c</td><td>${esc(r.worst)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">ما فيه محاولات للحين.</div>`;
-}
+/* ================= overlay ================= */
+function ovOpen(t,s,cancel){$("ovT").textContent=t;$("ovS").innerHTML=esc(s)+(cancel?`<br><button class="btn" id="ovCancel" style="margin-top:12px">إلغاء</button>`:"");$("overlay").classList.add("open");if(cancel) $("ovCancel").onclick=()=>endCalib(false);}
+function ovSub(s){const e=$("ovS");if(e.firstChild) e.firstChild.textContent=s;}
+function ovClose(){$("overlay").classList.remove("open");}
 
 /* ================= recording ================= */
 let rec=null,recChunks=[],recStream=null;
@@ -975,76 +821,90 @@ async function toggleRec(){
     recStream=MIC.on&&MIC.stream?MIC.stream:await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
     recChunks=[];rec=new MediaRecorder(recStream);rec.ondataavailable=e=>{if(e.data.size) recChunks.push(e.data);};rec.start();
     $("recLbl").textContent="إيقاف التسجيل";$("recBtn").classList.add("primary");
-  }catch(e){toast("الميكروفون مو متاح في هذي النسخة. التسجيل بيشتغل لما نثبّت التطبيق على التاب.");}
+  }catch(e){toast("التسجيل يحتاج المايك. افتح البرنامج من نسخته المثبتة.");}
 }
 function stopRec(discard){
   return new Promise(res=>{
     if(!rec||rec.state!=="recording"){res();return;}
     rec.onstop=async()=>{if(!MIC.on||recStream!==MIC.stream){try{recStream.getTracks().forEach(t=>t.stop());}catch(e){}}
-      if(!discard&&recChunks.length){const id=uid();try{await putRec(id,new Blob(recChunks,{type:rec.mimeType||"audio/webm"}));SES.recId=id;toast("انحفظ التسجيل مع الجلسة");}catch(e){toast("ما قدرت أحفظ التسجيل في هذا المتصفح");}}
+      if(!discard&&recChunks.length){const id=uid();try{await putRec(id,new Blob(recChunks,{type:rec.mimeType||"audio/webm"}));SES.recId=id;}catch(e){toast("ما قدرت أحفظ التسجيل في هذا الجهاز");}}
       rec=null;$("recLbl").textContent="تسجيل";$("recBtn").classList.remove("primary");res();};
     rec.stop();
   });
 }
+$("recBtn").onclick=toggleRec;
 
 /* ================= library ================= */
 function renderLibrary(){
-  const exs=allEx(),groups={};exs.forEach(e=>{(groups[e.group||"تمارين خاصة"]=groups[e.group||"تمارين خاصة"]||[]).push(e);});
+  const exs=allEx(),groups={};exs.forEach(e=>{const g=e.group||"تمارين خاصة";(groups[g]=groups[g]||[]).push(e);});
   let h="";
   Object.keys(groups).forEach(g=>{
     h+=`<div class="group-title">${esc(g)} <span class="tag ltr">${groups[g].length}</span></div><div class="cards">`;
-    groups[g].forEach(e=>{const best=bestFor(e.id),pct=e.target?Math.min(100,Math.round(best/e.target*100)):0;
-      const toks=parsePat(e.pattern).slice(0,10).map(t=>`<span style="color:${t.s==="∧"?DOWN:t.s==="∨"?UP:INK}">${esc(t.s)}${t.a?"&gt;":""}</span>`).join("");
+    groups[g].forEach(e=>{const r=recordsFor(e.id),pct=e.target?Math.min(100,Math.round(r.bpm/e.target*100)):0,lv=levelFor(e);
+      const toks=parsePat(e.pattern).slice(0,10).map(t=>`<span style="color:${t.s==="∧"?"#8A3F12":t.s==="∨"?"#155E68":"#221C16"}">${esc(t.s)}${t.a?"&gt;":""}</span>`).join("");
       h+=`<div class="card ex">
-        <div class="row"><span class="t">${esc(e.name)}</span><span class="tag" style="margin-right:auto">${esc(e.type||"")}</span></div>
+        <div class="row"><span class="t">${esc(e.name)}</span><span class="tag" style="margin-right:auto;background:#fff;border:1.5px solid ${lv.c};color:${lv.c}">${lv.t}</span></div>
         <div class="mini">${toks}</div>
-        <div class="small muted">الوزن <b class="ltr">${e.num}/${e.den}</b> · التقسيم <b class="ltr">${e.sub}</b> · من <b class="ltr">${e.start}</b> إلى <b class="ltr">${e.target}</b> BPM</div>
-        ${(()=>{const lv=levelFor(e),r=recordsFor(e.id);return `<div class="row small"><span class="tag" style="background:#fff;border:1.5px solid ${lv.c};color:${lv.c}">${lv.t}</span><span>أفضل سرعة <b class="ltr">${r.bpm||"—"}</b></span>${r.std!=null?`<span>ثبات <b class="ltr">±${r.std}</b></span>`:""}${r.combo?`<span>سلسلة <b class="ltr">${r.combo}</b></span>`:""}<span class="muted ltr" style="margin-right:auto">${pct}%</span></div>`;})()}
+        <div class="row small"><span>الهدف <b class="ltr">${e.target||"—"}</b> BPM</span><span>أفضل سرعة <b class="ltr">${r.bpm||"—"}</b></span>${r.std!=null?`<span>ثبات <b class="ltr">±${r.std}</b></span>`:""}<span class="muted ltr" style="margin-right:auto">${pct}%</span></div>
         <div class="prog" aria-hidden="true"><i style="width:${pct}%"></i></div>
-        <div class="row"><button class="btn primary" data-go="${e.id}">تمرّن</button><button class="btn ghost" data-edit="${e.id}">تعديل</button>${e.seed?"":`<button class="btn danger" data-del="${e.id}">حذف</button>`}</div>
+        <div class="row"><button class="btn primary" data-go="${e.id}">تمرّن</button><button class="btn ghost" data-goal="${e.id}">الهدف</button><button class="btn ghost" data-edit="${e.id}">تعديل</button>${e.seed?"":`<button class="btn danger" data-del="${e.id}">حذف</button>`}</div>
       </div>`;});
     h+="</div>";
   });
   $("libList").innerHTML=h;
 }
+function saveExField(id,obj){
+  const ex=getEx(id);if(!ex) return;
+  if(ex.seed) S.over[id]=Object.assign({},S.over[id]||{},obj);
+  else{const i=S.custom.findIndex(c=>c.id===id);if(i>=0) Object.assign(S.custom[i],obj);}
+  save();
+}
+function goalDialog(id){
+  const ex=getEx(id);if(!ex) return;
+  openModal(`<h2 id="mTitle">هدف التمرين — ${esc(ex.name)}</h2>
+   <div class="row"><label class="f">تبدأ من (BPM)<input type="number" id="gStart" class="ltr" min="30" max="300" value="${ex.start||60}"></label>
+   <label class="f">الهدف (BPM)<input type="number" id="gTarget" class="ltr" min="30" max="300" value="${ex.target||120}"></label></div>
+   <p class="small muted" style="margin:0">وضع Auto يغيّر السرعة بين هذين الرقمين.</p>
+   <div class="row"><button class="btn primary" id="gSave">حفظ</button><button class="btn ghost" data-close>إلغاء</button></div>`);
+  $("gSave").onclick=()=>{let a=+$("gStart").value||60,b=+$("gTarget").value||120;if(a>b){const t=a;a=b;b=t;}
+    saveExField(id,{start:a,target:b});closeModal();renderLibrary();if(SES.exId===id){$("pGoal").textContent=b;renderAuto();}toast("انحفظ الهدف");};
+}
 function exForm(ex){
   const isSeed=ex&&ex.seed; ex=ex||{name:"",group:"دروس الأستاذ",type:"ريشة",pattern:"∧ ∨",num:4,den:4,sub:2,start:60,target:120,notes:""};
   const groups=[...new Set(allEx().map(e=>e.group).concat(["دروس الأستاذ","تمارين خاصة"]))];
   openModal(`<h2 id="mTitle">${ex.id?"تعديل التمرين":"تمرين جديد"}</h2>
-   ${isSeed?`<p class="small muted" style="margin:0">هذا من تمارين الورشة: تقدر تعدّل السرعات والملاحظات.</p>`:`
+   ${isSeed?`<p class="small muted" style="margin:0">هذا من تمارين الورشة: تقدر تعدّل الملاحظات. السرعات من زر "الهدف".</p>`:`
    <label class="f">اسم التمرين<input type="text" id="eName" value="${esc(ex.name)}"></label>
    <div class="row"><label class="f" style="flex:1">المجموعة<input type="text" id="eGroup" list="glist" value="${esc(ex.group)}"><datalist id="glist">${groups.map(g=>`<option value="${esc(g)}">`).join("")}</datalist></label>
    <label class="f" style="flex:1">النوع<select id="eType">${["ريشة","يد يسرى","مقام","قطعة","إيقاع","أخرى"].map(t=>`<option ${t===ex.type?"selected":""}>${t}</option>`).join("")}</select></label></div>
    <label class="f">نمط الريشة<input type="text" id="ePat" class="ltr" value="${esc(ex.pattern)}"></label>
    <div class="inserts">${["∧","∨",">","P","|"].map(s=>`<button type="button" data-ins="${s}">${s}</button>`).join("")}<button type="button" data-ins=" " style="min-width:72px;font-size:14px">مسافة</button><button type="button" data-ins="⌫" aria-label="مسح">⌫</button></div>
    <p class="small muted" style="margin:0">كل ضربة مفصولة بمسافة. أضف <b>&gt;</b> للأكسنت، و<b>|</b> ثم اسم النغمة أو رقم الإصبع. مثال: <span class="ltr">∧|0 ∨&gt;|1</span></p>
-   <div class="row"><label class="f">الوزن<span class="row ltr"><input type="number" id="eNum" min="1" max="32" value="${ex.num}" style="width:70px">/<select id="eDen">${[2,4,8,16].map(d=>`<option ${d==ex.den?"selected":""}>${d}</option>`).join("")}</select></span></label>
-   <label class="f">التقسيم<select id="eSub" class="ltr">${[1,2,3,4].map(d=>`<option ${d==ex.sub?"selected":""}>${d}</option>`).join("")}</select></label></div>`}
+   <div class="row"><label class="f">الوزن<select id="eSig" class="ltr">${SIGS.map(x=>`<option ${x===(ex.num+"/"+ex.den)?"selected":""}>${x}</option>`).join("")}</select></label>
+   <label class="f">التقسيم<select id="eSub">${[["1","بدون"],["2","2"],["3","3 تريولا"],["4","4"]].map(([v,l])=>`<option value="${v}" ${v==ex.sub?"selected":""}>${l}</option>`).join("")}</select></label></div>
    <div class="row"><label class="f">تبدأ من (BPM)<input type="number" id="eStart" class="ltr" min="30" max="300" value="${ex.start}"></label>
-   <label class="f">الهدف (BPM)<input type="number" id="eTarget" class="ltr" min="30" max="300" value="${ex.target}"></label></div>
+   <label class="f">الهدف (BPM)<input type="number" id="eTarget" class="ltr" min="30" max="300" value="${ex.target}"></label></div>`}
    <label class="f">ملاحظات الأستاذ<textarea id="eNotes">${esc(ex.notes)}</textarea></label>
    <div class="row"><button class="btn primary" id="eSave">حفظ</button><button class="btn ghost" data-close>إلغاء</button></div>`);
-  if(!isSeed){const pat=$("ePat");document.querySelectorAll("[data-ins]").forEach(b=>b.onclick=()=>{const v=b.dataset.ins;if(v==="⌫") pat.value=pat.value.slice(0,-1);else pat.value+=(v==="∧"||v==="∨"||v==="P")&&pat.value&&!/[\s|]$/.test(pat.value)?" "+v:v;pat.focus();});}
+  if(!isSeed){const pat=$("ePat");$$("[data-ins]").forEach(b=>b.onclick=()=>{const v=b.dataset.ins;if(v==="⌫") pat.value=pat.value.slice(0,-1);else pat.value+=(v==="∧"||v==="∨"||v==="P")&&pat.value&&!/[\s|]$/.test(pat.value)?" "+v:v;pat.focus();});}
   $("eSave").onclick=()=>{
-    const start=+$("eStart").value||60,target=+$("eTarget").value||120,notes=$("eNotes").value.trim();
-    if(isSeed){S.over[ex.id]={start,target,notes};}
+    const notes=$("eNotes").value.trim();
+    if(isSeed){saveExField(ex.id,{notes});}
     else{const name=$("eName").value.trim();if(!name){toast("اكتب اسم التمرين");return;}
-      const pattern=$("ePat").value.trim()||"∧ ∨";
-      const obj={id:ex.id||uid(),name,group:$("eGroup").value.trim()||"تمارين خاصة",type:$("eType").value,pattern,num:+$("eNum").value||4,den:+$("eDen").value,sub:+$("eSub").value,start,target,notes};
+      const [n,d]=$("eSig").value.split("/");let a=+$("eStart").value||60,b=+$("eTarget").value||120;if(a>b){const t=a;a=b;b=t;}
+      const obj={id:ex.id||uid(),name,group:$("eGroup").value.trim()||"تمارين خاصة",type:$("eType").value,pattern:$("ePat").value.trim()||"∧ ∨",num:+n,den:+d,sub:+$("eSub").value,start:a,target:b,notes};
       const i=S.custom.findIndex(c=>c.id===obj.id); if(i>=0) S.custom[i]=obj; else S.custom.push(obj);}
     save();closeModal();renderLibrary();renderProgress();toast("انحفظ التمرين");
   };
 }
 $("libList").addEventListener("click",e=>{
-  const go=e.target.closest("[data-go]"),ed=e.target.closest("[data-edit]"),del=e.target.closest("[data-del]");
-  if(go) loadExercise(go.dataset.go);
+  const go=e.target.closest("[data-go]"),gl=e.target.closest("[data-goal]"),ed=e.target.closest("[data-edit]"),del=e.target.closest("[data-del]");
+  if(go) openPractice(go.dataset.go);
+  if(gl) goalDialog(gl.dataset.goal);
   if(ed) exForm(getEx(ed.dataset.edit));
   if(del) openConfirm("تحذف هذا التمرين؟ الجلسات المسجلة له تبقى في السجل.",()=>{S.custom=S.custom.filter(c=>c.id!==del.dataset.del);save();renderLibrary();renderProgress();});
 });
 $("addEx").onclick=()=>exForm(null);
-$("exClear").onclick=clearExercise;
-$("sessSave").onclick=saveSessionDialog;
-$("recBtn").onclick=toggleRec;
 
 /* ================= progress ================= */
 function dayKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
@@ -1062,53 +922,58 @@ function renderProgress(){
     const mins=Math.round(S.sessions.filter(s=>dayKey(new Date(s.date))===k).reduce((a,s)=>a+(s.dur||0),0)/60);
     w+=`<div class="day ${days.has(k)?"on":""} ${k===dayKey(now)?"today":""}">${names[i]}<div class="m ltr">${days.has(k)?mins+" min":fmtDay(d)}</div></div>`;}
   $("week").innerHTML=w;
-  // chart select
   const sel=$("chartEx"),prev=sel.value;const withS=allEx().filter(e=>S.sessions.some(s=>s.exId===e.id));
   sel.innerHTML=withS.length?withS.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(""):`<option value="">ما فيه جلسات للحين</option>`;
   if(prev&&withS.some(e=>e.id===prev)) sel.value=prev;
-  drawChart(sel.value);
-  // table
+  drawCharts(sel.value);
   const list=S.sessions.slice().reverse().slice(0,30);
-  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>مرتاح</th><th>ملاحظات</th><th>التسجيل</th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
-    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${s.meas&&s.meas.bal?(s.meas.bal.pct<=8?"متوازنة":`<span class="ltr">${s.meas.bal.weak}</span> −<span class="ltr">${s.meas.bal.pct}%</span>`):"—"}</td><td>${s.relaxed?"✓":"—"}</td><td class="small">${esc(s.notes||"")}</td><td>${s.rec?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
+  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>مرتاح</th><th>ملاحظات</th><th></th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
+    const bal=s.meas&&s.meas.bal?(s.meas.bal.pct<=10?"متوازنة":`<span class="ltr">${s.meas.bal.weak}</span> −<span class="ltr">${s.meas.bal.pct}%</span>`):"—";
+    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${bal}</td><td>${s.relaxed?"✓":"—"}</td><td class="small">${esc(s.notes||"")}</td><td>${s.rec?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
 }
-$("chartEx").addEventListener("change",e=>drawChart(e.target.value));
+$("chartEx").addEventListener("change",e=>drawCharts(e.target.value));
 $("sessTable").addEventListener("click",async e=>{
   const p=e.target.closest("[data-play]"),d=e.target.closest("[data-sdel]");
-  if(p){try{const b=await getRec(p.dataset.play);if(!b){toast("التسجيل مو موجود في هذا المتصفح");return;}const a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(b);p.replaceWith(a);a.play().catch(()=>{});}catch(err){toast("ما قدرت أشغّل التسجيل");}}
+  if(p){try{const b=await getRec(p.dataset.play);if(!b){toast("التسجيل مو موجود في هذا الجهاز");return;}const a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(b);p.replaceWith(a);a.play().catch(()=>{});}catch(err){toast("ما قدرت أشغّل التسجيل");}}
   if(d) openConfirm("تحذف هذه الجلسة؟",()=>{S.sessions=S.sessions.filter(s=>s.id!==d.dataset.sdel);save();renderProgress();renderLibrary();});
 });
-function drawChart(id){
-  const box=$("chartBox");const ex=getEx(id);
-  if(!ex){box.innerHTML=`<div class="empty">ما فيه بيانات للحين.</div>`;$("chartNote").textContent="";return;}
-  const byDay={};S.sessions.filter(s=>s.exId===id).forEach(s=>{const d=new Date(s.date);d.setHours(0,0,0,0);const k=d.getTime();byDay[k]=Math.max(byDay[k]||0,s.max||0);});
-  const pts=Object.keys(byDay).map(Number).sort((a,b)=>a-b).map(k=>({t:k,v:byDay[k]}));
-  const W=Math.max(320,box.clientWidth||800),H=260,P={l:44,r:16,t:16,b:30};
-  const vmax=Math.max(ex.target||0,...pts.map(p=>p.v))+10,vmin=Math.max(0,Math.min(ex.start||60,...pts.map(p=>p.v))-10);
-  const t0=pts[0].t,t1=pts.length>1?pts[pts.length-1].t:t0+86400000;
-  const X=t=>P.l+(t-t0)/(t1-t0||1)*(W-P.l-P.r)*(pts.length>1?1:0.5)+(pts.length>1?0:(W-P.l-P.r)/2);
-  const Y=v=>P.t+(1-(v-vmin)/(vmax-vmin))*(H-P.t-P.b);
-  let g="";const step=Math.max(10,Math.ceil((vmax-vmin)/5/10)*10);
-  for(let v=Math.ceil(vmin/step)*step;v<=vmax;v+=step){g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#E2D6C4" stroke-width="1"/><text x="${P.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#5E554B">${v}</text>`;}
-  if(ex.target) g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(ex.target)}" y2="${Y(ex.target)}" stroke="#5E554B" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W-P.r}" y="${Y(ex.target)-6}" text-anchor="end" font-size="12" fill="#5E554B">الهدف ${ex.target}</text>`;
-  const path=pts.map((p,i)=>(i?"L":"M")+X(p.t)+" "+Y(p.v)).join(" ");
-  g+=`<path d="${path}" fill="none" stroke="${DOWN}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  pts.forEach((p,i)=>{g+=`<circle cx="${X(p.t)}" cy="${Y(p.v)}" r="5" fill="${DOWN}" stroke="#fff" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.v)}" r="16" fill="transparent" data-i="${i}" style="cursor:pointer"/>`;});
-  const fl=[pts[0],pts[pts.length-1]];
-  g+=`<text x="${X(fl[0].t)}" y="${H-8}" text-anchor="${pts.length>1?"start":"middle"}" font-size="12" fill="#5E554B">${fmtDay(new Date(fl[0].t))}</text>`;
-  if(pts.length>1) g+=`<text x="${X(fl[1].t)}" y="${H-8}" text-anchor="end" font-size="12" fill="#5E554B">${fmtDay(new Date(fl[1].t))}</text>`;
-  box.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="تطور أعلى سرعة لتمرين ${esc(ex.name)}" style="direction:ltr;display:block;max-width:100%">${g}</svg><div class="tip" id="tip"></div>`;
-  const tip=$("tip");box.querySelectorAll("circle[data-i]").forEach(c=>{
-    const show=()=>{const p=pts[+c.dataset.i];tip.innerHTML=`${fmtDay(new Date(p.t))} · <b class="ltr">${p.v}</b> BPM`;tip.style.left=c.getAttribute("cx")+"px";tip.style.top=c.getAttribute("cy")+"px";tip.style.display="block";};
+function lineChart(box,pts,o){
+  if(!pts.length){box.innerHTML=`<div class="empty">${o.empty}</div>`;return;}
+  const W=Math.max(320,box.clientWidth||800),H=220,P={l:44,r:16,t:16,b:28};
+  const vals=pts.map(p=>p.v).concat(o.ref!=null?[o.ref]:[]);
+  const vmax=Math.max(...vals)+o.pad,vmin=Math.max(0,Math.min(...vals)-o.pad);
+  const t0=pts[0].t,t1=pts.length>1?pts[pts.length-1].t:t0+1;
+  const X=t=>pts.length>1?P.l+(t-t0)/(t1-t0)*(W-P.l-P.r):(P.l+W-P.r)/2;
+  const Y=v=>P.t+(1-(v-vmin)/(vmax-vmin||1))*(H-P.t-P.b);
+  let g="";const step=Math.max(o.minStep,Math.ceil((vmax-vmin)/4/o.minStep)*o.minStep);
+  for(let v=Math.ceil(vmin/step)*step;v<=vmax;v+=step){g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#E2D6C4"/><text x="${P.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#5E554B">${v}</text>`;}
+  if(o.ref!=null) g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(o.ref)}" y2="${Y(o.ref)}" stroke="#5E554B" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W-P.r}" y="${Y(o.ref)-6}" text-anchor="end" font-size="12" fill="#5E554B">${o.refLabel}</text>`;
+  g+=`<path d="${pts.map((p,i)=>(i?"L":"M")+X(p.t)+" "+Y(p.v)).join(" ")}" fill="none" stroke="${o.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i)=>{g+=`<circle cx="${X(p.t)}" cy="${Y(p.v)}" r="5" fill="${o.color}" stroke="#fff" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.v)}" r="16" fill="transparent" data-i="${i}" style="cursor:pointer"/>`;});
+  g+=`<text x="${X(pts[0].t)}" y="${H-8}" text-anchor="${pts.length>1?"start":"middle"}" font-size="12" fill="#5E554B">${fmtDay(new Date(pts[0].t))}</text>`;
+  if(pts.length>1) g+=`<text x="${X(pts[pts.length-1].t)}" y="${H-8}" text-anchor="end" font-size="12" fill="#5E554B">${fmtDay(new Date(pts[pts.length-1].t))}</text>`;
+  box.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.aria}" style="direction:ltr;display:block;max-width:100%">${g}</svg><div class="ctip"></div>`;
+  const tip=box.querySelector(".ctip");box.querySelectorAll("circle[data-i]").forEach(c=>{
+    const show=()=>{const p=pts[+c.dataset.i];tip.innerHTML=`${fmtDay(new Date(p.t))} · <b class="ltr">${o.fmt(p.v)}</b>`;tip.style.left=c.getAttribute("cx")+"px";tip.style.top=c.getAttribute("cy")+"px";tip.style.display="block";};
     c.addEventListener("mouseenter",show);c.addEventListener("click",show);c.addEventListener("mouseleave",()=>tip.style.display="none");});
-  const last=pts[pts.length-1].v,first=pts[0].v;
-  $("chartNote").innerHTML=`أفضل سرعة يومية في <b class="ltr">${pts.length}</b> يوم تمرين`+(pts.length>1?` · من <b class="ltr">${first}</b> إلى <b class="ltr">${last}</b> BPM`:"");
+}
+function drawCharts(id){
+  const ex=getEx(id);
+  if(!ex){$("chartSpeed").innerHTML=`<div class="empty">ما فيه بيانات للحين.</div>`;$("chartStab").innerHTML="";$("chartNote").textContent="";return;}
+  const sp={},stb={};
+  S.sessions.filter(s=>s.exId===id).forEach(s=>{const d=new Date(s.date);d.setHours(0,0,0,0);const k=d.getTime();
+    if(s.relaxed!==false) sp[k]=Math.max(sp[k]||0,s.max||0);
+    if(s.meas&&s.meas.n>=16) stb[k]=stb[k]==null?s.meas.std:Math.min(stb[k],s.meas.std);});
+  const toPts=o=>Object.keys(o).map(Number).sort((a,b)=>a-b).map(k=>({t:k,v:o[k]})).filter(p=>p.v>0||p.v===0);
+  const ps=toPts(sp),pt=toPts(stb);
+  lineChart($("chartSpeed"),ps,{color:"#8A3F12",ref:ex.target||null,refLabel:"الهدف "+(ex.target||""),pad:10,minStep:10,fmt:v=>v+" BPM",aria:"منحنى السرعة لتمرين "+ex.name,empty:"ما فيه جلسات محفوظة لهالتمرين."});
+  lineChart($("chartStab"),pt,{color:"#155E68",ref:null,pad:5,minStep:5,fmt:v=>"±"+v+" ms",aria:"منحنى الثبات لتمرين "+ex.name,empty:"يطلع هنا لما تحفظ جلسات مع القياس بالمايك."});
+  $("chartNote").innerHTML=ps.length>1?`من <b class="ltr">${ps[0].v}</b> إلى <b class="ltr">${ps[ps.length-1].v}</b> BPM في <b class="ltr">${ps.length}</b> يوم تمرين`:"";
 }
 $("copyData").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(S));toast("انسخت البيانات. الصقها في ملاحظة واحفظها");}catch(e){
-  openModal(`<h2 id="mTitle">نسخ البيانات</h2><p class="small muted" style="margin:0">ما قدرت أنسخ تلقائياً. حدد النص وانسخه.</p><textarea style="min-height:200px" class="ltr" readonly>${esc(JSON.stringify(S))}</textarea><button class="btn ghost" data-close>إغلاق</button>`);}};
+  openModal(`<h2 id="mTitle">نسخ البيانات</h2><p class="small muted" style="margin:0">حدد النص وانسخه.</p><textarea style="min-height:200px" class="ltr" readonly>${esc(JSON.stringify(S))}</textarea><button class="btn ghost" data-close>إغلاق</button>`);}};
 $("importData").onclick=()=>{openModal(`<h2 id="mTitle">استيراد البيانات</h2><p class="small muted" style="margin:0">الصق النسخة الاحتياطية. بتستبدل البيانات الحالية.</p><textarea id="impT" style="min-height:200px" class="ltr"></textarea><div class="row"><button class="btn primary" id="impGo">استيراد</button><button class="btn ghost" data-close>إلغاء</button></div>`);
-  $("impGo").onclick=()=>{try{const d=JSON.parse($("impT").value);if(!d||!Array.isArray(d.sessions)) throw 0;S=d;load2();save();closeModal();renderAll();toast("تم الاستيراد");}catch(e){toast("النص مو صحيح");}};};
-function load2(){for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];}
+  $("impGo").onclick=()=>{try{const d=JSON.parse($("impT").value);if(!d||!Array.isArray(d.sessions)) throw 0;S=d;fill();save();closeModal();location.reload();}catch(e){toast("النص مو صحيح");}};};
 
 /* ================= modal ================= */
 function openModal(html){$("sheet").innerHTML=html;$("modal").classList.add("open");const f=$("sheet").querySelector("input,textarea,select,button");if(f) f.focus();}
@@ -1118,15 +983,23 @@ $("modal").addEventListener("click",e=>{if(e.target===$("modal")||e.target.close
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("modal").classList.contains("open")) closeModal();});
 
 /* ================= routing ================= */
-function route(){const v=(location.hash||"#metronome").slice(1);const ok=["metronome","library","tuner","progress"].includes(v)?v:"metronome";
-  document.querySelectorAll("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+ok);
-  document.querySelectorAll("nav a").forEach(a=>{if(a.dataset.view===ok) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
-  if(ok==="progress") renderProgress();}
+let lastView=null;
+function route(){
+  let v=view();if(!["metronome","library","practice","progress"].includes(v)) v="metronome";
+  if(v==="practice"&&!SES.exId) v="library";
+  if(lastView&&lastView!==v&&M.playing) stop();
+  if(lastView==="practice"&&v!=="practice"){SES.active=false;}
+  if(v==="practice") SES.active=true;
+  lastView=v;
+  $$("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+v);
+  const navv=v==="practice"?"library":v;
+  $$("nav a").forEach(a=>{if(a.dataset.view===navv) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
+  if(v==="progress") renderProgress();
+  if(v==="metronome"){renderAuto();}
+}
 window.addEventListener("hashchange",route);
-function renderAll(){initMetroValues();renderLibrary();renderProgress();route();}
-function initMetroValues(){setBpm(S.settings.bpm);renderSig();setSub(S.settings.sub);setSound(S.settings.sound);}
-initMetro();initTuner();renderLibrary();renderProgress();route();
-try{if("serviceWorker" in navigator && !/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
+initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
+try{if("serviceWorker" in navigator&&!/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
 })();
 </script>
 </body>
