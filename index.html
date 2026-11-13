@@ -91,12 +91,6 @@ details > summary{min-height:44px;display:flex;align-items:center;font-weight:80
 .tok.now .s,.tok.now .l,.tok.now .acc{color:var(--paper)}
 .pmain{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:860px){.pmain{grid-template-columns:minmax(0,1fr)}}
-.light{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
-.ring{width:170px;height:170px;border-radius:50%;border:10px solid #D8CDBB;display:flex;align-items:center;justify-content:center;text-align:center;font-size:24px;font-weight:800;transition:border-color .3s,background .3s;background:#fff}
-.ring[data-s="good"]{border-color:var(--good);background:#EEF5EE}
-.ring[data-s="mid"]{border-color:#C98A12;background:#FBF1DC}
-.ring[data-s="bad"]{border-color:var(--bad);background:#F8E4E1}
-.lhint{min-height:28px;font-size:17px;font-weight:700;text-align:center}
 .sess{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px}
 .timer{font-weight:800;font-size:20px;min-width:70px;text-align:center}
 .rec-dot{width:12px;height:12px;border-radius:50%;background:#B3261E;display:inline-block}
@@ -146,6 +140,11 @@ audio{height:36px;max-width:220px}
 .overlay.open{display:flex}
 .overlay b{font-size:24px}
 [hidden]{display:none !important}
+.overall{display:flex;align-items:center;gap:14px;padding:6px 0}
+.overall .g{font-size:34px;font-weight:800}
+.gchip{display:inline-block;font-size:13px;font-weight:800;padding:3px 10px;border-radius:20px;color:#fff;white-space:nowrap}
+.res .it .lab{font-weight:800;min-width:130px}
+.res .it .txt{flex:1}
 </style>
 </head>
 <body>
@@ -265,6 +264,10 @@ audio{height:36px;max-width:220px}
         <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
         <span class="small muted autoRangeP"></span>
       </div>
+      <div class="row" style="justify-content:center">
+        <label class="f" style="flex-direction:row;align-items:center;gap:6px">الوزن <select id="pSig" class="ltr"></select></label>
+        <label class="f" style="flex-direction:row;align-items:center;gap:6px">التقسيم <select id="pSub"><option value="1">بدون</option><option value="2">2</option><option value="3">3 تريولا</option><option value="4">4</option></select></label>
+      </div>
       <div class="automsg autoMsg" aria-live="polite"></div>
       <div class="beats mini ltr" id="pBeats"></div>
       <div class="status mStatus"></div>
@@ -272,21 +275,20 @@ audio{height:36px;max-width:220px}
     </div>
 
     <div class="card stack">
-      <div class="light">
-        <div class="ring" id="ring" data-s="off" role="status" aria-live="polite"><span id="ringTxt">القياس مطفي</span></div>
-        <div class="lhint" id="lhint"></div>
-      </div>
+      <h2 style="margin:0">التحليل</h2>
+      <p class="small muted" style="margin:0">اعزف براحتك. البرنامج يسجل ويحلل بصمت، ولما تخلص اضغط "إنهاء وعرض التحليل".</p>
       <div class="row">
-        <label class="switch"><input type="checkbox" id="measOn"> القياس بالمايك</label>
+        <label class="switch"><input type="checkbox" id="measOn"> التسجيل والتحليل بالمايك</label>
         <div class="meter" aria-hidden="true"><i id="meterBar"></i></div>
       </div>
       <div class="sess">
+        <span class="rec-dot" id="recDot" style="visibility:hidden"></span>
         <span class="timer ltr" id="sessTime">00:00</span>
-        <button class="btn ghost" id="recBtn"><span class="rec-dot"></span><span id="recLbl">تسجيل</span></button>
-        <button class="btn primary" id="sessSave" style="margin-right:auto">إنهاء وعرض النتيجة</button>
+        <span class="small muted" id="sessInfo"></span>
+        <button class="btn primary" id="sessSave" style="margin-right:auto">إنهاء وعرض التحليل</button>
       </div>
       <details>
-        <summary>إعدادات القياس</summary>
+        <summary>إعدادات التحليل</summary>
         <div class="stack">
           <div class="seg" id="monSeg"><button data-mon="speaker">بدون سماعة</button><button data-mon="phones">مع سماعة</button></div>
           <div class="small muted" id="monHint"></div>
@@ -294,6 +296,39 @@ audio{height:36px;max-width:220px}
         </div>
       </details>
     </div>
+  </div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="v-report" data-v hidden class="stack">
+  <div class="card stack">
+    <div class="phead">
+      <a href="#practice" class="btn ghost" id="repBack">→ رجوع للتمرين</a>
+      <span class="name" id="rName"></span>
+      <span class="small muted" id="rMeta" style="margin-right:auto"></span>
+    </div>
+    <div class="overall" id="rOverall"></div>
+    <div class="res" id="rItems"></div>
+    <div class="tip" id="rTip"></div>
+  </div>
+  <div class="card stack" id="rTimeCard">
+    <div class="row"><h2 style="margin:0">الجلسة على الخط الزمني</h2><span class="small muted" style="margin-right:auto">اضغط على أي مكان عشان تسمعه</span></div>
+    <div id="rTimeline"></div>
+    <div class="row" id="rWorst"></div>
+    <audio id="rAudio" controls hidden style="width:100%;max-width:none"></audio>
+  </div>
+  <div class="card stack" id="rFatigue" hidden>
+    <h2 style="margin:0">التعب خلال الجلسة</h2>
+    <div id="rSegs"></div>
+  </div>
+  <div class="card stack">
+    <h2 style="margin:0">حفظ الجلسة</h2>
+    <div class="row">
+      <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300"></label>
+      <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
+    </div>
+    <label class="f">ملاحظات<textarea id="fNotes"></textarea></label>
+    <div class="row"><button class="btn primary" id="fSave">حفظ في السجل</button><button class="btn ghost" id="fDrop">حذف الجلسة</button></div>
   </div>
 </section>
 
@@ -595,7 +630,7 @@ async function micStart(){
 function micStop(){
   try{MIC.sp.disconnect();MIC.spC.disconnect();MIC.src.disconnect();(MIC.filt||[]).forEach(f=>f.disconnect());}catch(e){}
   if(!(rec&&rec.state==="recording")){try{MIC.stream.getTracks().forEach(t=>t.stop());}catch(e){}MIC.stream=null;}
-  MIC.on=false;MIC.src=null;MIC.filt=null;$("meterBar").style.width="0";setRing("off");
+  MIC.on=false;MIC.src=null;MIC.filt=null;$("meterBar").style.width="0";
 }
 function buildChains(){
   if(!MIC.src) return;
@@ -642,8 +677,8 @@ function analyse(){
       continue;}
     if(h.bar<1) continue; // first bar = warm-up
     const toks=curPat(),tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
-    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm});
-    if(MIC.pairs.length>4000) MIC.pairs.splice(0,1000);
+    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm,bar:h.bar});
+    if(MIC.pairs.length>120000) MIC.pairs.splice(0,20000);
   }
 }
 setInterval(analyse,100);
@@ -703,24 +738,6 @@ function measStats(list){
   if(ks.length>=2){let w=null,ws=-1;ks.forEach(k=>{const m=avg(bk[k]),s=Math.sqrt(avg(bk[k].map(d=>(d-m)*(d-m))));if(s>ws){ws=s;w=k;}});weakBpm={bpm:+w,std:Math.round(ws)};}
   return {n:list.length,mean:Math.round(mean),std:Math.round(std),bal,mD,mU,drift,weakBpm};
 }
-// one simple light while playing: last 16 hits
-function setRing(state,txt){const r=$("ring");r.dataset.s=state;$("ringTxt").textContent=txt||({off:"القياس مطفي",wait:"اعزف…",good:"ثابت",mid:"متذبذب",bad:"بعيد عن النبضة"}[state]);}
-function live(){
-  if(view()!=="practice") return;
-  if(!MIC.on){setRing("off");$("lhint").textContent="";return;}
-  if(!M.playing){if($("ring").dataset.s==="off") setRing("wait");return;}
-  const L=MIC.pairs.slice(-16);
-  if(L.length<8){setRing("wait");$("lhint").textContent="";return;}
-  const st=measStats(L);
-  const s=st.std<=20&&Math.abs(st.mean)<=25?"good":st.std<=35&&Math.abs(st.mean)<=45?"mid":"bad";
-  setRing(s);
-  let h="";
-  if(st.bal&&st.bal.pct>=18) h=st.bal.weak+" أضعف";
-  else if(st.mean<-25) h="تستعجل شوي";
-  else if(st.mean>25) h="تتأخر شوي";
-  $("lhint").textContent=h;
-}
-setInterval(live,350);
 function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
 
 /* ================= practice screen ================= */
@@ -728,7 +745,7 @@ const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
 function openPractice(id){
   const ex=getEx(id); if(!ex) return;
   if(M.playing) stop();
-  if(SES.exId!==id){SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];}
+  if(SES.exId!==id){if(rec) stopRec(true);SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];}
   SES.active=true;
   S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
   const best=bestFor(id);setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
@@ -737,16 +754,25 @@ function openPractice(id){
   $("pPat").innerHTML=parsePat(ex.pattern).map(tokHTML).join("");
   $("pNotes").textContent=ex.notes||"";
   $("sessTime").textContent=fmt(SES.secs);$("measOn").checked=!!S.settings.measure;
-  setRing(MIC.on?"wait":"off");$("lhint").textContent="";renderAuto();
+  renderPMeter();renderAuto();
   if(location.hash!=="#practice") location.hash="practice";
 }
 async function practiceStart(){
   if(S.settings.measure){
     const ok=await micStart();
     if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null) await autoCheck();
+    if(ok&&!(rec&&rec.state==="recording")) await startRec();
   }
   start();
 }
+function renderPMeter(){
+  const cur=S.settings.num+"/"+S.settings.den;
+  $("pSig").innerHTML=SIGS.map(x=>`<option ${x===cur?"selected":""}>${x}</option>`).join("")+(SIGS.includes(cur)?"":`<option selected>${cur}</option>`);
+  $("pSub").value=String(S.settings.sub);
+}
+$("pSig").onchange=()=>{const [n,d]=$("pSig").value.split("/");setSig(+n,+d);if(SES.exId) saveExField(SES.exId,{num:+n,den:+d});renderPMeter();};
+$("pSub").onchange=()=>{setSub(+$("pSub").value);if(SES.exId) saveExField(SES.exId,{sub:+$("pSub").value});
+  const ex=getEx(SES.exId);if(ex){const st=ex.staff?autoStaff(ex):"";$("pStaff").innerHTML=st;}};
 function fmt(sec){sec=Math.round(sec);return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 function sessionPlay(on){
   if(!SES.active||view()!=="practice") return;
@@ -754,51 +780,112 @@ function sessionPlay(on){
     SES.timer=setInterval(()=>{$("sessTime").textContent=fmt(SES.secs+(performance.now()-SES.t0)/1000);},500);}
   else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);}
 }
-function verdictItems(st,ex){
-  const it=[];const col=c=>({g:"#2F6B3A",m:"#C98A12",b:"#9B2C1F",n:"#5E554B"}[c]);
-  if(!st){it.push({c:"n",t:"ما فيه قياس لهالجلسة. شغّل <b>القياس بالمايك</b> عشان تشوف ثباتك."});return {it,tip:null,col};}
-  const sv=st.std<=15?["g","ممتاز"]:st.std<=25?["m","زين"]:["b","يحتاج شغل"];
-  it.push({c:sv[0],t:`ثبات التوقيت <b class="ltr">±${st.std} ms</b> — ${sv[1]}`});
-  it.push({c:Math.abs(st.mean)<=15?"g":Math.abs(st.mean)<=35?"m":"b",t:Math.abs(st.mean)<=15?"توقيتك على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${-st.mean} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${st.mean} ms</b>`});
-  if(st.mD!=null&&st.mU!=null&&Math.abs(st.mD-st.mU)>=12){const late=st.mU>st.mD?"∨":"∧";it.push({c:"m",t:`<span class="ltr">${late}</span> متأخرة عن الثانية بحوالي <b class="ltr">${Math.abs(st.mD-st.mU)} ms</b>`});}
-  if(st.bal) it.push({c:st.bal.pct<=10?"g":st.bal.pct<=20?"m":"b",t:st.bal.pct<=10?"الريشة متوازنة بين ∧ و∨":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`});
-  if(st.drift!=null&&Math.abs(st.drift)>8) it.push({c:"m",t:st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});
-  if(st.weakBpm) it.push({c:"m",t:`أضعف سرعة عندك كانت حوالي <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
-  let tip;
-  if(st.bal&&st.bal.pct>20) tip=`ركّز على قوة ${st.bal.weak}، وجرّب تمرين الضغوط بحيث يكون الأكسنت عليها.`;
-  else if(st.std>25) tip="نزّل السرعة 8 BPM، وخل الريشة ترتاح لين يثبت التوقيت.";
-  else if(st.mean<-35) tip="لا تسبق النبضة. استرخِ وخلها تجيك.";
-  else if(st.drift!=null&&Math.abs(st.drift)>8) tip="جرّب الصمت المتقطع من المدرّب عشان تثبت السرعة في داخلك.";
+/* ================= grades & report ================= */
+const GR=[{t:"ممتاز",c:"#2F6B3A"},{t:"زين جداً",c:"#155E68"},{t:"زين",c:"#8A5A00"},{t:"يحتاج تمرين",c:"#9B2C1F"}];
+const grade=(v,lim)=>v<=lim[0]?0:v<=lim[1]?1:v<=lim[2]?2:3;
+const chip=g=>`<span class="gchip" style="background:${GR[g].c}">${GR[g].t}</span>`;
+function segStats(list,minutes){
+  if(!list.length) return [];
+  const t0=list[0].t,seg=minutes*60,out=[];
+  list.forEach(p=>{const k=Math.floor((p.t-t0)/seg);(out[k]=out[k]||[]).push(p);});
+  return out.map((L,k)=>L&&L.length>=16?{k,from:k*minutes,to:(k+1)*minutes,st:measStats(L)}:null).filter(Boolean);
+}
+function buildReport(st,ex){
+  const items=[];let tip;
+  if(!st) return {items,overall:null,tip:"ما انقاس شي في هالجلسة. تأكد إن \"التسجيل والتحليل بالمايك\" شغّال، وإن التاب قريب من العود."};
+  const gStd=grade(st.std,[12,20,30]);
+  items.push({lab:"ثبات التوقيت",g:gStd,txt:`التذبذب حول النبضة <b class="ltr">±${st.std} ms</b>`});
+  const am=Math.abs(st.mean),gMean=grade(am,[10,20,35]);
+  items.push({lab:"التوقيت",g:gMean,txt:am<=10?"على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${am} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${am} ms</b>`});
+  let gBal=null,gLimp=null;
+  if(st.bal){gBal=grade(st.bal.pct,[8,15,25]);items.push({lab:"توازن القوة",g:gBal,txt:st.bal.pct<=8?"∧ و∨ بنفس القوة تقريباً":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`});}
+  if(st.mD!=null&&st.mU!=null){const d=Math.abs(st.mU-st.mD);gLimp=grade(d,[6,12,20]);
+    items.push({lab:"تساوي المسافات",g:gLimp,txt:d<=6?"المسافة بين الضربات متساوية":`<span class="ltr">${st.mU>st.mD?"∨":"∧"}</span> تتأخر عن مكانها بحوالي <b class="ltr">${d} ms</b>، فيطلع الإيقاع طويل-قصير`});}
+  if(st.drift!=null){const ad=Math.abs(st.drift);items.push({lab:"ثبات السرعة",g:grade(ad,[4,8,15]),txt:ad<=4?"حافظت على السرعة طول الجلسة":st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});}
+  if(st.weakBpm) items.push({lab:"أضعف سرعة",g:2,txt:`ثباتك كان أضعف حول <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
+  const core=[gStd,gMean,gBal,gLimp].filter(v=>v!=null);
+  const overall=Math.round(core.reduce((a,b)=>a+b,0)/core.length);
+  if(gBal!=null&&gBal>=2) tip=`ركّز على قوة ${st.bal.weak}: جرّب تمرين الضغوط والأكسنت عليها.`;
+  else if(gLimp!=null&&gLimp>=2) tip="المسافات مو متساوية. نزّل السرعة وعدّ في داخلك بالتساوي، وخلّ الريشة تمشي مثل المشي.";
+  else if(gStd>=2) tip="نزّل السرعة 8 BPM، وخل الريشة ترتاح لين يثبت التوقيت.";
+  else if(gMean>=2) tip=st.mean<0?"لا تسبق النبضة. استرخِ وخلها تجيك.":"انتبه لا تتأخر. حس بالنبضة قبل ما تضرب.";
   else tip=`ممتاز. ارفع السرعة 4 BPM المرة الجاية${ex&&ex.target?` (هدفك ${ex.target})`:""}.`;
-  return {it,tip,col};
+  return {items,overall,tip};
 }
-function saveSessionDialog(){
+function worstWindow(list){
+  if(list.length<32) return null;
+  const byBar={};list.forEach(p=>{(byBar[p.bar]=byBar[p.bar]||[]).push(p);});
+  const bars=Object.keys(byBar).map(Number).sort((a,b)=>a-b);let best=null;
+  const stepB=Math.max(2,Math.floor(bars.length/400));
+  for(let i=0;i+7<bars.length;i+=stepB){const L=[];for(let j=i;j<i+8;j++) L.push(...byBar[bars[j]]);if(L.length<12) continue;
+    const st=measStats(L);if(st&&(!best||st.std>best.std)) best={std:st.std,from:bars[i],to:bars[i+7],t:L[0].t,t1:L[L.length-1].t};}
+  return best;
+}
+function timelineSVG(list,width){
+  const W=Math.max(320,width||900),H=170,R=60,P=24;
+  if(!list.length) return `<div class="empty">ما فيه ضربات مقاسة.</div>`;
+  const t0=list[0].t,t1=Math.max(t0+1,list[list.length-1].t),X=t=>P+(t-t0)/(t1-t0)*(W-2*P),Y=v=>H/2-Math.max(-R,Math.min(R,v))/R*(H/2-14);
+  let g=`<rect x="${P}" y="${Y(20)}" width="${W-2*P}" height="${Y(-20)-Y(20)}" fill="#E3EFE3"/><line x1="${P}" x2="${W-P}" y1="${H/2}" y2="${H/2}" stroke="#5E554B"/>`+
+    `<text x="${P}" y="12" font-size="11" fill="#5E554B">متأخر</text><text x="${P}" y="${H-3}" font-size="11" fill="#5E554B">متقدم</text>`;
+  const step=Math.max(1,Math.ceil(list.length/900));
+  for(let i=0;i<list.length;i+=step){const p=list[i];g+=`<circle cx="${X(p.t).toFixed(1)}" cy="${Y(p.dev*1000).toFixed(1)}" r="3" fill="${p.s==="∨"?"#155E68":"#8A3F12"}" opacity=".8"/>`;}
+  const mins=(t1-t0)/60,stepM=mins>60?15:mins>30?10:mins>8?2:1;
+  for(let m=stepM;m<mins;m+=stepM){const x=X(t0+m*60);g+=`<line x1="${x}" x2="${x}" y1="18" y2="${H-16}" stroke="#E2D6C4"/><text x="${x}" y="${H-3}" text-anchor="middle" font-size="11" fill="#5E554B">${m}m</text>`;}
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="توزيع الضربات على مدة الجلسة" style="display:block;max-width:100%;direction:ltr;background:#fff;border:1px solid #E2D6C4;border-radius:10px;cursor:pointer" data-t0="${t0}" data-t1="${t1}" data-p="${P}" data-w="${W}">${g}</svg>`;
+}
+let REP=null;
+async function openReport(){
   if(M.playing) stop();
+  await stopRec(false);
   if(SES.secs<5){toast("ابدأ التمرين أول");return;}
-  const ex=getEx(SES.exId),st=measStats(),v=verdictItems(st,ex);
-  openModal(`<h2 id="mTitle">نتيجة الجلسة — ${esc(ex?ex.name:"")}</h2>
-   <div class="row small muted">المدة <b class="ltr">${fmt(SES.secs)}</b>${st?` · <b class="ltr">${st.n}</b> ضربة مقاسة`:""}</div>
-   <div class="res">${v.it.map(i=>`<div class="it"><span class="dot" style="background:${v.col(i.c)}"></span><span>${i.t}</span></div>`).join("")}</div>
-   ${v.tip?`<div class="tip">${v.tip}</div>`:""}
-   <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300" value="${SES.max||S.settings.bpm}"></label>
-   <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
-   <label class="f">ملاحظات<textarea id="fNotes"></textarea></label>
-   <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" id="fDrop">حذف الجلسة</button><button class="btn ghost" data-close>رجوع</button></div>`);
-  $("fSave").onclick=()=>{stopRec(false).then(()=>{
-    const before=recordsFor(SES.exId);
-    S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,drift:st.drift}:null});
-    save();closeModal();
-    const after=recordsFor(SES.exId),news=[];
-    if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
-    if(after.std!=null&&before.std!=null&&after.std<before.std) news.push("أفضل ثبات ±"+after.std+" ms");
-    toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت الجلسة");
-    SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];$("sessTime").textContent="00:00";renderLibrary();renderProgress();
-  });};
-  $("fDrop").onclick=()=>{stopRec(true);SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];$("sessTime").textContent="00:00";closeModal();toast("انحذفت الجلسة");};
+  const ex=getEx(SES.exId),list=MIC.pairs.slice(),st=measStats(list),r=buildReport(st,ex);
+  REP={list,st,ex};
+  location.hash="report";
+  $("rName").textContent=ex?ex.name:"";
+  $("rMeta").innerHTML=`المدة <b class="ltr">${fmt(SES.secs)}</b>${st?` · <b class="ltr">${st.n}</b> ضربة`:""}`;
+  $("rOverall").innerHTML=r.overall!=null?`<span class="muted">التقييم العام</span> <span class="g" style="color:${GR[r.overall].c}">${GR[r.overall].t}</span>`:"";
+  $("rItems").innerHTML=r.items.map(i=>`<div class="it"><span class="lab">${i.lab}</span><span class="txt">${i.txt}</span>${chip(i.g)}</div>`).join("");
+  $("rTip").innerHTML=r.tip;
+  $("rTimeCard").hidden=!st;
+  if(st){
+    $("rTimeline").innerHTML=timelineSVG(list,$("rTimeline").clientWidth||900);
+    const w=worstWindow(list);
+    $("rWorst").innerHTML=w?`<span>أكثر مقطع فيه تذبذب: المازورات <b class="ltr">${w.from+1}–${w.to+1}</b> (<span class="ltr">±${w.std} ms</span>)</span><button class="btn ghost" id="rWorstPlay">اسمعه</button>`:"";
+    if(w&&$("rWorstPlay")) $("rWorstPlay").onclick=()=>playAt(w.t,w.t1-w.t+1);
+  }
+  const segs=segStats(list,(SES.secs>1800?10:5));
+  $("rFatigue").hidden=segs.length<2;
+  if(segs.length>=2){
+    const a=segs[0].st.std,b=segs[segs.length-1].st.std;
+    $("rSegs").innerHTML=`<table><thead><tr><th>الوقت</th><th>الثبات</th><th>التوقيت</th><th>توازن القوة</th></tr></thead><tbody>${segs.map(x=>`<tr><td>${x.from}–${x.to} دقيقة</td><td>${chip(grade(x.st.std,[12,20,30]))} <span class="ltr">±${x.st.std} ms</span></td><td class="num">${x.st.mean>0?"+":""}${x.st.mean} ms</td><td>${x.st.bal?(x.st.bal.pct<=8?"متوازنة":`<span class="ltr">${x.st.bal.weak}</span> −${x.st.bal.pct}%`):"—"}</td></tr>`).join("")}</tbody></table>`+
+      (b-a>=6?`<p class="small" style="margin:8px 0 0">ثباتك نزل من <b class="ltr">±${a}</b> في البداية إلى <b class="ltr">±${b}</b> في الآخر. خذ استراحة قصيرة كل فترة.</p>`:`<p class="small muted" style="margin:8px 0 0">ثباتك كان متقارب طول الجلسة.</p>`);
+  }
+  $("fMax").value=SES.max||S.settings.bpm;$("fRelax").checked=true;$("fNotes").value="";
+  $("rAudio").hidden=true;
 }
-$("sessSave").onclick=saveSessionDialog;
+async function playAt(t,dur){
+  if(!SES.recId){toast("ما فيه تسجيل صوتي لهالجلسة");return;}
+  try{const b=await getRec(SES.recId);const a=$("rAudio");if(!a.getAttribute("src")) a.src=URL.createObjectURL(b);a.hidden=false;
+    a.currentTime=Math.max(0,t-(SES.recT0||0)-0.5);await a.play();if(dur){clearTimeout(playAt._t);playAt._t=setTimeout(()=>a.pause(),(dur+1)*1000);}}catch(e){toast("ما قدرت أشغّل التسجيل");}
+}
+$("rTimeline").addEventListener("click",e=>{const svg=e.target.closest("svg");if(!svg||!REP) return;
+  const r=svg.getBoundingClientRect(),W=+svg.dataset.w,P=+svg.dataset.p,x=(e.clientX-r.left)*W/r.width;
+  const t=+svg.dataset.t0+(x-P)/(W-2*P)*(+svg.dataset.t1-+svg.dataset.t0);playAt(t,4);});
+function resetSession(){SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];REP=null;$("sessTime").textContent="00:00";$("rAudio").removeAttribute("src");}
+$("fSave").onclick=()=>{
+  const st=REP&&REP.st,before=recordsFor(SES.exId);
+  S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,drift:st.drift,mD:st.mD,mU:st.mU}:null});
+  save();const after=recordsFor(SES.exId),news=[];
+  if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
+  if(after.std!=null&&before.std!=null&&after.std<before.std) news.push("أفضل ثبات ±"+after.std+" ms");
+  toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت الجلسة");
+  resetSession();renderLibrary();renderProgress();location.hash="practice";
+};
+$("fDrop").onclick=()=>openConfirm("تحذف هذي الجلسة بدون حفظ؟",()=>{resetSession();toast("انحذفت الجلسة");location.hash="practice";});
+$("sessSave").onclick=openReport;
+
 $("measOn").onchange=async()=>{S.settings.measure=$("measOn").checked;save();
-  if(S.settings.measure){const ok=await micStart();if(ok){setRing(M.playing?"wait":"wait");if(S.settings.monitor==="speaker"&&S.settings.calib==null&&!M.playing) autoCheck();}}
+  if(S.settings.measure){const ok=await micStart();if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null&&!M.playing) autoCheck();}
   else micStop();};
 $("monSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setMonitor(b.dataset.mon);});
 $("calBtn").onclick=async()=>{if(!(await micStart())) return;startCalib();};
@@ -814,25 +901,26 @@ let rec=null,recChunks=[],recStream=null;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("miran",1);r.onupgradeneeded=()=>r.result.createObjectStore("recs");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}});}
 async function putRec(id,blob){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction("recs","readwrite");tx.objectStore("recs").put(blob,id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
 async function getRec(id){const db=await idb();return new Promise((res,rej)=>{const r=db.transaction("recs").objectStore("recs").get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
-async function toggleRec(){
-  if(rec&&rec.state==="recording"){await stopRec(false);return;}
+async function startRec(){
   try{
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error("x");
+    if(rec&&rec.state==="paused"){rec.resume();$("recDot").style.visibility="visible";return;}
     recStream=MIC.on&&MIC.stream?MIC.stream:await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    recChunks=[];rec=new MediaRecorder(recStream);rec.ondataavailable=e=>{if(e.data.size) recChunks.push(e.data);};rec.start();
-    $("recLbl").textContent="إيقاف التسجيل";$("recBtn").classList.add("primary");
-  }catch(e){toast("التسجيل يحتاج المايك. افتح البرنامج من نسخته المثبتة.");}
+    recChunks=[];const opt={};try{if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) opt.mimeType="audio/webm;codecs=opus";}catch(e){}
+    opt.audioBitsPerSecond=32000;
+    rec=new MediaRecorder(recStream,opt);rec.ondataavailable=e=>{if(e.data.size) recChunks.push(e.data);};rec.start(5000);
+    SES.recT0=ctx?ctx.currentTime:0;$("recDot").style.visibility="visible";
+  }catch(e){rec=null;}
 }
 function stopRec(discard){
   return new Promise(res=>{
-    if(!rec||rec.state!=="recording"){res();return;}
+    if(!rec||rec.state==="inactive"){res();return;}
     rec.onstop=async()=>{if(!MIC.on||recStream!==MIC.stream){try{recStream.getTracks().forEach(t=>t.stop());}catch(e){}}
       if(!discard&&recChunks.length){const id=uid();try{await putRec(id,new Blob(recChunks,{type:rec.mimeType||"audio/webm"}));SES.recId=id;}catch(e){toast("ما قدرت أحفظ التسجيل في هذا الجهاز");}}
-      rec=null;$("recLbl").textContent="تسجيل";$("recBtn").classList.remove("primary");res();};
+      rec=null;$("recDot").style.visibility="hidden";res();};
     rec.stop();
   });
 }
-$("recBtn").onclick=toggleRec;
+
 
 /* ================= library ================= */
 function renderLibrary(){
@@ -985,20 +1073,22 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("modal").classLis
 /* ================= routing ================= */
 let lastView=null;
 function route(){
-  let v=view();if(!["metronome","library","practice","progress"].includes(v)) v="metronome";
+  let v=view();if(!["metronome","library","practice","report","progress"].includes(v)) v="metronome";
   if(v==="practice"&&!SES.exId) v="library";
+  if(v==="report"&&!REP) v=SES.exId?"practice":"library";
   if(lastView&&lastView!==v&&M.playing) stop();
   if(lastView==="practice"&&v!=="practice"){SES.active=false;}
   if(v==="practice") SES.active=true;
   lastView=v;
   $$("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+v);
-  const navv=v==="practice"?"library":v;
+  const navv=(v==="practice"||v==="report")?"library":v;
   $$("nav a").forEach(a=>{if(a.dataset.view===navv) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
   if(v==="progress") renderProgress();
   if(v==="metronome"){renderAuto();}
 }
 window.addEventListener("hashchange",route);
 initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
+if(/[?&]selftest\b/.test(location.search)) window.__t={MIC,SES,openReport,measStats};
 try{if("serviceWorker" in navigator&&!/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
 })();
 </script>
