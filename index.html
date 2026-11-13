@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مِران — تمارين العود</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#221C16">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Noto+Music&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF3E6; --card:#FFFFFF; --ink:#221C16; --muted:#5E554B; --line:#E2D6C4;
+  --chip:#F0E5D1; --down:#8A3F12; --up:#155E68; --ok:#2F6B3A; --warn:#8A5A00;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Almarai',system-ui,sans-serif;font-size:16px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.ltr{direction:ltr;unicode-bidi:isolate}
+.wrap{max-width:1320px;margin:0 auto;padding:16px 20px 40px}
+
+/* header */
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.2}
+.brand b{font-size:26px;font-weight:800}
+.brand span{font-size:13px;color:var(--muted)}
+nav{display:flex;gap:6px;margin-right:auto;background:var(--chip);border-radius:12px;padding:4px}
+nav a{min-height:44px;display:flex;align-items:center;padding:0 18px;border-radius:9px;text-decoration:none;color:var(--ink);font-weight:700}
+nav a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+h2{margin:0 0 10px;font-size:19px;font-weight:800}
+h3{margin:0 0 8px;font-size:16px;font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+
+.btn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid var(--ink);background:var(--card);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.ghost{border-color:var(--line)}
+.btn.danger{border-color:#9B2C1F;color:#9B2C1F}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:flex;background:var(--chip);border-radius:10px;padding:3px;gap:3px;flex-wrap:wrap}
+.seg button{min-height:40px;min-width:44px;padding:0 12px;border:0;border-radius:8px;background:transparent;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:700}
+input[type=number],input[type=text],select,textarea{min-height:44px;border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff}
+textarea{min-height:80px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--ink);height:32px}
+
+/* metronome */
+.tempo{display:flex;align-items:center;justify-content:center;gap:14px}
+.bpm{font-size:96px;font-weight:800;line-height:1;min-width:190px;text-align:center}
+.bpm small{display:block;font-size:15px;font-weight:700;color:var(--muted);letter-spacing:2px}
+.round{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font-size:22px;font-weight:800}
+.play{width:100%;min-height:68px;border-radius:14px;border:0;background:var(--ink);color:var(--paper);font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px}
+.play.on{background:var(--down)}
+.beats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0}
+.beat{width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;transition:transform .05s}
+.beat[data-k="A"]{background:var(--chip)}
+.beat[data-k="A"]::after{content:"";}
+.beat[data-k="M"]{border-style:dashed;color:#9A8F80}
+.beat.now{transform:scale(1.18);background:var(--ink);color:var(--paper)}
+.beat.now[data-k="A"]{background:var(--down);border-color:var(--down)}
+.sigrow{display:flex;align-items:center;gap:8px}
+.sig{display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:22px;line-height:1.05}
+.status{display:flex;justify-content:center;gap:14px;font-size:14px;color:var(--muted);min-height:22px}
+.status b{color:var(--ink)}
+.gapflag{color:var(--up);font-weight:800}
+
+.pat{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;direction:ltr;padding:10px;background:var(--chip);border-radius:12px}
+.tok{min-width:46px;padding:6px 4px;border-radius:9px;background:#fff;border:1.5px solid transparent;display:flex;flex-direction:column;align-items:center;line-height:1.15}
+.tok .s{font-size:24px;font-weight:800}
+.tok .s.d{color:var(--down)} .tok .s.u{color:var(--up)} .tok .s.p{color:var(--ink);font-size:18px}
+.tok .acc{font-size:13px;font-weight:800;height:14px}
+.tok .l{font-size:12px;color:var(--muted);direction:rtl;min-height:16px}
+.tok.now{border-color:var(--ink);background:var(--ink)}
+.tok.now .s,.tok.now .l,.tok.now .acc{color:var(--paper)}
+
+.panel{display:flex;flex-direction:column;gap:14px}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl > .lab{font-size:14px;font-weight:700}
+.vol{display:grid;grid-template-columns:70px 1fr 36px;gap:8px;align-items:center;font-size:14px}
+.switch{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px}
+.switch input{width:22px;height:22px;accent-color:var(--ink)}
+.trainer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trainer input{width:100%}
+details.more > summary{min-height:44px;display:flex;align-items:center;font-weight:800;cursor:pointer}
+
+.exbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.exbar .name{font-weight:800;font-size:18px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--chip)}
+.staff{display:flex;justify-content:center;overflow-x:auto}
+.sess{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px}
+.timer{font-weight:800;font-size:20px;min-width:70px;text-align:center}
+.rec-dot{width:12px;height:12px;border-radius:50%;background:#B3261E;display:inline-block}
+
+/* library */
+.lib-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.group-title{font-size:17px;font-weight:800;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.ex{display:flex;flex-direction:column;gap:8px}
+.ex .t{font-weight:800;font-size:17px}
+.mini{display:flex;gap:4px;direction:ltr;flex-wrap:wrap}
+.mini span{font-weight:800;font-size:17px;min-width:20px;text-align:center}
+.prog{height:8px;background:var(--chip);border-radius:6px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--down);border-radius:6px}
+
+/* log */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tile .n{font-size:40px;font-weight:800;line-height:1.1}
+.tile .k{font-size:14px;color:var(--muted);font-weight:700}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{border:1.5px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;font-size:13px;font-weight:700}
+.day .m{font-size:12px;color:var(--muted);font-weight:400}
+.day.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.day.on .m{color:var(--paper);opacity:.85}
+.day.today{outline:2px solid var(--down);outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:right;vertical-align:middle}
+th{font-size:13px;color:var(--muted)}
+td.num{direction:ltr;text-align:right;font-weight:700}
+.chartbox{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-115%);display:none}
+audio{height:36px;max-width:220px}
+
+/* modal + toast */
+.modal{position:fixed;inset:0;background:rgba(34,28,22,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.open{display:flex}
+.sheet{background:var(--paper);border-radius:16px;max-width:620px;width:100%;max-height:92vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-weight:700;display:none;z-index:30;max-width:90vw;text-align:center}
+.inserts{display:flex;gap:6px;flex-wrap:wrap;direction:ltr}
+.inserts button{min-width:48px;min-height:44px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:18px}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+[hidden]{display:none !important}
+.meas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.meas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mt{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.mt .k{font-size:13px;color:var(--muted);font-weight:700}
+.mt .v{font-size:26px;font-weight:800;line-height:1.2}
+.mt .d{font-size:12px;color:var(--muted)}
+.meter{height:12px;background:var(--chip);border-radius:8px;overflow:hidden;flex:1;min-width:120px;direction:ltr}
+.meter i{display:block;height:100%;width:0;background:var(--up);transition:width .05s}
+.hint{font-size:13px;color:var(--muted);background:var(--paper);border-radius:10px;padding:8px 12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>مِران</b><span>تمارين العود وقياس التطور</span></div>
+  <nav aria-label="الأقسام">
+    <a href="#metronome" data-view="metronome">المترونوم</a>
+    <a href="#library" data-view="library">التمارين</a>
+    <a href="#progress" data-view="progress">السجل والتقدم</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ============ METRONOME ============ -->
+<section id="v-metronome" data-v>
+  <div class="card" id="exCard" style="margin-bottom:16px" hidden>
+    <div class="exbar">
+      <span class="name" id="exName"></span>
+      <span class="tag" id="exGroup"></span>
+      <span class="muted small" id="exTarget"></span>
+      <button class="btn ghost" id="exClear" style="margin-right:auto">بدون تمرين</button>
+    </div>
+    <div class="staff" id="exStaff" style="margin-top:8px"></div>
+    <div class="pat" id="exPat" style="margin-top:8px"></div>
+    <div class="muted small" id="exNotes" style="margin-top:8px"></div>
+    <div class="sess" style="margin-top:12px">
+      <b>الجلسة</b>
+      <span class="timer ltr" id="sessTime">00:00</span>
+      <span class="small muted">أعلى سرعة: <b class="ltr" id="sessMax">—</b> BPM</span>
+      <button class="btn ghost" id="recBtn" style="margin-right:auto"><span class="rec-dot"></span><span id="recLbl">تسجيل</span></button>
+      <button class="btn primary" id="sessSave">حفظ الجلسة</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="display:flex;flex-direction:column;gap:14px">
+      <div class="tempo">
+        <button class="round" id="m5" aria-label="ناقص 5">−5</button>
+        <button class="round" id="m1" aria-label="ناقص 1">−</button>
+        <div class="bpm ltr"><span id="bpmVal">80</span><small>BPM</small></div>
+        <button class="round" id="p1" aria-label="زائد 1">+</button>
+        <button class="round" id="p5" aria-label="زائد 5">+5</button>
+      </div>
+      <input type="range" id="bpmRange" min="30" max="300" value="80" aria-label="السرعة" class="ltr">
+      <div class="beats ltr" id="beats"></div>
+      <div class="small muted" style="text-align:center">اضغط على أي ضربة لتغييرها: قوية ← عادية ← صامتة</div>
+      <div class="status" id="status"></div>
+      <div class="row" style="justify-content:center">
+        <button class="btn" id="tapBtn" style="min-width:130px">Tap</button>
+      </div>
+      <button class="play" id="playBtn"><span id="playIcon">▶</span><span id="playLbl">تشغيل</span></button>
+    </div>
+
+    <div class="card panel">
+      <div class="ctl">
+        <span class="lab">الوزن</span>
+        <div class="seg ltr" id="sigPresets"></div>
+        <div class="row">
+          <label class="f" style="flex-direction:row;align-items:center;gap:8px">مخصص
+            <input type="number" id="sigNum" min="1" max="32" value="4" style="width:76px" class="ltr" aria-label="عدد الضربات">
+            <span style="font-weight:800">/</span>
+            <select id="sigDen" class="ltr" aria-label="وحدة الضربة"><option>2</option><option selected>4</option><option>8</option><option>16</option></select>
+          </label>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lab">التقسيم</span>
+        <div class="seg ltr" id="subSeg">
+          <button data-sub="1" aria-label="بدون تقسيم">1</button>
+          <button data-sub="2" aria-label="نصين">2</button>
+          <button data-sub="3" aria-label="تريولا">3</button>
+          <button data-sub="4" aria-label="أربعة">4</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lab">الصوت</span>
+        <div class="seg ltr" id="soundSeg">
+          <button data-snd="soft">Soft</button>
+          <button data-snd="wood">Woodblock</button>
+          <button data-snd="clave">Clave</button>
+          <button data-snd="rim">Rim</button>
+        </div>
+        <div class="vol"><span>القوية</span><input type="range" min="0" max="100" id="volA" class="ltr" aria-label="صوت الضربة القوية"><span class="ltr small" id="volAv"></span></div>
+        <div class="vol"><span>العادية</span><input type="range" min="0" max="100" id="volN" class="ltr" aria-label="صوت الضربة العادية"><span class="ltr small" id="volNv"></span></div>
+        <div class="vol"><span>التقسيم</span><input type="range" min="0" max="100" id="volS" class="ltr" aria-label="صوت التقسيم"><span class="ltr small" id="volSv"></span></div>
+      </div>
+      <details class="more" id="trainers">
+        <summary>المدرّب</summary>
+        <div class="ctl">
+          <label class="switch"><input type="checkbox" id="spOn"> مدرب السرعة</label>
+          <div class="trainer">
+            <label class="f">زِد BPM<input type="number" id="spInc" min="1" max="20" value="4" class="ltr"></label>
+            <label class="f">كل كم مازورة<input type="number" id="spEvery" min="1" max="64" value="4" class="ltr"></label>
+            <label class="f">لين توصل<input type="number" id="spTo" min="30" max="300" value="120" class="ltr"></label>
+          </div>
+        </div>
+        <div class="ctl" style="margin-top:10px">
+          <label class="switch"><input type="checkbox" id="gapOn"> الصمت المتقطع</label>
+          <div class="trainer">
+            <label class="f">مازورات صوت<input type="number" id="gapPlay" min="1" max="16" value="2" class="ltr"></label>
+            <label class="f">مازورات صمت<input type="number" id="gapMute" min="1" max="16" value="1" class="ltr"></label>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+    <div class="row">
+      <h2 style="margin:0">القياس بالمايك</h2>
+      <button class="btn" id="micBtn" style="margin-right:auto">تشغيل المايك</button>
+      <button class="btn ghost" id="calBtn" disabled>معايرة</button>
+      <button class="btn ghost" id="measReset" disabled>تصفير</button>
+    </div>
+    <div class="row"><span class="small muted">مستوى الصوت</span><div class="meter" aria-hidden="true"><i id="meterBar"></i></div><span class="small ltr muted" id="calInfo"></span></div>
+    <div class="meas">
+      <div class="mt"><div class="k">ثبات التوقيت</div><div class="v ltr" id="mStd">—</div><div class="d">كل ما قل الرقم كان أثبت</div></div>
+      <div class="mt"><div class="k">التوقيت</div><div class="v" id="mMean">—</div><div class="d">متقدم أو متأخر عن النبضة</div></div>
+      <div class="mt"><div class="k">الريشة العرجاء</div><div class="v" id="mBal">—</div><div class="d" id="mBalD">مقارنة قوة ∧ و∨</div></div>
+      <div class="mt"><div class="k">ضربات مقاسة</div><div class="v ltr" id="mN">0</div><div class="d" id="mState">المايك مطفي</div></div>
+    </div>
+    <div class="hint">استخدم <b>سماعة</b> للمترونوم عشان المايك ما يسمع النقرات. وسوّ <b>معايرة</b> أول مرة وكل ما غيرت السماعة: اضغط معايرة، والمترونوم يشتغل على 60، اعزف على وتر فاضي مع 12 نبضة.</div>
+  </div>
+</section>
+
+<!-- ============ LIBRARY ============ -->
+<section id="v-library" data-v hidden>
+  <div class="lib-head">
+    <h2 style="margin:0">مكتبة التمارين</h2>
+    <button class="btn primary" id="addEx" style="margin-right:auto">+ تمرين جديد</button>
+  </div>
+  <div id="libList"></div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="v-progress" data-v hidden>
+  <div class="tiles">
+    <div class="card tile"><div class="n ltr" id="tWeekS">0</div><div class="k">جلسات هذا الأسبوع</div></div>
+    <div class="card tile"><div class="n ltr" id="tWeekM">0</div><div class="k">دقائق هذا الأسبوع</div></div>
+    <div class="card tile"><div class="n ltr" id="tStreak">0</div><div class="k">أيام متتالية</div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>هذا الأسبوع</h2>
+    <div class="week" id="week"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="row" style="margin-bottom:8px">
+      <h2 style="margin:0">تطور السرعة</h2>
+      <select id="chartEx" style="margin-right:auto;min-width:240px" aria-label="اختر التمرين"></select>
+    </div>
+    <div class="chartbox" id="chartBox"></div>
+    <div class="small muted" id="chartNote"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>آخر الجلسات</h2>
+    <div id="sessTable"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>نسخة احتياطية</h2>
+    <p class="small muted" style="margin:0 0 10px">البيانات محفوظة في هذا المتصفح بس. انسخها واحفظها عندك بين فترة وفترة.</p>
+    <div class="row">
+      <button class="btn" id="copyData">نسخ البيانات</button>
+      <button class="btn ghost" id="importData">استيراد</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- modal -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ================= storage ================= */
+const KEY="miran.v1";
+const DEF={custom:[],over:{},sessions:[],settings:{bpm:80,num:4,den:4,sub:1,sound:"soft",vA:90,vN:65,vS:35,spInc:4,spEvery:4,spTo:120,gapPlay:2,gapMute:1,calib:null},accents:{}};
+let S;
+function load(){
+  try{const r=localStorage.getItem(KEY); S=r?JSON.parse(r):null;}catch(e){S=null;}
+  if(!S) S=JSON.parse(JSON.stringify(DEF));
+  for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));
+  for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+load();
+const $=id=>document.getElementById(id);
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display="none",3200);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+/* ================= staff notation ================= */
+const INK="#221C16",DOWN="#8A3F12",UP="#155E68";
+function staffSVG(notes,opts){
+  opts=opts||{}; const y0=44, width=opts.width||Math.max(320,60+notes.length*38), h=y0+40+30;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${h}" viewBox="0 0 ${width} ${h}" role="img" aria-label="نوتة التمرين" style="direction:ltr">`;
+  for(let i=0;i<5;i++){const y=y0+i*10;s+=`<line x1="4" y1="${y}" x2="${width-4}" y2="${y}" stroke="${INK}" stroke-width="1"/>`;}
+  s+=`<line x1="${width-4}" y1="${y0}" x2="${width-4}" y2="${y0+40}" stroke="${INK}" stroke-width="1.5"/>`;
+  s+=`<text x="8" y="${y0+30}" font-family="Noto Music" font-size="40" fill="${INK}">&#x1D11E;</text>`;
+  const x0=46,n=notes.length,step=(width-x0-16)/Math.max(n,1);
+  (opts.tuplets||[]).forEach(([a,b])=>{const xa=x0+step*a+step/2-6,xb=x0+step*b+step/2+6,ty=y0-26;
+    s+=`<path d="M${xa} ${ty+6} L${xa} ${ty} L${xb} ${ty} L${xb} ${ty+6}" fill="none" stroke="${INK}" stroke-width="1"/><rect x="${(xa+xb)/2-6}" y="${ty-8}" width="12" height="14" fill="#fff"/><text x="${(xa+xb)/2}" y="${ty+4}" text-anchor="middle" font-size="12" font-style="italic" font-weight="700" fill="${INK}">3</text>`;});
+  notes.forEach((nt,i)=>{
+    const x=x0+step*i+step/2, st=nt.st, y=y0+40-st*5;
+    if(st<=-2) for(let k=-2;k>=st;k-=2){const ly=y0+40-k*5;s+=`<line x1="${x-10}" y1="${ly}" x2="${x+10}" y2="${ly}" stroke="${INK}"/>`;}
+    if(nt.acc) s+=`<text x="${x-17}" y="${y+5}" font-family="Noto Music" font-size="18" fill="${INK}">${nt.acc}</text>`;
+    s+=`<ellipse cx="${x}" cy="${y}" rx="6.2" ry="4.4" transform="rotate(-20 ${x} ${y})" fill="${INK}"/>`;
+    s+= st<4?`<line x1="${x+5.6}" y1="${y-1}" x2="${x+5.6}" y2="${y-30}" stroke="${INK}" stroke-width="1.3"/>`:`<line x1="${x-5.6}" y1="${y+1}" x2="${x-5.6}" y2="${y+30}" stroke="${INK}" stroke-width="1.3"/>`;
+    if(nt.m){const col=nt.m==="∧"?DOWN:nt.m==="∨"?UP:INK; s+=`<text x="${x}" y="${Math.min(y0-12,y-36)}" text-anchor="middle" font-size="17" font-weight="700" fill="${col}">${nt.m}</text>`;}
+    if(nt.a) s+=`<text x="${x}" y="${Math.min(y0-28,y-52)}" text-anchor="middle" font-size="15" font-weight="700" fill="${INK}">&gt;</text>`;
+    if(nt.l) s+=`<text x="${x}" y="${y0+40+25}" text-anchor="middle" font-family="Almarai" font-size="12" fill="#5E554B">${nt.l}</text>`;
+  });
+  return s+"</svg>";
+}
+
+/* ================= exercises ================= */
+// pattern token: "∧" | "∨>" | "P|دو" ...  (stroke, optional > accent, optional |label)
+function parsePat(p){return String(p||"").trim().split(/\s+/).filter(Boolean).map(t=>{const [a,l]=t.split("|");return {s:a.replace(">",""),a:a.includes(">"),l:l||""};});}
+const FING={"0":[2,""],"1":[2,"♯"],"2":[3,""],"3":[3,"♯"],"4":[4,""]};
+const NOTE={"دو":-2,"ري":-1,"مي":0,"فا":1,"صول":2,"لا":3,"سي":4};
+function autoStaff(ex){
+  const toks=parsePat(ex.pattern); if(!ex.staff) return null;
+  const notes=toks.map((t,i)=>{let st=2,acc="";
+    if(ex.staff==="fing"){const f=FING[t.l]||[2,""];st=f[0];acc=f[1];}
+    else if(ex.staff==="note"){st=NOTE[t.l]!==undefined?NOTE[t.l]:2; if(i===toks.length-1&&t.l==="دو"&&i>0) st=5;}
+    else if(ex.staff==="GA"){st=t.l==="لا"?3:2;}
+    return {st,acc,m:t.s==="P"?"P":t.s,a:t.a,l:t.l};});
+  let list=notes;
+  if(ex.staffRepeat){list=[];while(list.length<ex.staffRepeat) list=list.concat(notes.map(n=>Object.assign({},n,{l:list.length?"":n.l})));list=list.slice(0,ex.staffRepeat);}
+  const tup=[]; if(ex.sub===3){for(let i=0;i+2<list.length;i+=3) tup.push([i,i+2]);}
+  return staffSVG(list,{tuplets:tup});
+}
+const G1="الورشة — الليلة الأولى", G2="الورشة — الليلة الثانية";
+const SEED=[
+ {id:"w1-1",group:G1,type:"ريشة",name:"∧∨ على وتر الصول",pattern:"∧|صول ∨",staff:"GA",staffRepeat:8,num:4,den:4,sub:2,start:60,target:120,notes:"الاسترخاء، والتحكم في الريشة بدون ضغطها، والتحكم في النغمة. نزيد الحركة مع المترونوم، ونشتغل على الداينامك. بهذا نتغلب على الشد."},
+ {id:"w1-2",group:G1,type:"ريشة",name:"تمرين ∨",pattern:"∨|صول",staff:"GA",staffRepeat:8,num:4,den:4,sub:2,start:60,target:110,notes:"الفرداش مثل المشي — لا تخلي الريشة عرجاء."},
+ {id:"w1-3",group:G1,type:"ريشة",name:"الضغوط",pattern:"∧|صول ∨>|لا",staff:"GA",staffRepeat:8,num:4,den:4,sub:2,start:60,target:120,notes:"كل ∧ وتر فاضي، وكل ∨ نغمة بالإصبع، والأكسنت على ∨."},
+ {id:"w1-3r",group:G1,type:"ريشة",name:"الضغوط — معكوس",pattern:"∨>|صول ∧|لا",staff:"GA",staffRepeat:8,num:4,den:4,sub:2,start:60,target:120,notes:"∨ على الفاضي و∧ على الإصبع، والأكسنت باقي على ∨."},
+ {id:"w1-4",group:G1,type:"ريشة",name:"الضغوط + الكروماتيك",pattern:"∧|0 ∨>|1 ∧|2 ∨>|3 ∧|4 ∨>|3 ∧|2 ∨>|1",staff:"fing",num:4,den:4,sub:2,start:60,target:120,notes:"كل ما زادت الأصابع زاد التركيز، وبعدين يرتاح المخ."},
+ {id:"w1-4r",group:G1,type:"ريشة",name:"الضغوط + الكروماتيك — معكوس",pattern:"∨>|0 ∧|1 ∨>|2 ∧|3 ∨>|4 ∧|3 ∨>|2 ∧|1",staff:"fing",num:4,den:4,sub:2,start:60,target:120,notes:"نبدأ بـ ∨، وبعدها ندمج الاثنين."},
+ {id:"w1-5",group:G1,type:"ريشة",name:"تريولا",pattern:"∧|صول ∨ ∧",staff:"GA",staffRepeat:9,num:4,den:4,sub:3,start:50,target:100,notes:"بوزيشن ثاني عشان نريح المخ. ندمجها مع العكس، وبعدها نسويها كروماتيك."},
+ {id:"w1-5r",group:G1,type:"ريشة",name:"تريولا — معكوس",pattern:"∨|صول ∧ ∨",staff:"GA",staffRepeat:9,num:4,den:4,sub:3,start:50,target:100,notes:"تبدأ بـ ∨."},
+ {id:"w2-1",group:G2,type:"يد يسرى",name:"الكروماتيك",pattern:"∧|0 ∨|1 ∧|2 ∨|3 ∧|4 ∨|4 ∧|3 ∨|2 ∧|1 ∨|0",staff:"fing",num:4,den:4,sub:2,start:60,target:120,notes:"أربع مرات رايح جاي، ثم من دو القرار إلى الجواب ونرجع. نثبّت الأصابع."},
+ {id:"w2-2",group:G2,type:"يد يسرى",name:"الترِل",pattern:"∧|مي P|دو",staff:"note",staffRepeat:8,num:4,den:4,sub:4,start:50,target:100,notes:"مي بالريشة ودو بدون ريشة. نفس الفكرة على وتر الدو، ونقفل في مي دو مي دو لا."},
+ {id:"w2-3",group:G2,type:"مقام",name:"العجم على كل النغمات",pattern:"∧|دو ∨|ري ∧|مي ∨|فا ∧|صول ∨|لا ∧|سي ∨|دو",staff:"note",num:4,den:4,sub:2,start:60,target:110,notes:"نبدأ بدو عجم، وعلى نفس السلم: ري، مي، فا… اختبر نفسك بنغمة عشوائية."}
+];
+function allEx(){
+  const seeds=SEED.map(e=>Object.assign({},e,S.over[e.id]||{},{seed:true}));
+  return seeds.concat(S.custom);
+}
+function getEx(id){return allEx().find(e=>e.id===id);}
+function bestFor(id){let b=0;S.sessions.forEach(s=>{if(s.exId===id&&s.relaxed!==false) b=Math.max(b,s.max||0);});return b;}
+function tokHTML(t,i){const c=t.s==="∧"?"d":t.s==="∨"?"u":"p";
+  return `<div class="tok" data-i="${i}"><span class="acc">${t.a?"&gt;":""}</span><span class="s ${c}">${esc(t.s)}</span><span class="l">${esc(t.l)}</span></div>`;}
+
+/* ================= audio engine ================= */
+let ctx=null,master=null,noise=null;
+function ensureCtx(){
+  if(!ctx){const AC=window.AudioContext||window.webkitAudioContext; if(!AC){toast("المتصفح ما يدعم الصوت");return false;}
+    ctx=new AC(); master=ctx.createGain(); master.gain.value=0.9;
+    const comp=ctx.createDynamicsCompressor(); comp.threshold.value=-6; comp.ratio.value=4;
+    master.connect(comp); comp.connect(ctx.destination);
+    noise=ctx.createBuffer(1,ctx.sampleRate*0.2,ctx.sampleRate); const d=noise.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;}
+  if(ctx.state==="suspended") ctx.resume();
+  return true;
+}
+function env(g,t,peak,att,dec){g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec);}
+function tone(type,f,t,peak,dec,dest){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);env(g,t,peak,0.002,dec);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dec+0.05);}
+function burst(f,q,t,peak,dec){const n=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),g=ctx.createGain();n.buffer=noise;bp.type="bandpass";bp.frequency.value=f;bp.Q.value=q;env(g,t,peak,0.001,dec);n.connect(bp);bp.connect(g);g.connect(master);n.start(t);n.stop(t+dec+0.05);}
+function click(kind,lvl,t){
+  if(lvl<=0.001) return; const sn=S.settings.sound;
+  if(sn==="soft"){const f={A:1568,N:1175,S:880}[kind];const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2600;lp.connect(master);
+    tone("sine",f,t,lvl*0.9,0.09,lp);tone("sine",f*2,t,lvl*0.12,0.04,lp);}
+  else if(sn==="wood"){const f={A:1250,N:900,S:720}[kind];tone("sine",f,t,lvl*0.85,0.06);tone("triangle",f*2.7,t,lvl*0.12,0.03);burst(f*3,2,t,lvl*0.35,0.008);}
+  else if(sn==="clave"){const f={A:3000,N:2500,S:2100}[kind];tone("sine",f,t,lvl*0.75,0.035);}
+  else {const f={A:2600,N:2000,S:1600}[kind];burst(f,6,t,lvl*1.4,0.028);tone("sine",420,t,lvl*0.35,0.02);}
+}
+/* scheduler */
+const M={playing:false,next:0,pulse:0,bar:0,patIdx:0,timer:null,queue:[],barsSince:0,hist:[]};
+function ppb(){return S.settings.num*S.settings.sub;}
+function accents(){const n=S.settings.num,k=n+"/"+S.settings.den;let a=S.accents[k];
+  if(!a||a.length!==n){a=[];for(let i=0;i<n;i++) a.push(i===0?"A":"N");S.accents[k]=a;}
+  return a;}
+function inGap(bar){if(!$("gapOn").checked) return false;const p=+S.settings.gapPlay||1,m=+S.settings.gapMute||1;return (bar%(p+m))>=p;}
+function scheduleOne(){
+  const sub=S.settings.sub, beat=Math.floor(M.pulse/sub), s=M.pulse%sub, acc=accents();
+  const muted=inGap(M.bar); let kind=s===0?acc[beat]:"S";
+  if(s!==0 && acc[beat]==="M") kind="M";
+  if(!muted && kind!=="M"){const v={A:S.settings.vA,N:S.settings.vN,S:S.settings.vS}[kind]/100;click(kind,v,M.next);}
+  M.queue.push({t:M.next,beat,s,bar:M.bar,muted,pi:M.patIdx});
+  M.hist.push({t:M.next,pi:M.patIdx,muted,pl:60/S.settings.bpm/S.settings.sub}); if(M.hist.length>3000){M.hist.splice(0,1000);MIC.hi=Math.max(0,MIC.hi-1000);}
+}
+function advance(){
+  M.next+=60/S.settings.bpm/S.settings.sub; M.pulse++; M.patIdx++;
+  if(M.pulse>=ppb()){M.pulse=0;M.bar++;M.barsSince++;
+    if($("spOn").checked && M.barsSince>=(+S.settings.spEvery||4)){M.barsSince=0;
+      const to=+S.settings.spTo||300; if(S.settings.bpm<to){setBpm(Math.min(to,S.settings.bpm+(+S.settings.spInc||1)),true);}}}
+}
+function tick(){while(M.next<ctx.currentTime+0.12){scheduleOne();advance();}}
+function start(){
+  if(!ensureCtx()) return;
+  M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.queue=[];M.hist=[];MIC.hi=0;M.next=ctx.currentTime+0.08;
+  M.timer=setInterval(tick,25);tick();requestAnimationFrame(draw);
+  $("playBtn").classList.add("on");$("playIcon").textContent="■";$("playLbl").textContent="إيقاف";
+  wake(true); sessionPlay(true);
+}
+function stop(){
+  if(MIC.calibrating&&!stop._inner){stop._inner=true;MIC.calibrating=false;if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}$("mState").textContent="انلغت المعايرة";stop._inner=false;}
+  M.playing=false;clearInterval(M.timer);M.queue=[];
+  $("playBtn").classList.remove("on");$("playIcon").textContent="▶";$("playLbl").textContent="تشغيل";
+  document.querySelectorAll(".beat.now,.tok.now").forEach(e=>e.classList.remove("now"));
+  $("status").innerHTML=""; wake(false); sessionPlay(false);
+}
+let lastBeatEl=null,lastTok=null;
+function draw(){
+  if(!M.playing) return;
+  let cur=null; while(M.queue.length&&M.queue[0].t<=ctx.currentTime) cur=M.queue.shift();
+  if(cur){
+    if(cur.s===0){const el=$("beats").children[cur.beat];if(lastBeatEl) lastBeatEl.classList.remove("now");if(el){el.classList.add("now");lastBeatEl=el;}}
+    const toks=$("exPat").children; if(toks.length){const el=toks[cur.pi%toks.length];if(lastTok) lastTok.classList.remove("now");if(el){el.classList.add("now");lastTok=el;}}
+    $("status").innerHTML=`<span>مازورة <b class="ltr">${cur.bar+1}</b></span>`+(cur.muted?`<span class="gapflag">صمت — كمّل لحالك</span>`:"");
+  }
+  requestAnimationFrame(draw);
+}
+let wl=null;async function wake(on){try{if(on&&navigator.wakeLock){wl=await navigator.wakeLock.request("screen");}else if(wl){await wl.release();wl=null;}}catch(e){}}
+
+/* ================= metronome UI ================= */
+function setBpm(v,fromTrainer){v=Math.max(30,Math.min(300,Math.round(v)));S.settings.bpm=v;$("bpmVal").textContent=v;$("bpmRange").value=v;
+  if(SES.active&&M.playing) SES.max=Math.max(SES.max,v), $("sessMax").textContent=SES.max;
+  save();}
+function renderBeats(){const a=accents();$("beats").innerHTML=a.map((k,i)=>`<button class="beat" data-k="${k}" data-i="${i}" aria-label="ضربة ${i+1}">${i+1}</button>`).join("");}
+const PRESETS=[[2,4],[3,4],[4,4],[5,4],[6,8],[7,8],[9,8],[10,8],[12,8]];
+function renderSig(){
+  $("sigPresets").innerHTML=PRESETS.map(([n,d])=>`<button data-n="${n}" data-d="${d}" aria-pressed="${S.settings.num===n&&S.settings.den===d}">${n}/${d}</button>`).join("");
+  $("sigNum").value=S.settings.num;$("sigDen").value=S.settings.den;renderBeats();
+}
+function setSig(n,d){n=Math.max(1,Math.min(32,n|0));S.settings.num=n;S.settings.den=+d;save();renderSig();if(M.playing){M.pulse=0;}}
+function setSub(v){S.settings.sub=+v;save();document.querySelectorAll("#subSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sub==v));}
+function setSound(v){S.settings.sound=v;save();document.querySelectorAll("#soundSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.snd===v));}
+function bindNum(id,key){const el=$(id);el.value=S.settings[key];el.addEventListener("change",()=>{S.settings[key]=+el.value;save();});}
+function initMetro(){
+  setBpm(S.settings.bpm);renderSig();setSub(S.settings.sub);setSound(S.settings.sound);
+  [["m5",-5],["m1",-1],["p1",1],["p5",5]].forEach(([id,d])=>$(id).addEventListener("click",()=>setBpm(S.settings.bpm+d)));
+  $("bpmRange").addEventListener("input",e=>setBpm(+e.target.value));
+  $("beats").addEventListener("click",e=>{const b=e.target.closest(".beat");if(!b) return;const a=accents(),i=+b.dataset.i;a[i]={A:"N",N:"M",M:"A"}[a[i]];save();renderBeats();});
+  $("sigPresets").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setSig(+b.dataset.n,+b.dataset.d);});
+  $("sigNum").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
+  $("sigDen").addEventListener("change",()=>setSig(+$("sigNum").value,$("sigDen").value));
+  $("subSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setSub(b.dataset.sub);});
+  $("soundSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b) return;setSound(b.dataset.snd);if(!M.playing&&ensureCtx()) click("A",S.settings.vA/100,ctx.currentTime+0.02);});
+  ["A","N","S"].forEach(k=>{const el=$("vol"+k),lab=$("vol"+k+"v");el.value=S.settings["v"+k];lab.textContent=el.value;
+    el.addEventListener("input",()=>{S.settings["v"+k]=+el.value;lab.textContent=el.value;save();});});
+  bindNum("spInc","spInc");bindNum("spEvery","spEvery");bindNum("spTo","spTo");bindNum("gapPlay","gapPlay");bindNum("gapMute","gapMute");
+  $("playBtn").addEventListener("click",()=>M.playing?stop():start());
+  let taps=[];$("tapBtn").addEventListener("click",()=>{const n=performance.now();if(taps.length&&n-taps[taps.length-1]>2000) taps=[];taps.push(n);taps=taps.slice(-5);
+    if(taps.length>=2){let sum=0;for(let i=1;i<taps.length;i++) sum+=taps[i]-taps[i-1];setBpm(60000/(sum/(taps.length-1)));}});
+  document.addEventListener("keydown",e=>{if(e.code==="Space"&&location.hash.replace("#","")!=="library"&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$("modal").classList.contains("open")){e.preventDefault();M.playing?stop():start();}});
+}
+
+/* ================= current exercise & session ================= */
+const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
+function loadExercise(id){
+  const ex=getEx(id); if(!ex) return;
+  if(SES.active&&SES.exId===id&&SES.secs>0){location.hash="metronome";return;}
+  if(SES.active&&SES.exId!==id&&SES.secs>5){toast("احفظ الجلسة الحالية أول، أو اختر \"بدون تمرين\"");return;}
+  if(M.playing) stop();
+  SES.active=true;SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;MIC.pairs=[];
+  S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
+  const best=bestFor(id); setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
+  $("spTo").value=S.settings.spTo=ex.target||120;save();
+  $("exCard").hidden=false;$("exName").textContent=ex.name;$("exGroup").textContent=ex.group||"";
+  $("exTarget").innerHTML=`الهدف <b class="ltr">${ex.target||"—"}</b> BPM`+(best?` · أفضل سرعة <b class="ltr">${best}</b>`:"");
+  const st=ex.staff?autoStaff(ex):""; $("exStaff").innerHTML=st||""; $("exStaff").hidden=!st;
+  $("exPat").innerHTML=parsePat(ex.pattern).map(tokHTML).join("");
+  $("exNotes").textContent=ex.notes||"";
+  $("sessTime").textContent="00:00";$("sessMax").textContent="—";
+  location.hash="metronome";
+}
+function clearExercise(){
+  if(SES.active&&SES.secs>5){openConfirm("فيه جلسة ما انحفظت. تبي تتركها بدون حفظ؟",()=>{if(M.playing) stop();SES.active=false;SES.secs=0;$("exCard").hidden=true;$("exPat").innerHTML="";stopRec(true);});return;}
+  if(M.playing) stop();SES.active=false;SES.secs=0;$("exCard").hidden=true;$("exPat").innerHTML="";
+}
+function fmt(sec){sec=Math.round(sec);return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
+function sessionPlay(on){
+  if(!SES.active) return;
+  if(on){SES.t0=performance.now();SES.max=Math.max(SES.max,S.settings.bpm);$("sessMax").textContent=SES.max;
+    SES.timer=setInterval(()=>{$("sessTime").textContent=fmt(SES.secs+(performance.now()-SES.t0)/1000);},500);}
+  else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);}
+}
+function saveSessionDialog(){
+  if(M.playing) stop();
+  if(SES.secs<5){toast("شغّل المترونوم وتمرّن أول");return;}
+  const ex=getEx(SES.exId);
+  openModal(`<h2 id="mTitle">حفظ الجلسة — ${esc(ex?ex.name:"")}</h2>
+   <div class="row small muted">المدة <b class="ltr">${fmt(SES.secs)}</b></div>
+   <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300" value="${SES.max||S.settings.bpm}"></label>
+   ${(()=>{const st=measStats();return st?`<div class="hint">القياس: الثبات <b class="ltr">±${st.std} ms</b>${st.bal?` · ${st.bal.pct<=8?"الريشة متوازنة":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>`}`:""} · <span class="ltr">${st.n}</span> ضربة</div>`:"";})()}
+   <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
+   <label class="f">ملاحظات<textarea id="fNotes" placeholder="مثلاً: ∨ أضعف في السرعات العالية"></textarea></label>
+   <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" data-close>إلغاء</button></div>`);
+  $("fSave").onclick=()=>{
+    stopRec(false).then(()=>{
+      S.sessions.push({id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:+$("fMax").value||0,relaxed:$("fRelax").checked,notes:$("fNotes").value.trim(),rec:SES.recId||null,meas:measStats()});
+      save();closeModal();toast("انحفظت الجلسة");
+      const id=SES.exId;SES.active=false;loadExercise(id);renderLibrary();renderProgress();
+    });
+  };
+}
+
+/* ================= mic measurement ================= */
+const MIC={on:false,stream:null,src:null,sp:null,level:0,pairs:[],calRaw:[],calibrating:false,hi:0,fr:null};
+function curPat(){return parsePat(SES.active&&getEx(SES.exId)?getEx(SES.exId).pattern:"");}
+async function micToggle(){
+  if(MIC.on){micOff();return;}
+  if(!ensureCtx()) return;
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error("no");
+    MIC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  }catch(e){toast("المايك مو متاح هنا. افتح البرنامج من نسخته المثبتة على التاب.");return;}
+  MIC.src=ctx.createMediaStreamSource(MIC.stream);
+  MIC.sp=ctx.createScriptProcessor(1024,1,1);
+  const sink=ctx.createGain();sink.gain.value=0;
+  MIC.src.connect(MIC.sp);MIC.sp.connect(sink);sink.connect(ctx.destination);
+  MIC.sp.onaudioprocess=micProcess;
+  MIC.on=true;$("micBtn").textContent="إطفاء المايك";$("micBtn").classList.add("primary");
+  $("calBtn").disabled=false;$("measReset").disabled=false;$("mState").textContent="يسمعك";
+  requestAnimationFrame(meterLoop);
+}
+function micOff(){
+  try{MIC.sp.disconnect();MIC.src.disconnect();}catch(e){}
+  if(!(rec&&rec.state==="recording")){try{MIC.stream.getTracks().forEach(t=>t.stop());}catch(e){}MIC.stream=null;}
+  MIC.on=false;MIC.calibrating=false;$("micBtn").textContent="تشغيل المايك";$("micBtn").classList.remove("primary");
+  $("calBtn").disabled=true;$("mState").textContent="المايك مطفي";$("meterBar").style.width="0";
+}
+function micProcess(e){
+  const x=e.inputBuffer.getChannelData(0),sr=ctx.sampleRate,N=x.length,hop=128,W=256;
+  const tBlock=e.playbackTime-N/sr, ra=MIC.ra||(MIC.ra=Math.exp(-2*Math.PI*1500/sr));
+  if(!MIC.sq){MIC.sq=new Float32Array(W);MIC.qi=0;MIC.acc=0;MIC.px=0;MIC.py=0;MIC.fr=[];}
+  for(let h=0;h<N;h+=hop){
+    let p=0;
+    for(let i=h;i<h+hop&&i<N;i++){const y=ra*(MIC.py+x[i]-MIC.px);MIC.px=x[i];MIC.py=y;const v=y*y;MIC.acc+=v-MIC.sq[MIC.qi];MIC.sq[MIC.qi]=v;MIC.qi=(MIC.qi+1)%W;const a=Math.abs(x[i]);if(a>p) p=a;}
+    MIC.level=Math.max(p,MIC.level*0.97);
+    MIC.fr.push({t:tBlock+(h+hop-W/2)/sr,e:Math.sqrt(Math.max(MIC.acc,0)/W),p});
+  }
+  if(MIC.fr.length>2400) MIC.fr.splice(0,800);
+}
+// analyse each metronome pulse inside its own time window (guided by the click grid)
+function analyse(){
+  if(!MIC.on||!M.hist.length||!MIC.fr||!MIC.fr.length) return;
+  const lastT=MIC.fr[MIC.fr.length-1].t, cal=MIC.calibrating?0:(S.settings.calib!=null?S.settings.calib:0.05);
+  while(MIC.hi<M.hist.length){
+    const h=M.hist[MIC.hi], pl=h.pl;
+    const a=MIC.calibrating?h.t-0.15*pl:h.t+cal-0.45*pl, b=MIC.calibrating?h.t+0.8*pl:h.t+cal+0.45*pl;
+    if(b+0.03>lastT) break;
+    MIC.hi++;
+    const fr=MIC.fr;let bi=-1,bd=0,emin=1;
+    for(let i=1;i<fr.length;i++){if(fr[i].t<a) continue;if(fr[i].t>b) break;emin=Math.min(emin,fr[i].e);const d=fr[i].e-fr[i-1].e;if(d>bd){bd=d;bi=i;}}
+    if(bi<0||bd<0.0015||fr[bi].e<emin*2) continue;
+    let pk=0;for(let i=bi;i<fr.length&&fr[i].t<fr[bi].t+0.03;i++) pk=Math.max(pk,fr[i].p);
+    const raw=fr[bi].t-h.t;
+    if(MIC.calibrating){MIC.calRaw.push(raw);$("mState").textContent="معايرة: "+MIC.calRaw.length+" / 12";
+      if(MIC.calRaw.length>=12){const q=MIC.calRaw.slice().sort((p,r)=>p-r);S.settings.calib=q[6];save();endCalib();toast("تمت المعايرة");}
+      continue;}
+    const toks=curPat(); const tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
+    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,muted:h.muted});
+    if(MIC.pairs.length>4000) MIC.pairs.splice(0,1000);
+  }
+}
+setInterval(analyse,100);
+function startCalib(){
+  MIC.saved={bpm:S.settings.bpm,sub:S.settings.sub,num:S.settings.num,den:S.settings.den};
+  if(M.playing) stop();
+  setBpm(60);setSub(1);
+  MIC.calibrating=true;MIC.calRaw=[];$("mState").textContent="معايرة: اعزف مع كل نبضة";start();
+}
+function endCalib(){
+  MIC.calibrating=false;MIC.pairs=[];stop();
+  if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}
+  showCal();$("mState").textContent="يسمعك";
+}
+function measStats(list){
+  list=list||MIC.pairs; if(list.length<4) return null;
+  const devs=list.map(p=>p.dev*1000), mean=devs.reduce((a,b)=>a+b,0)/devs.length;
+  const std=Math.sqrt(devs.reduce((a,b)=>a+(b-mean)*(b-mean),0)/devs.length);
+  const dn=list.filter(p=>p.s==="∧").map(p=>p.peak), up=list.filter(p=>p.s==="∨").map(p=>p.peak);
+  let bal=null; if(dn.length>=3&&up.length>=3){const md=dn.reduce((a,b)=>a+b,0)/dn.length,mu=up.reduce((a,b)=>a+b,0)/up.length;
+    bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100)};}
+  return {n:list.length,mean:Math.round(mean),std:Math.round(std),bal,cal:S.settings.calib!=null};
+}
+function showCal(){$("calInfo").textContent=S.settings.calib!=null?"calib "+Math.round(S.settings.calib*1000)+" ms":"بدون معايرة";}
+function renderMeas(){
+  const st=measStats(); $("mN").textContent=MIC.pairs.length;
+  if(!st){$("mStd").textContent="—";$("mMean").textContent="—";$("mBal").textContent="—";return;}
+  $("mStd").textContent="±"+st.std+" ms";
+  $("mMean").innerHTML=!st.cal?`<span class="small">سوّ معايرة</span>`:Math.abs(st.mean)<=5?"على النبضة":(st.mean<0?"متقدم ":"متأخر ")+`<span class="ltr">${Math.abs(st.mean)} ms</span>`;
+  if(st.bal){$("mBal").innerHTML=st.bal.pct<=8?"متوازنة":`<span class="ltr">${st.bal.weak}</span> أضعف بـ <span class="ltr">${st.bal.pct}%</span>`;}
+  else $("mBal").textContent="—";
+}
+function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
+setInterval(()=>{if(MIC.on) renderMeas();},400);
+$("micBtn").onclick=micToggle;
+$("calBtn").onclick=()=>{if(MIC.calibrating){endCalib();return;}startCalib();};
+$("measReset").onclick=()=>{MIC.pairs=[];renderMeas();};
+showCal();
+
+/* ================= recording ================= */
+let rec=null,recChunks=[],recStream=null;
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open("miran",1);r.onupgradeneeded=()=>r.result.createObjectStore("recs");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}});}
+async function putRec(id,blob){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction("recs","readwrite");tx.objectStore("recs").put(blob,id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function getRec(id){const db=await idb();return new Promise((res,rej)=>{const r=db.transaction("recs").objectStore("recs").get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function toggleRec(){
+  if(rec&&rec.state==="recording"){await stopRec(false);return;}
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error("x");
+    recStream=MIC.on&&MIC.stream?MIC.stream:await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    recChunks=[];rec=new MediaRecorder(recStream);rec.ondataavailable=e=>{if(e.data.size) recChunks.push(e.data);};rec.start();
+    $("recLbl").textContent="إيقاف التسجيل";$("recBtn").classList.add("primary");
+  }catch(e){toast("الميكروفون مو متاح في هذي النسخة. التسجيل بيشتغل لما نثبّت التطبيق على التاب.");}
+}
+function stopRec(discard){
+  return new Promise(res=>{
+    if(!rec||rec.state!=="recording"){res();return;}
+    rec.onstop=async()=>{if(!MIC.on||recStream!==MIC.stream){try{recStream.getTracks().forEach(t=>t.stop());}catch(e){}}
+      if(!discard&&recChunks.length){const id=uid();try{await putRec(id,new Blob(recChunks,{type:rec.mimeType||"audio/webm"}));SES.recId=id;toast("انحفظ التسجيل مع الجلسة");}catch(e){toast("ما قدرت أحفظ التسجيل في هذا المتصفح");}}
+      rec=null;$("recLbl").textContent="تسجيل";$("recBtn").classList.remove("primary");res();};
+    rec.stop();
+  });
+}
+
+/* ================= library ================= */
+function renderLibrary(){
+  const exs=allEx(),groups={};exs.forEach(e=>{(groups[e.group||"تمارين خاصة"]=groups[e.group||"تمارين خاصة"]||[]).push(e);});
+  let h="";
+  Object.keys(groups).forEach(g=>{
+    h+=`<div class="group-title">${esc(g)} <span class="tag ltr">${groups[g].length}</span></div><div class="cards">`;
+    groups[g].forEach(e=>{const best=bestFor(e.id),pct=e.target?Math.min(100,Math.round(best/e.target*100)):0;
+      const toks=parsePat(e.pattern).slice(0,10).map(t=>`<span style="color:${t.s==="∧"?DOWN:t.s==="∨"?UP:INK}">${esc(t.s)}${t.a?"&gt;":""}</span>`).join("");
+      h+=`<div class="card ex">
+        <div class="row"><span class="t">${esc(e.name)}</span><span class="tag" style="margin-right:auto">${esc(e.type||"")}</span></div>
+        <div class="mini">${toks}</div>
+        <div class="small muted">الوزن <b class="ltr">${e.num}/${e.den}</b> · التقسيم <b class="ltr">${e.sub}</b> · من <b class="ltr">${e.start}</b> إلى <b class="ltr">${e.target}</b> BPM</div>
+        <div class="row small"><span>أفضل سرعة: <b class="ltr">${best||"—"}</b></span><span class="muted ltr" style="margin-right:auto">${pct}%</span></div>
+        <div class="prog" aria-hidden="true"><i style="width:${pct}%"></i></div>
+        <div class="row"><button class="btn primary" data-go="${e.id}">تمرّن</button><button class="btn ghost" data-edit="${e.id}">تعديل</button>${e.seed?"":`<button class="btn danger" data-del="${e.id}">حذف</button>`}</div>
+      </div>`;});
+    h+="</div>";
+  });
+  $("libList").innerHTML=h;
+}
+function exForm(ex){
+  const isSeed=ex&&ex.seed; ex=ex||{name:"",group:"دروس الأستاذ",type:"ريشة",pattern:"∧ ∨",num:4,den:4,sub:2,start:60,target:120,notes:""};
+  const groups=[...new Set(allEx().map(e=>e.group).concat(["دروس الأستاذ","تمارين خاصة"]))];
+  openModal(`<h2 id="mTitle">${ex.id?"تعديل التمرين":"تمرين جديد"}</h2>
+   ${isSeed?`<p class="small muted" style="margin:0">هذا من تمارين الورشة: تقدر تعدّل السرعات والملاحظات.</p>`:`
+   <label class="f">اسم التمرين<input type="text" id="eName" value="${esc(ex.name)}"></label>
+   <div class="row"><label class="f" style="flex:1">المجموعة<input type="text" id="eGroup" list="glist" value="${esc(ex.group)}"><datalist id="glist">${groups.map(g=>`<option value="${esc(g)}">`).join("")}</datalist></label>
+   <label class="f" style="flex:1">النوع<select id="eType">${["ريشة","يد يسرى","مقام","قطعة","إيقاع","أخرى"].map(t=>`<option ${t===ex.type?"selected":""}>${t}</option>`).join("")}</select></label></div>
+   <label class="f">نمط الريشة<input type="text" id="ePat" class="ltr" value="${esc(ex.pattern)}"></label>
+   <div class="inserts">${["∧","∨",">","P","|"].map(s=>`<button type="button" data-ins="${s}">${s}</button>`).join("")}<button type="button" data-ins=" " style="min-width:72px;font-size:14px">مسافة</button><button type="button" data-ins="⌫" aria-label="مسح">⌫</button></div>
+   <p class="small muted" style="margin:0">كل ضربة مفصولة بمسافة. أضف <b>&gt;</b> للأكسنت، و<b>|</b> ثم اسم النغمة أو رقم الإصبع. مثال: <span class="ltr">∧|0 ∨&gt;|1</span></p>
+   <div class="row"><label class="f">الوزن<span class="row ltr"><input type="number" id="eNum" min="1" max="32" value="${ex.num}" style="width:70px">/<select id="eDen">${[2,4,8,16].map(d=>`<option ${d==ex.den?"selected":""}>${d}</option>`).join("")}</select></span></label>
+   <label class="f">التقسيم<select id="eSub" class="ltr">${[1,2,3,4].map(d=>`<option ${d==ex.sub?"selected":""}>${d}</option>`).join("")}</select></label></div>`}
+   <div class="row"><label class="f">تبدأ من (BPM)<input type="number" id="eStart" class="ltr" min="30" max="300" value="${ex.start}"></label>
+   <label class="f">الهدف (BPM)<input type="number" id="eTarget" class="ltr" min="30" max="300" value="${ex.target}"></label></div>
+   <label class="f">ملاحظات الأستاذ<textarea id="eNotes">${esc(ex.notes)}</textarea></label>
+   <div class="row"><button class="btn primary" id="eSave">حفظ</button><button class="btn ghost" data-close>إلغاء</button></div>`);
+  if(!isSeed){const pat=$("ePat");document.querySelectorAll("[data-ins]").forEach(b=>b.onclick=()=>{const v=b.dataset.ins;if(v==="⌫") pat.value=pat.value.slice(0,-1);else pat.value+=(v==="∧"||v==="∨"||v==="P")&&pat.value&&!/[\s|]$/.test(pat.value)?" "+v:v;pat.focus();});}
+  $("eSave").onclick=()=>{
+    const start=+$("eStart").value||60,target=+$("eTarget").value||120,notes=$("eNotes").value.trim();
+    if(isSeed){S.over[ex.id]={start,target,notes};}
+    else{const name=$("eName").value.trim();if(!name){toast("اكتب اسم التمرين");return;}
+      const pattern=$("ePat").value.trim()||"∧ ∨";
+      const obj={id:ex.id||uid(),name,group:$("eGroup").value.trim()||"تمارين خاصة",type:$("eType").value,pattern,num:+$("eNum").value||4,den:+$("eDen").value,sub:+$("eSub").value,start,target,notes};
+      const i=S.custom.findIndex(c=>c.id===obj.id); if(i>=0) S.custom[i]=obj; else S.custom.push(obj);}
+    save();closeModal();renderLibrary();renderProgress();toast("انحفظ التمرين");
+  };
+}
+$("libList").addEventListener("click",e=>{
+  const go=e.target.closest("[data-go]"),ed=e.target.closest("[data-edit]"),del=e.target.closest("[data-del]");
+  if(go) loadExercise(go.dataset.go);
+  if(ed) exForm(getEx(ed.dataset.edit));
+  if(del) openConfirm("تحذف هذا التمرين؟ الجلسات المسجلة له تبقى في السجل.",()=>{S.custom=S.custom.filter(c=>c.id!==del.dataset.del);save();renderLibrary();renderProgress();});
+});
+$("addEx").onclick=()=>exForm(null);
+$("exClear").onclick=clearExercise;
+$("sessSave").onclick=saveSessionDialog;
+$("recBtn").onclick=toggleRec;
+
+/* ================= progress ================= */
+function dayKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+const fmtDay=d=>d.toLocaleDateString("ar-u-nu-latn",{day:"numeric",month:"short"});
+function renderProgress(){
+  const now=new Date(),wStart=new Date(now);wStart.setHours(0,0,0,0);wStart.setDate(wStart.getDate()-wStart.getDay());
+  const inWeek=S.sessions.filter(s=>new Date(s.date)>=wStart);
+  $("tWeekS").textContent=inWeek.length;$("tWeekM").textContent=Math.round(inWeek.reduce((a,s)=>a+(s.dur||0),0)/60);
+  const days=new Set(S.sessions.map(s=>dayKey(new Date(s.date))));let streak=0;const c=new Date(now);c.setHours(0,0,0,0);
+  if(!days.has(dayKey(c))) c.setDate(c.getDate()-1);
+  while(days.has(dayKey(c))){streak++;c.setDate(c.getDate()-1);}
+  $("tStreak").textContent=streak;
+  const names=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];let w="";
+  for(let i=0;i<7;i++){const d=new Date(wStart);d.setDate(d.getDate()+i);const k=dayKey(d);
+    const mins=Math.round(S.sessions.filter(s=>dayKey(new Date(s.date))===k).reduce((a,s)=>a+(s.dur||0),0)/60);
+    w+=`<div class="day ${days.has(k)?"on":""} ${k===dayKey(now)?"today":""}">${names[i]}<div class="m ltr">${days.has(k)?mins+" min":fmtDay(d)}</div></div>`;}
+  $("week").innerHTML=w;
+  // chart select
+  const sel=$("chartEx"),prev=sel.value;const withS=allEx().filter(e=>S.sessions.some(s=>s.exId===e.id));
+  sel.innerHTML=withS.length?withS.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(""):`<option value="">ما فيه جلسات للحين</option>`;
+  if(prev&&withS.some(e=>e.id===prev)) sel.value=prev;
+  drawChart(sel.value);
+  // table
+  const list=S.sessions.slice().reverse().slice(0,30);
+  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>مرتاح</th><th>ملاحظات</th><th>التسجيل</th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
+    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${s.meas&&s.meas.bal?(s.meas.bal.pct<=8?"متوازنة":`<span class="ltr">${s.meas.bal.weak}</span> −<span class="ltr">${s.meas.bal.pct}%</span>`):"—"}</td><td>${s.relaxed?"✓":"—"}</td><td class="small">${esc(s.notes||"")}</td><td>${s.rec?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
+}
+$("chartEx").addEventListener("change",e=>drawChart(e.target.value));
+$("sessTable").addEventListener("click",async e=>{
+  const p=e.target.closest("[data-play]"),d=e.target.closest("[data-sdel]");
+  if(p){try{const b=await getRec(p.dataset.play);if(!b){toast("التسجيل مو موجود في هذا المتصفح");return;}const a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(b);p.replaceWith(a);a.play().catch(()=>{});}catch(err){toast("ما قدرت أشغّل التسجيل");}}
+  if(d) openConfirm("تحذف هذه الجلسة؟",()=>{S.sessions=S.sessions.filter(s=>s.id!==d.dataset.sdel);save();renderProgress();renderLibrary();});
+});
+function drawChart(id){
+  const box=$("chartBox");const ex=getEx(id);
+  if(!ex){box.innerHTML=`<div class="empty">ما فيه بيانات للحين.</div>`;$("chartNote").textContent="";return;}
+  const byDay={};S.sessions.filter(s=>s.exId===id).forEach(s=>{const d=new Date(s.date);d.setHours(0,0,0,0);const k=d.getTime();byDay[k]=Math.max(byDay[k]||0,s.max||0);});
+  const pts=Object.keys(byDay).map(Number).sort((a,b)=>a-b).map(k=>({t:k,v:byDay[k]}));
+  const W=Math.max(320,box.clientWidth||800),H=260,P={l:44,r:16,t:16,b:30};
+  const vmax=Math.max(ex.target||0,...pts.map(p=>p.v))+10,vmin=Math.max(0,Math.min(ex.start||60,...pts.map(p=>p.v))-10);
+  const t0=pts[0].t,t1=pts.length>1?pts[pts.length-1].t:t0+86400000;
+  const X=t=>P.l+(t-t0)/(t1-t0||1)*(W-P.l-P.r)*(pts.length>1?1:0.5)+(pts.length>1?0:(W-P.l-P.r)/2);
+  const Y=v=>P.t+(1-(v-vmin)/(vmax-vmin))*(H-P.t-P.b);
+  let g="";const step=Math.max(10,Math.ceil((vmax-vmin)/5/10)*10);
+  for(let v=Math.ceil(vmin/step)*step;v<=vmax;v+=step){g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#E2D6C4" stroke-width="1"/><text x="${P.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#5E554B">${v}</text>`;}
+  if(ex.target) g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(ex.target)}" y2="${Y(ex.target)}" stroke="#5E554B" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W-P.r}" y="${Y(ex.target)-6}" text-anchor="end" font-size="12" fill="#5E554B">الهدف ${ex.target}</text>`;
+  const path=pts.map((p,i)=>(i?"L":"M")+X(p.t)+" "+Y(p.v)).join(" ");
+  g+=`<path d="${path}" fill="none" stroke="${DOWN}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i)=>{g+=`<circle cx="${X(p.t)}" cy="${Y(p.v)}" r="5" fill="${DOWN}" stroke="#fff" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.v)}" r="16" fill="transparent" data-i="${i}" style="cursor:pointer"/>`;});
+  const fl=[pts[0],pts[pts.length-1]];
+  g+=`<text x="${X(fl[0].t)}" y="${H-8}" text-anchor="${pts.length>1?"start":"middle"}" font-size="12" fill="#5E554B">${fmtDay(new Date(fl[0].t))}</text>`;
+  if(pts.length>1) g+=`<text x="${X(fl[1].t)}" y="${H-8}" text-anchor="end" font-size="12" fill="#5E554B">${fmtDay(new Date(fl[1].t))}</text>`;
+  box.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="تطور أعلى سرعة لتمرين ${esc(ex.name)}" style="direction:ltr;display:block;max-width:100%">${g}</svg><div class="tip" id="tip"></div>`;
+  const tip=$("tip");box.querySelectorAll("circle[data-i]").forEach(c=>{
+    const show=()=>{const p=pts[+c.dataset.i];tip.innerHTML=`${fmtDay(new Date(p.t))} · <b class="ltr">${p.v}</b> BPM`;tip.style.left=c.getAttribute("cx")+"px";tip.style.top=c.getAttribute("cy")+"px";tip.style.display="block";};
+    c.addEventListener("mouseenter",show);c.addEventListener("click",show);c.addEventListener("mouseleave",()=>tip.style.display="none");});
+  const last=pts[pts.length-1].v,first=pts[0].v;
+  $("chartNote").innerHTML=`أفضل سرعة يومية في <b class="ltr">${pts.length}</b> يوم تمرين`+(pts.length>1?` · من <b class="ltr">${first}</b> إلى <b class="ltr">${last}</b> BPM`:"");
+}
+$("copyData").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(S));toast("انسخت البيانات. الصقها في ملاحظة واحفظها");}catch(e){
+  openModal(`<h2 id="mTitle">نسخ البيانات</h2><p class="small muted" style="margin:0">ما قدرت أنسخ تلقائياً. حدد النص وانسخه.</p><textarea style="min-height:200px" class="ltr" readonly>${esc(JSON.stringify(S))}</textarea><button class="btn ghost" data-close>إغلاق</button>`);}};
+$("importData").onclick=()=>{openModal(`<h2 id="mTitle">استيراد البيانات</h2><p class="small muted" style="margin:0">الصق النسخة الاحتياطية. بتستبدل البيانات الحالية.</p><textarea id="impT" style="min-height:200px" class="ltr"></textarea><div class="row"><button class="btn primary" id="impGo">استيراد</button><button class="btn ghost" data-close>إلغاء</button></div>`);
+  $("impGo").onclick=()=>{try{const d=JSON.parse($("impT").value);if(!d||!Array.isArray(d.sessions)) throw 0;S=d;load2();save();closeModal();renderAll();toast("تم الاستيراد");}catch(e){toast("النص مو صحيح");}};};
+function load2(){for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];}
+
+/* ================= modal ================= */
+function openModal(html){$("sheet").innerHTML=html;$("modal").classList.add("open");const f=$("sheet").querySelector("input,textarea,select,button");if(f) f.focus();}
+function closeModal(){$("modal").classList.remove("open");$("sheet").innerHTML="";}
+function openConfirm(msg,yes){openModal(`<h2 id="mTitle">تأكيد</h2><p style="margin:0">${esc(msg)}</p><div class="row"><button class="btn danger" id="cYes">نعم</button><button class="btn ghost" data-close>لا</button></div>`);$("cYes").onclick=()=>{closeModal();yes();};}
+$("modal").addEventListener("click",e=>{if(e.target===$("modal")||e.target.closest("[data-close]")) closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("modal").classList.contains("open")) closeModal();});
+
+/* ================= routing ================= */
+function route(){const v=(location.hash||"#metronome").slice(1);const ok=["metronome","library","progress"].includes(v)?v:"metronome";
+  document.querySelectorAll("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+ok);
+  document.querySelectorAll("nav a").forEach(a=>{if(a.dataset.view===ok) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
+  if(ok==="progress") renderProgress();}
+window.addEventListener("hashchange",route);
+function renderAll(){initMetroValues();renderLibrary();renderProgress();route();}
+function initMetroValues(){setBpm(S.settings.bpm);renderSig();setSub(S.settings.sub);setSound(S.settings.sound);}
+initMetro();renderLibrary();renderProgress();route();
+try{if("serviceWorker" in navigator && !/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
+})();
+</script>
+</body>
+</html>
