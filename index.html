@@ -1148,6 +1148,9 @@ function renderSel(){
 
 /* ================= pieces: piano ================= */
 const PIANO={buf:{},list:null,loading:null};
+// samples come quiet: bring each one up to full level so tablet speakers can carry it
+function normBuf(bf){let pk=0;for(let c=0;c<bf.numberOfChannels;c++){const d=bf.getChannelData(c);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk) pk=a;}}
+  if(pk>0&&pk<0.95){const k=0.95/pk;for(let c=0;c<bf.numberOfChannels;c++){const d=bf.getChannelData(c);for(let i=0;i<d.length;i++) d[i]*=k;}}}
 async function loadPiano(){
   if(PIANO.list) return true;
   if(PIANO.loading) return PIANO.loading;
@@ -1155,7 +1158,7 @@ async function loadPiano(){
     try{
       ensureCtx();$("pcStatus").textContent="تحميل صوت البيانو…";
       const list=await (await fetch("piano/index.json")).json();
-      await Promise.all(list.map(async m=>{const ab=await (await fetch("piano/"+m+".mp3")).arrayBuffer();PIANO.buf[m]=await ctx.decodeAudioData(ab);}));
+      await Promise.all(list.map(async m=>{const ab=await (await fetch("piano/"+m+".mp3")).arrayBuffer();const bf=await ctx.decodeAudioData(ab);normBuf(bf);PIANO.buf[m]=bf;}));
       PIANO.list=list;$("pcStatus").textContent="";return true;
     }catch(e){$("pcStatus").textContent="";toast("ما قدرت أحمّل صوت البيانو");PIANO.loading=null;return false;}
   })();
@@ -1277,7 +1280,9 @@ function pDraw(){
   requestAnimationFrame(pDraw);
 }
 // piano sample when ready, otherwise a soft synthesized tone so there is never silence
-let noteBus=null;function nBus(){if(!noteBus){noteBus=ctx.createGain();noteBus.gain.value=1;noteBus.connect(ctx.destination);}return noteBus;}
+let noteBus=null;function nBus(){if(!noteBus){noteBus=ctx.createGain();noteBus.gain.value=2.2;
+  const lim=ctx.createDynamicsCompressor();lim.threshold.value=-10;lim.knee.value=6;lim.ratio.value=12;lim.attack.value=0.002;lim.release.value=0.15;
+  noteBus.connect(lim);lim.connect(ctx.destination);}return noteBus;}
 function playNote(midi,t,dur,vol){
   if(S.settings.pcSound!=="tone"&&PIANO.list) return pianoNote(midi,t,dur,vol);
   const f=440*Math.pow(2,(midi-69)/12),o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;
