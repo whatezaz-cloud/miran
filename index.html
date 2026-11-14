@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#221C16">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script src="lib/vexflow-core.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Noto+Music&display=swap" rel="stylesheet">
@@ -33,6 +34,7 @@ h3{margin:0 0 8px;font-size:16px;font-weight:700}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .stack{display:flex;flex-direction:column;gap:14px}
 .btn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid var(--ink);background:var(--card);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+a.btn{text-decoration:none;color:var(--ink)}
 .btn.primary{background:var(--ink);color:var(--paper)}
 .btn.ghost{border-color:var(--line)}
 .btn.danger{border-color:var(--bad);color:var(--bad)}
@@ -140,6 +142,32 @@ audio{height:36px;max-width:220px}
 .overlay.open{display:flex}
 .overlay b{font-size:24px}
 [hidden]{display:none !important}
+@font-face{font-family:"Bravura";src:url(fonts/bravura.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Academico";src:url(fonts/academico.woff2) format("woff2");font-display:block}
+.pcpage{max-width:1120px;margin:0 auto;padding-bottom:210px}
+.pchead{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.pctitle h1{margin:0;font-size:26px;font-weight:800;line-height:1.3}
+.pctitle .row{gap:8px}
+.scorecard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 18px;box-shadow:0 1px 2px rgba(34,28,22,.04)}
+#score{direction:ltr;min-height:160px}
+#score svg{display:block;max-width:100%;height:auto}
+#score .barhit{fill:transparent;cursor:pointer}
+#score .barhit.sel{fill:#F3E7D3}
+#score .nname{font:600 13px Almarai,system-ui,sans-serif;fill:#5E554B;text-anchor:middle}
+#score text.nname.pnow{fill:#8A3F12 !important;stroke:none !important}
+#score text.nname.pyou{fill:#155E68 !important;stroke:none !important}
+#score .barnum{font:600 11px Almarai,sans-serif;fill:#9A8F80}
+#score .pnow path,#score .pnow text,#score .pnow rect{fill:#8A3F12 !important;stroke:#8A3F12 !important}
+#score .pyou path,#score .pyou text,#score .pyou rect{fill:#155E68 !important;stroke:#155E68 !important}
+.transport{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;width:min(1120px,calc(100% - 24px));background:rgba(255,255,255,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 30px rgba(34,28,22,.12);padding:12px 16px;display:flex;flex-direction:column;gap:10px;z-index:8}
+.transport .trow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.transport .pcplay{width:auto;min-width:150px;min-height:54px;font-size:19px;padding:0 22px}
+.transport .f.inl{flex-direction:row;align-items:center;gap:8px;font-size:14px}
+.transport .f.inl.grow{flex:1;min-width:220px}
+.transport .switch.sm{min-height:36px;font-size:14px;gap:6px}
+.transport .switch.sm input{width:18px;height:18px}
+.tbanner{position:absolute;top:-46px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-weight:800;font-size:18px;padding:6px 18px;border-radius:12px;white-space:nowrap}
+.tbanner:empty{display:none}
 .dynNow{display:flex;align-items:baseline;justify-content:center;gap:12px;padding:6px 0}
 .dynNow .dk{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:56px;line-height:1;color:var(--up)}
 .dynNow .dt{font-size:20px;font-weight:800}
@@ -163,6 +191,7 @@ audio{height:36px;max-width:220px}
   <nav aria-label="الأقسام">
     <a href="#metronome" data-view="metronome">المترونوم</a>
     <a href="#library" data-view="library">التمارين</a>
+    <a href="#pieces" data-view="pieces">المقطوعات</a>
     <a href="#progress" data-view="progress">السجل والتقدم</a>
   </nav>
 </header>
@@ -346,6 +375,40 @@ audio{height:36px;max-width:220px}
     <label class="f">ملاحظاتك<textarea id="fNotes"></textarea></label>
     <p class="small muted" style="margin:0">الجلسة انحفظت تلقائياً في السجل.</p>
     <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn danger" id="fDrop" style="margin-right:auto">حذف الجلسة</button></div>
+  </div>
+</section>
+
+<!-- ============ PIECES ============ -->
+<section id="v-pieces" data-v hidden>
+  <div class="row" style="margin-bottom:12px"><h2 style="margin:0">المقطوعات</h2></div>
+  <div id="pieceList"></div>
+  <p class="small muted" style="margin-top:18px">صوت البيانو: FluidR3 GM (midi-js-soundfonts) · النوتة: VexFlow وخط Bravura.</p>
+</section>
+
+<section id="v-piece" data-v hidden class="pcpage">
+  <div class="pchead">
+    <a href="#pieces" class="btn ghost">→ المقطوعات</a>
+    <div class="pctitle"><h1 id="pcTitle"></h1><div class="row small muted" id="pcMeta"></div></div>
+  </div>
+  <p class="small muted" id="pcNote" style="margin:0 0 10px"></p>
+  <div class="scorecard"><div id="score"></div></div>
+  <div class="transport" role="region" aria-label="التحكم بالعزف">
+    <div class="tbanner" id="pcBanner" aria-live="polite"></div>
+    <div class="trow">
+      <button class="play pcplay" id="pcPlay"><span id="pcPlayIcon">▶</span><span id="pcPlayLbl">تشغيل</span></button>
+      <div class="seg" id="pcMode" aria-label="الوضع">
+        <button data-m="listen">اسمع</button><button data-m="together">اعزف معه</button><button data-m="qa">سؤال وجواب</button><button data-m="alone">لحالك</button>
+      </div>
+      <label class="f inl" id="pcQaWrap">الجملة <select id="pcQaBars" class="ltr"></select> مازورة</label>
+    </div>
+    <div class="trow">
+      <label class="f inl grow">السرعة <input type="range" id="pcPct" min="40" max="120" step="5" class="ltr" aria-label="نسبة السرعة"><b class="ltr" id="pcPctV" style="min-width:48px">100%</b></label>
+      <label class="f inl">البيانو <input type="range" id="pcVol" min="0" max="100" class="ltr" style="width:110px" aria-label="صوت البيانو"></label>
+      <label class="switch sm"><input type="checkbox" id="pcClick"> مترونوم</label>
+      <label class="switch sm"><input type="checkbox" id="pcLoop"> تكرار</label>
+      <label class="switch sm"><input type="checkbox" id="pcNames"> أسماء النغمات</label>
+    </div>
+    <div class="trow small"><span id="pcSel"></span><span class="muted" id="pcStatus" style="margin-right:auto"></span></div>
   </div>
 </section>
 
@@ -902,6 +965,233 @@ function stopRec(discard){
   });
 }
 
+/* ================= pieces: data ================= */
+// token: C4/4  Ed4/8  Bb3/8.  F#4/16  r/4   (d = half-flat, + = half-sharp)
+const PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11}, SOLF={C:"Do",D:"Re",E:"Mi",F:"Fa",G:"Sol",A:"La",B:"Si"};
+const ACC={"#":1,"b":-1,"d":-0.5,"+":0.5,"":0};
+const ACC_GLYPH={"#":"#","b":"b","d":"","+":"","n":"n"};
+const ACC_NAME={"#":"♯","b":"♭","d":"½♭","+":"½♯","":""};
+let PIECES=[];
+function parseTok(tok){
+  const m=/^(r|[A-G])(#|b|d|\+)?(\d)?\/(1|2|4|8|16)(\.)?$/.exec(tok);
+  if(!m) return null;
+  const dur=+m[4],dot=!!m[5],beats=4/dur*(dot?1.5:1);
+  if(m[1]==="r") return {rest:true,dur,dot,beats};
+  const L=m[1],acc=m[2]||"",oct=m[3]!=null?+m[3]:4;
+  return {rest:false,L,acc,oct,dur,dot,beats,midi:12*(oct+1)+PC[L]+ACC[acc],name:SOLF[L]+ACC_NAME[acc]};
+}
+function parsePiece(p){
+  const bars=String(p.notes||"").split("|").map(b=>b.trim()).filter(Boolean).map(b=>b.split(/\s+/).map(parseTok).filter(Boolean));
+  const [num,den]=String(p.ts||"4/4").split("/").map(Number);
+  let i=0;bars.forEach((b,bi)=>b.forEach(n=>{n.i=i++;n.bar=bi;}));
+  return {bars,num:num||4,den:den||4,tempo:+p.tempo||80};
+}
+async function loadPieces(){
+  try{const r=await fetch("pieces.json",{cache:"no-cache"});if(!r.ok) throw 0;const j=await r.json();PIECES=j.pieces||[];}
+  catch(e){PIECES=[];}
+  renderPieceList();
+}
+function renderPieceList(){
+  const box=$("pieceList");if(!box) return;
+  if(!PIECES.length){box.innerHTML=`<div class="empty">ما فيه مقطوعات للحين. أرسل صورة النوتة وأضيفها لك.</div>`;return;}
+  box.innerHTML=`<div class="cards">${PIECES.map(p=>{const P=parsePiece(p);return `<div class="card ex">
+    <div class="t">${esc(p.title)}</div>
+    <div class="row small muted"><span class="tag">${esc(p.maqam||"")}</span><span class="ltr">${esc(p.ts||"4/4")}</span><span>·</span><span><span class="ltr">${P.tempo}</span> BPM</span><span>·</span><span><span class="ltr">${P.bars.length}</span> مازورة</span></div>
+    ${p.note?`<div class="small muted">${esc(p.note)}</div>`:""}
+    <div class="row"><button class="btn primary" data-piece="${esc(p.id)}">افتح</button></div></div>`;}).join("")}</div>`;
+}
+$("pieceList").addEventListener("click",e=>{const b=e.target.closest("[data-piece]");if(b) openPiece(b.dataset.piece);});
+
+/* ================= pieces: notation ================= */
+const PV={piece:null,P:null,els:[],barRects:[],sel:null,names:true};
+let vfFontsP=null;
+function vfReady(){
+  if(!window.VexFlow) return Promise.reject(new Error("novf"));
+  if(!vfFontsP) vfFontsP=Promise.all([document.fonts.load("30px Bravura"),document.fonts.load("14px Academico")]).then(()=>{VexFlow.setFonts("Bravura","Academico");});
+  return vfFontsP;
+}
+async function openPiece(id){
+  const p=PIECES.find(x=>x.id===id);if(!p) return;
+  if(M.playing) stop(); pStop();
+  PV.piece=p;PV.P=parsePiece(p);PV.sel=null;
+  $("pcTitle").textContent=p.title;
+  $("pcMeta").innerHTML=`<span class="tag">${esc(p.maqam||"")}</span><span class="ltr">${esc(p.ts||"4/4")}</span><span>·</span><span class="ltr">${PV.P.tempo} BPM</span><span>·</span><span><span class="ltr">${PV.P.bars.length}</span> مازورة</span>`;
+  $("pcNote").textContent=p.note||"";
+  if(location.hash!=="#piece") location.hash="piece"; else drawScore();
+  $("pcQaBars").innerHTML=Array.from({length:Math.min(8,PV.P.bars.length)},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("");
+  $("pcQaBars").value=String(Math.min(2,PV.P.bars.length));
+  renderSel();
+}
+async function drawScore(){
+  const box=$("score");if(!PV.P||!box) return;
+  try{await vfReady();}catch(e){box.innerHTML=`<div class="empty">ما قدرت أحمّل مكتبة النوتة. افتح البرنامج من رابطه على GitHub.</div>`;return;}
+  const VF=VexFlow,P=PV.P,W=Math.max(320,box.clientWidth||900);
+  box.innerHTML="";
+  const perRow=Math.max(1,Math.min(4,Math.floor((W-20)/250))),rowH=PV.names?150:124,rows=Math.ceil(P.bars.length/perRow);
+  const r=new VF.Renderer(box,VF.Renderer.Backends.SVG);r.resize(W,rows*rowH+24);
+  const ctx=r.getContext();const svg=box.querySelector("svg");svg.setAttribute("role","img");svg.setAttribute("aria-label","نوتة "+PV.piece.title);
+  PV.els=[];PV.barRects=[];PV.names_=[];
+  P.bars.forEach((bar,bi)=>{
+    const row=Math.floor(bi/perRow),col=bi%perRow,bw=(W-20)/perRow,x=10+col*bw,y=10+row*rowH;
+    const st=new VF.Stave(x,y,bw);
+    if(col===0) st.addClef("treble");
+    if(bi===0) st.addTimeSignature(P.num+"/"+P.den);
+    if(bi===P.bars.length-1) st.setEndBarType(VF.Barline.type.END);
+    st.setContext(ctx).draw();
+    const state={};
+    const notes=bar.map(n=>{
+      const sn=new VF.StaveNote({keys:[n.rest?"b/4":n.L.toLowerCase()+"/"+n.oct],duration:String(n.dur)+(n.rest?"r":""),dots:n.dot?1:0,autoStem:true});
+      if(n.dot) VF.Dot.buildAndAttach([sn],{all:true});
+      if(!n.rest){const k=n.L+n.oct,prev=state[k]||"";
+        if(n.acc!==prev){sn.addModifier(new VF.Accidental(ACC_GLYPH[n.acc||"n"]),0);state[k]=n.acc;}
+      }
+      return sn;});
+    const voice=new VF.Voice({numBeats:P.num,beatValue:P.den}).setMode(VF.Voice.Mode.SOFT).addTickables(notes);
+    const beams=VF.Beam.generateBeams(notes);
+    new VF.Formatter().joinVoices([voice]).format([voice],Math.max(60,bw-(st.getNoteStartX()-x)-14));
+    voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());
+    const ny=st.getYForLine(4)+40;
+    notes.forEach((sn,k)=>{const el=sn.getSVGElement&&sn.getSVGElement();const n=bar[k];if(el) PV.els[n.i]=el;
+      if(PV.names&&!n.rest){const cx=(sn.getNoteHeadBeginX()+sn.getNoteHeadEndX())/2,t=document.createElementNS("http://www.w3.org/2000/svg","text");
+        t.setAttribute("x",cx);t.setAttribute("y",ny);t.setAttribute("class","nname");t.textContent=n.name;svg.appendChild(t);PV.names_[n.i]=t;}});
+    const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+    rect.setAttribute("x",x);rect.setAttribute("y",y+10);rect.setAttribute("width",bw);rect.setAttribute("height",rowH-26);
+    rect.setAttribute("class","barhit");rect.dataset.bar=bi;svg.insertBefore(rect,svg.firstChild);PV.barRects[bi]=rect;
+    const num=document.createElementNS("http://www.w3.org/2000/svg","text");
+    num.setAttribute("x",x+(col===0?4:3));num.setAttribute("y",y+12);num.setAttribute("class","barnum");num.textContent=bi+1;svg.appendChild(num);
+  });
+  renderSel();
+}
+// tap a bar to choose a range: first tap = start, second = end, third = clear
+$("score").addEventListener("click",e=>{
+  const r=e.target.closest("[data-bar]")||null;let bi=r?+r.dataset.bar:null;
+  if(bi==null){const svg=e.target.closest("svg");if(!svg) return;
+    const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+    PV.barRects.forEach((rc,i)=>{const x=+rc.getAttribute("x"),y=+rc.getAttribute("y"),w=+rc.getAttribute("width"),h=+rc.getAttribute("height");if(p.x>=x&&p.x<=x+w&&p.y>=y&&p.y<=y+h) bi=i;});}
+  if(bi==null) return;
+  if(PV.selStep===1&&PV.sel){PV.sel={a:Math.min(PV.sel.a,bi),b:Math.max(PV.sel.a,bi)};PV.selStep=2;}
+  else {PV.sel={a:bi,b:bi};PV.selStep=1;}
+  if(P_.playing) pStop();
+  renderSel();
+});
+function renderSel(){
+  PV.barRects.forEach((rc,i)=>rc.classList.toggle("sel",!!PV.sel&&i>=PV.sel.a&&i<=PV.sel.b));
+  $("pcSel").innerHTML=PV.sel?`المازورات <b class="ltr">${PV.sel.a+1}${PV.sel.b!==PV.sel.a?"–"+(PV.sel.b+1):""}</b> <button class="btn ghost" id="pcSelClear" style="min-height:32px;padding:0 10px">كل المقطوعة</button>`:`<span class="muted">كل المقطوعة · اضغط على مازورة لتحديد مقطع</span>`;
+  const c=$("pcSelClear");if(c) c.onclick=()=>{PV.sel=null;PV.selStep=0;if(P_.playing) pStop();renderSel();};
+}
+
+/* ================= pieces: piano ================= */
+const PIANO={buf:{},list:null,loading:null};
+async function loadPiano(){
+  if(PIANO.list) return true;
+  if(PIANO.loading) return PIANO.loading;
+  PIANO.loading=(async()=>{
+    try{
+      ensureCtx();$("pcStatus").textContent="تحميل صوت البيانو…";
+      const list=await (await fetch("piano/index.json")).json();
+      await Promise.all(list.map(async m=>{const ab=await (await fetch("piano/"+m+".mp3")).arrayBuffer();PIANO.buf[m]=await ctx.decodeAudioData(ab);}));
+      PIANO.list=list;$("pcStatus").textContent="";return true;
+    }catch(e){$("pcStatus").textContent="";toast("ما قدرت أحمّل صوت البيانو");PIANO.loading=null;return false;}
+  })();
+  return PIANO.loading;
+}
+// any pitch, including quarter tones: nearest sample, re-tuned by playback rate
+function pianoNote(midi,t,dur,vol){
+  let s=PIANO.list[0];PIANO.list.forEach(m=>{if(Math.abs(m-midi)<Math.abs(s-midi)) s=m;});
+  const src=ctx.createBufferSource(),g=ctx.createGain();src.buffer=PIANO.buf[s];src.playbackRate.value=Math.pow(2,(midi-s)/12);
+  const end=t+Math.max(0.12,dur*0.97);
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.006);g.gain.setValueAtTime(vol,end);g.gain.exponentialRampToValueAtTime(0.0001,end+0.35);
+  src.connect(g);g.connect(ctx.destination);src.start(t);src.stop(end+0.4);P_.srcs.push(src);
+}
+
+/* ================= pieces: transport ================= */
+const P_={playing:false,events:[],ei:0,timer:null,srcs:[],now:null,lastEl:null};
+function pSettings(){return {mode:S.settings.pcMode||"listen",pct:+S.settings.pcPct||100,click:S.settings.pcClick!==false,loop:!!S.settings.pcLoop,vol:(S.settings.pcVol==null?80:+S.settings.pcVol)/100,qa:+$("pcQaBars").value||2};}
+function buildTimeline(t0){
+  const P=PV.P,o=pSettings();
+  const beat=60/(P.tempo*o.pct/100), q=beat*(P.den/4); // beat = one time-signature unit, q = one quarter note
+  const a=PV.sel?PV.sel.a:0,b=PV.sel?PV.sel.b:P.bars.length-1;
+  const ev=[];let t=t0;
+  const barDur=P.num*beat;
+  const clicksFor=(start,count)=>{for(let k=0;k<count;k++) ev.push({t:start+k*beat,type:"click",kind:k%P.num===0?"A":"N"});};
+  const passBars=(from,to,role,piano)=>{
+    for(let bi=from;bi<=to;bi++){let x=t;
+      PV.P.bars[bi].forEach(n=>{const d=n.beats*q;ev.push({t:x,type:"mark",i:n.i,role,bar:bi});
+        if(piano&&!n.rest) ev.push({t:x,type:"note",midi:n.midi,dur:d});x+=d;});
+      if(o.click||!piano) clicksFor(t,P.num);
+      t+=barDur;}
+  };
+  // count-in: one bar of clicks
+  clicksFor(t,P.num);ev.push({t,type:"banner",text:"عدّ الدخول…"});t+=barDur;
+  if(o.mode==="qa"){
+    for(let s=a;s<=b;s+=o.qa){const e=Math.min(b,s+o.qa-1);
+      ev.push({t,type:"banner",text:"اسمع"});passBars(s,e,"play",true);
+      ev.push({t,type:"banner",text:"دورك"});passBars(s,e,"you",false);}
+  } else {
+    ev.push({t,type:"banner",text:o.mode==="alone"?"دورك":""});
+    passBars(a,b,o.mode==="alone"?"you":"play",o.mode!=="alone");
+  }
+  ev.push({t,type:"end"});
+  return ev.sort((x,y)=>x.t-y.t);
+}
+async function pStart(){
+  if(!PV.P) return;
+  if(!ensureCtx()) return;
+  const o=pSettings();
+  if(o.mode!=="alone"&&!(await loadPiano())) return;
+  if(M.playing) stop();
+  P_.playing=true;P_.events=buildTimeline(ctx.currentTime+0.15);P_.ei=0;P_.ui=0;P_.srcs=[];
+  P_.timer=setInterval(pTick,25);pTick();requestAnimationFrame(pDraw);
+  $("pcPlay").classList.add("on");$("pcPlayIcon").textContent="■";$("pcPlayLbl").textContent="إيقاف";wake(true);
+}
+function pStop(){
+  P_.playing=false;clearInterval(P_.timer);
+  P_.srcs.forEach(s=>{try{s.stop();}catch(e){}});P_.srcs=[];
+  if(P_.lastEl) P_.lastEl.classList.remove("pnow","pyou");P_.lastEl=null;if(P_.lastNm) P_.lastNm.classList.remove("pnow","pyou");P_.lastNm=null;
+  const b=$("pcPlay");if(b){b.classList.remove("on");$("pcPlayIcon").textContent="▶";$("pcPlayLbl").textContent="تشغيل";}
+  const bn=$("pcBanner");if(bn) bn.textContent="";wake(false);
+}
+function pTick(){
+  const o=pSettings(),until=ctx.currentTime+0.15;
+  while(P_.ei<P_.events.length&&P_.events[P_.ei].t<until){const e=P_.events[P_.ei++];
+    if(e.type==="note") pianoNote(e.midi,e.t,e.dur,o.vol*(o.mode==="together"?0.6:0.9));
+    else if(e.type==="end"&&o.loop){e.loop=true;const nx=buildTimeline(e.t-pBarDur()).filter(x=>x.t>=e.t-0.0001);P_.events.push(...nx);}
+    else if(e.type==="click") click(e.kind,(e.kind==="A"?S.settings.vA:S.settings.vN)/100*0.8,e.t);}
+  if(P_.srcs.length>300) P_.srcs=P_.srcs.slice(-200);
+  if(P_.ui>2000){P_.events.splice(0,1000);P_.ei-=1000;P_.ui-=1000;}
+}
+function pDraw(){
+  if(!P_.playing) return;
+  const now=ctx.currentTime;
+  while(P_.ui<P_.events.length&&P_.events[P_.ui].t<=now){const e=P_.events[P_.ui++];
+    if(e.type==="mark"){const el=PV.els[e.i];if(P_.lastEl) P_.lastEl.classList.remove("pnow","pyou");if(P_.lastNm) P_.lastNm.classList.remove("pnow","pyou");
+      const nm=PV.names_[e.i];if(nm){nm.classList.add(e.role==="you"?"pyou":"pnow");P_.lastNm=nm;}
+      if(el){el.classList.add(e.role==="you"?"pyou":"pnow");P_.lastEl=el;
+        const r=el.getBoundingClientRect();if(r.top<90||r.bottom>window.innerHeight-200) el.scrollIntoView({block:"center",behavior:"smooth"});}}
+    else if(e.type==="banner"){$("pcBanner").textContent=e.text;}
+    else if(e.type==="end"&&!e.loop){pStop();return;}
+  }
+  requestAnimationFrame(pDraw);
+}
+function pBarDur(){const o=pSettings();return PV.P.num*60/(PV.P.tempo*o.pct/100);}
+function initPiecesUI(){
+  const s=S.settings;
+  $$("#pcMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===(s.pcMode||"listen")));
+  $("pcMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b) return;S.settings.pcMode=b.dataset.m;save();
+    $$("#pcMode button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("pcQaWrap").hidden=b.dataset.m!=="qa";if(P_.playing) pStop();});
+  $("pcQaWrap").hidden=(s.pcMode||"listen")!=="qa";
+  $("pcPct").value=s.pcPct||100;$("pcPctV").textContent=(s.pcPct||100)+"%";
+  $("pcPct").addEventListener("input",()=>{S.settings.pcPct=+$("pcPct").value;$("pcPctV").textContent=S.settings.pcPct+"%";save();});
+  $("pcPct").addEventListener("change",()=>{if(P_.playing){pStop();pStart();}});
+  $("pcClick").checked=s.pcClick!==false;$("pcClick").onchange=()=>{S.settings.pcClick=$("pcClick").checked;save();};
+  $("pcLoop").checked=!!s.pcLoop;$("pcLoop").onchange=()=>{S.settings.pcLoop=$("pcLoop").checked;save();};
+  $("pcNames").checked=s.pcNames!==false;PV.names=s.pcNames!==false;$("pcNames").onchange=()=>{S.settings.pcNames=$("pcNames").checked;PV.names=S.settings.pcNames;save();if(P_.playing) pStop();drawScore();};
+  $("pcVol").value=s.pcVol==null?80:s.pcVol;$("pcVol").oninput=()=>{S.settings.pcVol=+$("pcVol").value;save();};
+  $("pcPlay").onclick=()=>P_.playing?pStop():pStart();
+  let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(view()==="piece"&&!P_.playing) drawScore();},250);});
+}
+initPiecesUI();loadPieces();
+
 /* ================= library ================= */
 function renderLibrary(){
   const exs=allEx();
@@ -1049,19 +1339,22 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("modal").classLis
 /* ================= routing ================= */
 let lastView=null;
 function route(){
-  let v=view();if(!["metronome","library","practice","report","progress"].includes(v)) v="metronome";
+  let v=view();if(!["metronome","library","practice","report","pieces","piece","progress"].includes(v)) v="metronome";
+  if(v==="piece"&&!PV.piece) v="pieces";
   if(v==="practice"&&!SES.exId) v="library";
   if(v==="report"&&!REP) v=SES.exId?"practice":"progress";
   if(lastView&&lastView!==v&&M.playing) stop();
+  if(lastView==="piece"&&v!=="piece") pStop();
   if(lastView==="practice"&&v!=="practice"){SES.active=false;}
   if(v==="practice") SES.active=true;
   lastView=v;
   $$("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+v);
-  const navv=(v==="practice"||v==="report")?"library":v;
+  const navv=(v==="practice"||v==="report")?"library":v==="piece"?"pieces":v;
   $$("nav a").forEach(a=>{if(a.dataset.view===navv) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");});
   if(v==="progress") renderProgress();
   if(v==="metronome"){renderAuto();}
   if(v==="report") renderReport();
+  if(v==="piece") requestAnimationFrame(drawScore);
 }
 window.addEventListener("hashchange",route);
 initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
