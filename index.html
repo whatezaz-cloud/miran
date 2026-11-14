@@ -153,6 +153,7 @@ audio{height:36px;max-width:220px}
 #score svg{display:block;max-width:100%;height:auto}
 #score .barhit{fill:transparent;cursor:pointer}
 #score .barhit.sel{fill:#F3E7D3}
+.bpmbox{flex:1 1 100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bpmctl{display:inline-flex;align-items:center;gap:4px}.bsm{min-height:34px;padding:0 10px}#pcBpm{width:64px;text-align:center;font-weight:700;font-size:16px;min-height:34px}#pcBpmR{flex:1;min-width:140px}
 #score .nname{font:600 13px Almarai,system-ui,sans-serif;fill:#5E554B;text-anchor:middle}
 #score text.nname.pnow{fill:#8A3F12 !important;stroke:none !important}
 #score text.nname.pyou{fill:#155E68 !important;stroke:none !important}
@@ -402,7 +403,10 @@ audio{height:36px;max-width:220px}
       <label class="f inl" id="pcQaWrap">الجملة <select id="pcQaBars" class="ltr"></select> مازورة</label>
     </div>
     <div class="trow">
-      <label class="f inl grow">السرعة <input type="range" id="pcPct" min="40" max="120" step="5" class="ltr" aria-label="نسبة السرعة"><b class="ltr" id="pcPctV" style="min-width:48px">100%</b></label>
+      <div class="f inl grow bpmbox">السرعة
+        <span class="ltr bpmctl"><button class="btn ghost bsm" id="pcBpmDn5">−5</button><button class="btn ghost bsm" id="pcBpmDn">−</button><input type="number" id="pcBpm" min="20" max="300" inputmode="numeric" aria-label="السرعة BPM"><button class="btn ghost bsm" id="pcBpmUp">+</button><button class="btn ghost bsm" id="pcBpmUp5">+5</button></span>
+        <button class="btn ghost bsm" id="pcBpmOrig">الأصلية</button>
+        <input type="range" id="pcBpmR" min="20" max="240" class="ltr" aria-label="السرعة"></div>
       <label class="f inl">البيانو <input type="range" id="pcVol" min="0" max="100" class="ltr" style="width:110px" aria-label="صوت البيانو"></label>
       <label class="switch sm"><input type="checkbox" id="pcClick"> مترونوم</label>
       <label class="switch sm"><input type="checkbox" id="pcLoop"> تكرار</label>
@@ -1034,7 +1038,7 @@ function vfReady(){
 async function openPiece(id){
   const p=PIECES.find(x=>x.id===id);if(!p) return;
   if(M.playing) stop(); pStop();
-  PV.piece=p;PV.P=parsePiece(p);PV.sel=null;
+  PV.piece=p;PV.P=parsePiece(p);PV.sel=null;renderBpm();
   $("pcTitle").textContent=p.title;
   $("pcMeta").innerHTML=`<span class="tag">${esc(p.maqam||p.composer||"")}</span><span class="ltr">${PV.P.num}/${PV.P.den}</span><span>·</span><span class="ltr">${PV.P.tempo} BPM</span><span>·</span><span><span class="ltr">${PV.P.bars.length}</span> مازورة</span>`;
   $("pcNote").textContent=p.note||"";
@@ -1114,22 +1118,23 @@ async function drawScore(){
   ties.forEach(t=>t.setContext(ctx).draw());
   renderSel();
 }
-// tap a bar to choose a range: first tap = start, second = end, third = clear
+// tap bars to pick any set of them; tap again to drop one
 $("score").addEventListener("click",e=>{
   const r=e.target.closest("[data-bar]")||null;let bi=r?+r.dataset.bar:null;
   if(bi==null){const svg=e.target.closest("svg");if(!svg) return;
     const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
     PV.barRects.forEach((rc,i)=>{const x=+rc.getAttribute("x"),y=+rc.getAttribute("y"),w=+rc.getAttribute("width"),h=+rc.getAttribute("height");if(p.x>=x&&p.x<=x+w&&p.y>=y&&p.y<=y+h) bi=i;});}
   if(bi==null) return;
-  if(PV.selStep===1&&PV.sel){PV.sel={a:Math.min(PV.sel.a,bi),b:Math.max(PV.sel.a,bi)};PV.selStep=2;}
-  else {PV.sel={a:bi,b:bi};PV.selStep=1;}
-  if(P_.playing) pStop();
+  PV.sel=PV.sel||new Set();PV.sel.has(bi)?PV.sel.delete(bi):PV.sel.add(bi);
+  if(P_.playing){P_.seq=buildSeq();P_.k=0;P_.held={};}   // keeps playing with the new choice from the next bar
   renderSel();
 });
+function selText(l){const out=[];let a=l[0],p=l[0];for(const x of l.slice(1).concat([null])){if(x===p+1){p=x;continue;}out.push(a===p?a+1:(a+1)+"–"+(p+1));a=p=x;}return out.join("، ");}
 function renderSel(){
-  PV.barRects.forEach((rc,i)=>rc.classList.toggle("sel",!!PV.sel&&i>=PV.sel.a&&i<=PV.sel.b));
-  $("pcSel").innerHTML=PV.sel?`المازورات <b class="ltr">${PV.sel.a+1}${PV.sel.b!==PV.sel.a?"–"+(PV.sel.b+1):""}</b> <button class="btn ghost" id="pcSelClear" style="min-height:32px;padding:0 10px">كل المقطوعة</button>`:`<span class="muted">كل المقطوعة · اضغط على مازورة لتحديد مقطع</span>`;
-  const c=$("pcSelClear");if(c) c.onclick=()=>{PV.sel=null;PV.selStep=0;if(P_.playing) pStop();renderSel();};
+  const l=selList();
+  PV.barRects.forEach((rc,i)=>rc.classList.toggle("sel",!!l&&PV.sel.has(i)));
+  $("pcSel").innerHTML=l?`تكرار المازورات <b class="ltr">${selText(l)}</b> لين توقف <button class="btn ghost" id="pcSelClear" style="min-height:32px;padding:0 10px">مسح الاختيار</button>`:`<span class="muted">كل المقطوعة · اضغط على أي مازورة تبيها، وتقدر تختار أكثر من وحدة</span>`;
+  const c=$("pcSelClear");if(c) c.onclick=()=>{PV.sel=null;if(P_.playing){P_.seq=buildSeq();P_.k=0;}renderSel();};
 }
 
 /* ================= pieces: piano ================= */
@@ -1157,12 +1162,18 @@ function pianoNote(midi,t,dur,vol){
 }
 
 /* ================= pieces: transport ================= */
-const P_={playing:false,events:[],ei:0,timer:null,srcs:[],now:null,lastEl:null};
-function pSettings(){return {mode:S.settings.pcMode||"listen",pct:+S.settings.pcPct||100,click:S.settings.pcClick!==false,loop:!!S.settings.pcLoop,vol:(S.settings.pcVol==null?80:+S.settings.pcVol)/100,qa:+$("pcQaBars").value||2};}
-// order of bars to play: a chosen range plays straight; the whole piece follows repeats and 1./2. endings
+// bars are scheduled one by one just ahead of time, so tempo changes and selection changes apply while playing
+const P_={playing:false,seq:[],k:0,nextT:0,ui:[],srcs:[],held:{},lastEl:null,lastNm:null,timer:null,done:false};
+function pieceBpm(){const id=PV.piece&&PV.piece.id,m=S.settings.pcBpm||{};return +(m[id])||PV.P.tempo;}
+function setPieceBpm(v){v=Math.max(20,Math.min(300,Math.round(+v||PV.P.tempo)));S.settings.pcBpm=S.settings.pcBpm||{};S.settings.pcBpm[PV.piece.id]=v;save();renderBpm();}
+function renderBpm(){if(!PV.P) return;const v=pieceBpm();$("pcBpm").value=v;$("pcBpmR").value=Math.min(240,v);
+  $("pcBpmOrig").textContent="الأصلية "+PV.P.tempo;$("pcBpmOrig").disabled=v===PV.P.tempo;}
+function pSettings(){return {mode:S.settings.pcMode||"listen",click:S.settings.pcClick!==false,loop:!!S.settings.pcLoop,vol:(S.settings.pcVol==null?80:+S.settings.pcVol)/100,qa:+$("pcQaBars").value||2};}
+function selList(){return PV.sel&&PV.sel.size?[...PV.sel].sort((a,b)=>a-b):null;}
+// whole piece follows repeats and 1./2. endings; chosen bars play in order
 function playOrder(){
-  const P=PV.P,B=P.bars.length;
-  if(PV.sel){const o=[];for(let i=PV.sel.a;i<=PV.sel.b;i++) o.push(i);return o;}
+  const P=PV.P,B=P.bars.length,sl=selList();
+  if(sl) return sl;
   const vol={};P.bars.forEach((b,bi)=>{const v=b.meta.volta;if(v) for(let k=0;k<v.len;k++) vol[bi+k]=v.endings;});
   const order=[],passes={};let i=0,start=0,pass=1,guard=0;
   while(i<B&&guard++<5000){const m=P.bars[i].meta;
@@ -1175,85 +1186,105 @@ function playOrder(){
   }
   return order;
 }
-function buildTimeline(t0,skipCount){
-  const P=PV.P,o=pSettings();
-  const beat=60/(P.tempo*o.pct/100), q=beat*(P.den/4); // beat = one time-signature unit, q = one quarter note
-  const order=playOrder(),barDur=P.num*beat;
-  const ev=[];let t=t0;
-  const clicksFor=start=>{for(let k=0;k<P.num;k++) ev.push({t:start+k*beat,type:"click",kind:k===0?"A":"N"});};
-  const passBars=(list,role,piano)=>{
-    const last={};
-    list.forEach(bi=>{let x=t;
-      P.bars[bi].notes.forEach(n=>{const d=n.beats*q;ev.push({t:x,type:"mark",i:n.i,role,bar:bi});
-        if(piano&&!n.rest) n.keys.forEach(k=>{const id=String(k.p);
-          if(k.tieE&&last[id]) last[id].dur+=d;                    // tied: hold the earlier note longer
-          else{const e={t:x,type:"note",midi:k.p,dur:d};ev.push(e);last[id]=e;}
-          if(!k.tieS) delete last[id]; else last[id]=last[id]||null;});
-        x+=d;});
-      if(o.click||!piano) clicksFor(t);
-      t+=barDur;});
-  };
-  if(!skipCount){clicksFor(t);ev.push({t,type:"banner",text:"عدّ الدخول…"});t+=barDur;}
-  if(o.mode==="qa"){
-    for(let s=0;s<order.length;s+=o.qa){const ph=order.slice(s,s+o.qa);
-      ev.push({t,type:"banner",text:"اسمع"});passBars(ph,"play",true);
-      ev.push({t,type:"banner",text:"دورك"});passBars(ph,"you",false);}
-  } else {
-    ev.push({t,type:"banner",text:o.mode==="alone"?"دورك":""});
-    passBars(order,o.mode==="alone"?"you":"play",o.mode!=="alone");
+function buildSeq(){
+  const o=pSettings(),order=playOrder(),seq=[];
+  if(o.mode==="qa"){for(let s=0;s<order.length;s+=o.qa){const ph=order.slice(s,s+o.qa);
+      ph.forEach((bi,j)=>seq.push({bi,role:"play",piano:true,banner:j===0?"اسمع":null}));
+      ph.forEach((bi,j)=>seq.push({bi,role:"you",piano:false,banner:j===0?"دورك":null}));}}
+  else order.forEach((bi,j)=>seq.push({bi,role:o.mode==="alone"?"you":"play",piano:o.mode!=="alone",banner:j===0?(o.mode==="alone"?"دورك":""):null}));
+  return seq;
+}
+function pLooping(){return !!selList()||pSettings().loop;}
+// how long a tied note really lasts: follow the tie forward through the coming bars
+function tiedBeats(k,ni,p){
+  let beats=0,kk=k,idx=ni+1,steps=0;
+  while(steps++<64){const it=P_.seq[kk];if(!it) break;const notes=PV.P.bars[it.bi].notes;
+    if(idx>=notes.length){kk++;if(kk>=P_.seq.length){if(!pLooping()) break;kk=0;}idx=0;if(!P_.seq[kk].piano) break;continue;}
+    const n=notes[idx],key=!n.rest&&n.keys.find(x=>x.tieE&&String(x.p)===p);if(!key) break;
+    beats+=n.beats;if(!key.tieS) break;idx++;}
+  return beats;
+}
+function pBeat(){const P=PV.P,bpm=pieceBpm();return {beat:60/bpm,q:60/bpm*(P.den/4)};}
+function scheduleBar(){
+  const P=PV.P,o=pSettings(),it=P_.seq[P_.k],t=P_.nextT,{beat,q}=pBeat();
+  if(it.banner!=null) P_.ui.push({t,type:"banner",text:it.banner});
+  let x=t;
+  P.bars[it.bi].notes.forEach((n,ni)=>{const d=n.beats*q;P_.ui.push({t:x,type:"mark",i:n.i,role:it.role});
+    if(it.piano&&!n.rest) n.keys.forEach(k=>{const id=String(k.p);
+      if(k.tieE&&P_.held[id]){if(!k.tieS) delete P_.held[id];return;}
+      const extra=k.tieS?tiedBeats(P_.k,ni,id)*q:0;
+      playNote(k.p,x,d+extra,o.vol*(o.mode==="together"?0.6:0.9));
+      if(k.tieS) P_.held[id]=true; else delete P_.held[id];});
+    x+=d;});
+  if(o.click) for(let b=0;b<P.num;b++) click(b===0?"A":"N",(b===0?S.settings.vA:S.settings.vN)/100*0.8,t+b*beat);
+  P_.nextT=t+P.num*beat;P_.k++;
+  if(P_.k>=P_.seq.length){
+    if(pLooping()){P_.seq=buildSeq();P_.k=0;P_.held={};}
+    else{P_.done=true;P_.ui.push({t:P_.nextT,type:"end"});}
   }
-  ev.push({t,type:"end"});
-  return ev.sort((x,y)=>x.t-y.t);
+}
+function pTick(){
+  const until=ctx.currentTime+0.2;
+  while(P_.playing&&!P_.done&&P_.nextT<until) scheduleBar();
+  if(P_.srcs.length>300) P_.srcs=P_.srcs.slice(-200);
 }
 async function pStart(){
   if(!PV.P) return;
   if(!ensureCtx()) return;
+  try{await ctx.resume();}catch(e){}
+  // unlock audio output on tablets: a silent blip inside the tap
+  try{const b=ctx.createBuffer(1,1,ctx.sampleRate),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start();}catch(e){}
   const o=pSettings();
-  if(o.mode!=="alone"&&!(await loadPiano())) return;
   if(M.playing) stop();
-  P_.playing=true;P_.events=buildTimeline(ctx.currentTime+0.15);P_.ei=0;P_.ui=0;P_.srcs=[];
+  if(o.mode!=="alone") loadPiano(); // loads in the background; a soft tone plays until it's ready
+  P_.playing=true;P_.done=false;P_.seq=buildSeq();P_.k=0;P_.held={};P_.ui=[];P_.srcs=[];
+  // one-bar count-in: clicks if the metronome is on, numbers on screen always
+  const t0=ctx.currentTime+0.2,{beat}=pBeat();
+  for(let b=0;b<PV.P.num;b++){P_.ui.push({t:t0+b*beat,type:"banner",text:String(b+1)});
+    if(o.click) click(b===0?"A":"N",(b===0?S.settings.vA:S.settings.vN)/100*0.8,t0+b*beat);}
+  P_.nextT=t0+PV.P.num*beat;
   P_.timer=setInterval(pTick,25);pTick();requestAnimationFrame(pDraw);
   $("pcPlay").classList.add("on");$("pcPlayIcon").textContent="■";$("pcPlayLbl").textContent="إيقاف";wake(true);
+  if(ctx.state!=="running") $("pcStatus").textContent="الصوت متوقف من المتصفح. اضغط تشغيل مرة ثانية.";
 }
 function pStop(){
   P_.playing=false;clearInterval(P_.timer);
-  P_.srcs.forEach(s=>{try{s.stop();}catch(e){}});P_.srcs=[];
+  P_.srcs.forEach(s=>{try{s.stop();}catch(e){}});P_.srcs=[];P_.ui=[];
   if(P_.lastEl) P_.lastEl.classList.remove("pnow","pyou");P_.lastEl=null;if(P_.lastNm) P_.lastNm.classList.remove("pnow","pyou");P_.lastNm=null;
   const b=$("pcPlay");if(b){b.classList.remove("on");$("pcPlayIcon").textContent="▶";$("pcPlayLbl").textContent="تشغيل";}
   const bn=$("pcBanner");if(bn) bn.textContent="";wake(false);
 }
-function pTick(){
-  const o=pSettings(),until=ctx.currentTime+0.15;
-  while(P_.ei<P_.events.length&&P_.events[P_.ei].t<until){const e=P_.events[P_.ei++];
-    if(e.type==="note") pianoNote(e.midi,e.t,e.dur,o.vol*(o.mode==="together"?0.6:0.9));
-    else if(e.type==="end"&&o.loop){e.loop=true;P_.events.push(...buildTimeline(e.t,true));}
-    else if(e.type==="click") click(e.kind,(e.kind==="A"?S.settings.vA:S.settings.vN)/100*0.8,e.t);}
-  if(P_.srcs.length>300) P_.srcs=P_.srcs.slice(-200);
-  if(P_.ui>2000){P_.events.splice(0,1000);P_.ei-=1000;P_.ui-=1000;}
-}
 function pDraw(){
   if(!P_.playing) return;
   const now=ctx.currentTime;
-  while(P_.ui<P_.events.length&&P_.events[P_.ui].t<=now){const e=P_.events[P_.ui++];
+  while(P_.ui.length&&P_.ui[0].t<=now){const e=P_.ui.shift();
     if(e.type==="mark"){const el=PV.els[e.i];if(P_.lastEl) P_.lastEl.classList.remove("pnow","pyou");if(P_.lastNm) P_.lastNm.classList.remove("pnow","pyou");
       const nm=PV.names_[e.i];if(nm){nm.classList.add(e.role==="you"?"pyou":"pnow");P_.lastNm=nm;}
       if(el){el.classList.add(e.role==="you"?"pyou":"pnow");P_.lastEl=el;
-        const r=el.getBoundingClientRect();if(r.top<90||r.bottom>window.innerHeight-200) el.scrollIntoView({block:"center",behavior:"smooth"});}}
+        const r=el.getBoundingClientRect();if(r.top<90||r.bottom>window.innerHeight-220) el.scrollIntoView({block:"center",behavior:"smooth"});}}
     else if(e.type==="banner"){$("pcBanner").textContent=e.text;}
-    else if(e.type==="end"&&!e.loop){pStop();return;}
+    else if(e.type==="end"){pStop();return;}
   }
   requestAnimationFrame(pDraw);
 }
-function pBarDur(){const o=pSettings();return PV.P.num*60/(PV.P.tempo*o.pct/100);}
+// piano sample when ready, otherwise a soft synthesized tone so there is never silence
+function playNote(midi,t,dur,vol){
+  if(PIANO.list) return pianoNote(midi,t,dur,vol);
+  const f=440*Math.pow(2,(midi-69)/12),o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;
+  const end=t+Math.max(0.12,dur*0.95);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol*0.5,t+0.01);g.gain.exponentialRampToValueAtTime(vol*0.2,end);g.gain.exponentialRampToValueAtTime(0.0001,end+0.2);
+  o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(end+0.25);P_.srcs.push(o);
+}
 function initPiecesUI(){
   const s=S.settings;
   $$("#pcMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===(s.pcMode||"listen")));
   $("pcMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b) return;S.settings.pcMode=b.dataset.m;save();
     $$("#pcMode button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("pcQaWrap").hidden=b.dataset.m!=="qa";if(P_.playing) pStop();});
   $("pcQaWrap").hidden=(s.pcMode||"listen")!=="qa";
-  $("pcPct").value=s.pcPct||100;$("pcPctV").textContent=(s.pcPct||100)+"%";
-  $("pcPct").addEventListener("input",()=>{S.settings.pcPct=+$("pcPct").value;$("pcPctV").textContent=S.settings.pcPct+"%";save();});
-  $("pcPct").addEventListener("change",()=>{if(P_.playing){pStop();pStart();}});
+  $("pcBpm").addEventListener("change",()=>setPieceBpm($("pcBpm").value));
+  $("pcBpmR").addEventListener("input",()=>setPieceBpm($("pcBpmR").value));
+  $("pcBpmDn").onclick=()=>setPieceBpm(pieceBpm()-1);$("pcBpmUp").onclick=()=>setPieceBpm(pieceBpm()+1);
+  $("pcBpmDn5").onclick=()=>setPieceBpm(pieceBpm()-5);$("pcBpmUp5").onclick=()=>setPieceBpm(pieceBpm()+5);
+  $("pcBpmOrig").onclick=()=>setPieceBpm(PV.P.tempo);
   $("pcClick").checked=s.pcClick!==false;$("pcClick").onchange=()=>{S.settings.pcClick=$("pcClick").checked;save();};
   $("pcLoop").checked=!!s.pcLoop;$("pcLoop").onchange=()=>{S.settings.pcLoop=$("pcLoop").checked;save();};
   $("pcNames").checked=s.pcNames!==false;PV.names=s.pcNames!==false;$("pcNames").onchange=()=>{S.settings.pcNames=$("pcNames").checked;PV.names=S.settings.pcNames;save();if(P_.playing) pStop();drawScore();};
