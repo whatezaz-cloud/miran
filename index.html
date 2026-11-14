@@ -140,6 +140,9 @@ audio{height:36px;max-width:220px}
 .overlay.open{display:flex}
 .overlay b{font-size:24px}
 [hidden]{display:none !important}
+.dynNow{display:flex;align-items:baseline;justify-content:center;gap:12px;padding:6px 0}
+.dynNow .dk{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:56px;line-height:1;color:var(--up)}
+.dynNow .dt{font-size:20px;font-weight:800}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media (max-width:760px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .mt2{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
@@ -180,9 +183,11 @@ audio{height:36px;max-width:220px}
     <div class="row" style="justify-content:center">
       <button class="btn tapBtn" style="min-width:110px">Tap</button>
       <button class="btn autoBtn" aria-pressed="false" style="min-width:110px">Auto</button>
+      <select class="autoWhat" aria-label="Auto يغيّر"><option value="tempo">يغيّر السرعة</option><option value="dyn">يغيّر الداينامك</option><option value="both">السرعة والداينامك</option></select>
       <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
       <span class="row autoRange small"><span>من</span><input type="number" id="autoMin" class="ltr" min="30" max="300" style="width:78px" aria-label="أقل سرعة"><span>إلى</span><input type="number" id="autoMax" class="ltr" min="30" max="300" style="width:78px" aria-label="أعلى سرعة"></span>
     </div>
+    <div class="dynNow" aria-live="polite" hidden><span class="dk"></span><span class="dt"></span></div>
     <div class="automsg autoMsg" aria-live="polite"></div>
     <div class="beats ltr" id="beats"></div>
     <div class="small muted" style="text-align:center">اضغط على أي ضربة لتغييرها: قوية ← عادية ← صامتة</div>
@@ -268,14 +273,16 @@ audio{height:36px;max-width:220px}
       <div class="row" style="justify-content:center">
         <button class="btn tapBtn">Tap</button>
         <button class="btn autoBtn" aria-pressed="false">Auto</button>
-        <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
+        <select class="autoWhat" aria-label="Auto يغيّر"><option value="tempo">يغيّر السرعة</option><option value="dyn">يغيّر الداينامك</option><option value="both">السرعة والداينامك</option></select>
+      <select class="autoLvl" aria-label="مستوى التحدي"><option value="light">خفيف ±5</option><option value="medium">متوسط ±10</option><option value="hard">صعب</option></select>
         <span class="small muted autoRangeP"></span>
       </div>
       <div class="row" style="justify-content:center">
         <label class="f" style="flex-direction:row;align-items:center;gap:6px">الوزن <select id="pSig" class="ltr"></select></label>
         <label class="f" style="flex-direction:row;align-items:center;gap:6px">التقسيم <select id="pSub"><option value="1">بدون</option><option value="2">2</option><option value="3">3 تريولا</option><option value="4">4</option></select></label>
       </div>
-      <div class="automsg autoMsg" aria-live="polite"></div>
+      <div class="dynNow" aria-live="polite" hidden><span class="dk"></span><span class="dt"></span></div>
+    <div class="automsg autoMsg" aria-live="polite"></div>
       <div class="beats mini ltr" id="pBeats"></div>
       <div class="status mStatus"></div>
       <button class="play playBtn"><span class="playIcon">▶</span><span class="playLbl">ابدأ التمرين</span></button>
@@ -380,7 +387,7 @@ audio{height:36px;max-width:220px}
 const KEY="miran.v1";
 const DEF={custom:[],over:{},sessions:[],accents:{},
   settings:{bpm:80,num:4,den:4,sub:1,sound:"soft",vA:90,vN:65,vS:35,spInc:4,spEvery:4,spTo:120,gapPlay:2,gapMute:1,
-    calib:null,calibPh:null,monitor:"speaker",measure:true,autoOn:false,autoLvl:"medium",autoEvery:4,autoMin:60,autoMax:120}};
+    calib:null,calibPh:null,monitor:"speaker",measure:true,autoOn:false,autoWhat:"tempo",autoLvl:"medium",autoEvery:4,autoMin:60,autoMax:120}};
 let S;
 function fill(){for(const k in DEF) if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k]));
   for(const k in DEF.settings) if(S.settings[k]===undefined) S.settings[k]=DEF.settings[k];}
@@ -523,26 +530,31 @@ function onBarEnd(){
   if($("spOn").checked&&M.barsSince>=(+S.settings.spEvery||4)){M.barsSince=0;
     const to=+S.settings.spTo||300; if(S.settings.bpm<to) setBpm(Math.min(to,S.settings.bpm+(+S.settings.spInc||1)));}
   if(S.settings.autoOn){
-    const ev=+S.settings.autoEvery||4; M.autoBars++;
-    if(M.autoBars===ev-1||ev===1){M.autoNext=pickAuto();announce(M.autoNext);}
-    if(M.autoBars>=ev){M.autoBars=0;if(M.autoNext){setBpm(M.autoNext);M.autoNext=null;announce(null);}}
+    const ev=+S.settings.autoEvery||4,w=S.settings.autoWhat||"tempo"; M.autoBars++;
+    if(M.autoBars===ev-1||ev===1){
+      M.autoNext=w!=="dyn"?pickAuto():null; M.dynNext=w!=="tempo"?pickDyn():null;
+      announce(M.autoNext,M.dynNext);}
+    if(M.autoBars>=ev){M.autoBars=0;
+      if(M.autoNext){setBpm(M.autoNext);M.autoNext=null;}
+      if(M.dynNext!=null){M.dyn=M.dynNext;M.dynNext=null;showDyn();}
+      announce(null,null);}
   }
 }
 function tick(){while(M.next<ctx.currentTime+0.12){scheduleOne();advance();}}
 function start(){
   if(!ensureCtx()) return;
-  M.run=(M.run||0)+1;M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.autoBars=0;M.autoNext=null;M.queue=[];M.hist=[];MIC.hi=0;
+  M.run=(M.run||0)+1;M.playing=true;M.pulse=0;M.bar=0;M.patIdx=0;M.barsSince=0;M.autoBars=0;M.autoNext=null;M.dynNext=null;M.dyn=3;M.queue=[];M.hist=[];MIC.hi=0;
   M.next=ctx.currentTime+0.08;
   M.timer=setInterval(tick,25);tick();requestAnimationFrame(draw);
   $$(".playBtn").forEach(b=>b.classList.add("on"));$$(".playIcon").forEach(e=>e.textContent="■");$$(".playLbl").forEach(e=>e.textContent="إيقاف");
-  announce(null);wake(true);sessionPlay(true);
+  announce(null,null);showDyn();wake(true);sessionPlay(true);
 }
 function stop(){
   M.playing=false;clearInterval(M.timer);M.queue=[];
   $$(".playBtn").forEach(b=>b.classList.remove("on"));$$(".playIcon").forEach(e=>e.textContent="▶");
   $$(".playLbl").forEach(e=>e.textContent=e.closest("#v-practice")?"ابدأ التمرين":"تشغيل");
   $$(".beat.now,.tok.now").forEach(e=>e.classList.remove("now"));
-  $$(".mStatus").forEach(e=>e.innerHTML="");announce(null);wake(false);sessionPlay(false);
+  $$(".mStatus").forEach(e=>e.innerHTML="");announce(null,null);showDyn();wake(false);sessionPlay(false);
 }
 function draw(){
   if(!M.playing) return;
@@ -570,13 +582,24 @@ function pickAuto(){
     if(n<lo) n=lo+(lo-n); if(n>hi) n=hi-(n-hi);}
   return Math.max(lo,Math.min(hi,Math.round(n)));
 }
-function announce(n){$$(".autoMsg").forEach(e=>e.innerHTML=n?`بعد مازورة: <b class="ltr">${n}</b> BPM`:"");}
+// six dynamic levels: three soft, normal, two loud. Shown as a cue only; nothing is measured.
+const DYN=[{k:"ppp",t:"بيانو جداً جداً"},{k:"pp",t:"بيانو جداً"},{k:"p",t:"بيانو"},{k:"mf",t:"طبيعي"},{k:"f",t:"عالي"},{k:"ff",t:"عالي جداً"}];
+function pickDyn(){let n;do{n=Math.floor(Math.random()*DYN.length);}while(n===M.dyn);return n;}
+function dynOn(){return S.settings.autoOn&&(S.settings.autoWhat||"tempo")!=="tempo";}
+function showDyn(){const on=dynOn()&&M.playing,d=DYN[M.dyn==null?3:M.dyn];
+  $$(".dynNow").forEach(e=>{e.hidden=!on;e.querySelector(".dk").textContent=d.k;e.querySelector(".dt").textContent=d.t;});}
+function announce(n,d){
+  const parts=[];if(n) parts.push(`<b class="ltr">${n}</b> BPM`);if(d!=null) parts.push(`<b class="ltr" style="font-family:Georgia,serif;font-style:italic">${DYN[d].k}</b> ${DYN[d].t}`);
+  $$(".autoMsg").forEach(e=>e.innerHTML=parts.length?"بعد مازورة: "+parts.join(" · "):"");}
 function renderAuto(){
   $$(".autoBtn").forEach(b=>b.setAttribute("aria-pressed",!!S.settings.autoOn));
-  $$(".autoLvl").forEach(s=>{s.value=S.settings.autoLvl;s.hidden=!S.settings.autoOn;});
-  $$(".autoRange").forEach(e=>e.hidden=!S.settings.autoOn);
+  const tempoOn=S.settings.autoOn&&(S.settings.autoWhat||"tempo")!=="dyn";
+  $$(".autoWhat").forEach(s=>{s.value=S.settings.autoWhat||"tempo";s.hidden=!S.settings.autoOn;});
+  $$(".autoLvl").forEach(s=>{s.value=S.settings.autoLvl;s.hidden=!tempoOn;});
+  $$(".autoRange").forEach(e=>e.hidden=!tempoOn);
+  showDyn();
   const [lo,hi]=SES.exId?(()=>{const ex=getEx(SES.exId);return ex?[ex.start,ex.target]:[0,0];})():[0,0];
-  $$(".autoRangeP").forEach(e=>{e.hidden=!S.settings.autoOn;e.innerHTML=`بين <b class="ltr">${lo}</b> و<b class="ltr">${hi}</b>`;});
+  $$(".autoRangeP").forEach(e=>{e.hidden=!tempoOn;e.innerHTML=`بين <b class="ltr">${lo}</b> و<b class="ltr">${hi}</b>`;});
 }
 
 /* ================= metronome UI ================= */
@@ -609,8 +632,9 @@ function initMetro(){
   ["spInc","spEvery","spTo","gapPlay","gapMute","autoMin","autoMax"].forEach(k=>bindNum(k,k));
   $("autoEvery").value=String(S.settings.autoEvery);$("autoEvery").onchange=()=>{S.settings.autoEvery=+$("autoEvery").value;save();};
   $$(".playBtn").forEach(b=>b.addEventListener("click",()=>{if(M.playing){stop();return;} if(view()==="practice") practiceStart(); else start();}));
-  $$(".autoBtn").forEach(b=>b.addEventListener("click",()=>{S.settings.autoOn=!S.settings.autoOn;save();renderAuto();if(!S.settings.autoOn){M.autoNext=null;announce(null);}}));
+  $$(".autoBtn").forEach(b=>b.addEventListener("click",()=>{S.settings.autoOn=!S.settings.autoOn;save();renderAuto();if(!S.settings.autoOn){M.autoNext=null;M.dynNext=null;announce(null,null);}}));
   $$(".autoLvl").forEach(s=>s.addEventListener("change",()=>{S.settings.autoLvl=s.value;save();renderAuto();}));
+  $$(".autoWhat").forEach(s=>s.addEventListener("change",()=>{S.settings.autoWhat=s.value;save();M.autoNext=null;M.dynNext=null;announce(null,null);renderAuto();}));
   let taps=[];$$(".tapBtn").forEach(b=>b.addEventListener("click",()=>{const n=performance.now();if(taps.length&&n-taps[taps.length-1]>2000) taps=[];taps.push(n);taps=taps.slice(-5);
     if(taps.length>=2){let sum=0;for(let i=1;i<taps.length;i++) sum+=taps[i]-taps[i-1];setBpm(60000/(sum/(taps.length-1)));}}));
   document.addEventListener("keydown",e=>{if(e.code==="Space"&&(view()==="metronome"||view()==="practice")&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$("modal").classList.contains("open")){e.preventDefault();$$(".playBtn")[0].click();}});
@@ -1041,7 +1065,7 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
-if(/[?&]selftest\b/.test(location.search)) window.__t={MIC,SES,CT,M,openReport,summarize};
+if(/[?&]selftest\b/.test(location.search)) window.__t={MIC,SES,CT,M,openReport,summarize,onBarEnd,S:()=>S,renderAuto};
 try{if("serviceWorker" in navigator&&!/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
 })();
 </script>
