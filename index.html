@@ -140,6 +140,13 @@ audio{height:36px;max-width:220px}
 .overlay.open{display:flex}
 .overlay b{font-size:24px}
 [hidden]{display:none !important}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mt2{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.mt2 .k{font-size:13px;color:var(--muted);font-weight:700}
+.mt2 .v{font-size:26px;font-weight:800;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:0 12px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-weight:700;display:inline-flex;align-items:center;gap:6px}
 .overall{display:flex;align-items:center;gap:14px;padding:6px 0}
 .overall .g{font-size:34px;font-weight:800}
 .gchip{display:inline-block;font-size:13px;font-weight:800;padding:3px 10px;border-radius:20px;color:#fff;white-space:nowrap}
@@ -241,7 +248,7 @@ audio{height:36px;max-width:220px}
     <div class="phead">
       <a href="#library" class="btn ghost" aria-label="رجوع للتمارين">→ التمارين</a>
       <span class="name" id="pName"></span>
-      <span class="tag" id="pGroup"></span>
+      
       <span class="goal" style="margin-right:auto">الهدف <b class="ltr" id="pGoal">—</b> BPM <button class="btn ghost" id="pGoalEdit" style="min-height:36px;padding:0 10px">تعديل</button></span>
     </div>
     <div class="staff" id="pStaff"></div>
@@ -275,24 +282,26 @@ audio{height:36px;max-width:220px}
     </div>
 
     <div class="card stack">
-      <h2 style="margin:0">التحليل</h2>
-      <p class="small muted" style="margin:0">اعزف براحتك. البرنامج يسجل ويحلل بصمت، ولما تخلص اضغط "إنهاء وعرض التحليل".</p>
+      <h2 style="margin:0">الاستمرارية</h2>
+      <p class="small muted" style="margin:0">اعزف براحتك. البرنامج يسجل ويعرف متى تعزف ومتى توقفت، ولما تخلص اضغط "إنهاء الجلسة".</p>
+      <div class="grid3">
+        <div class="mt2"><div class="k">الاستمرار الحالي</div><div class="v ltr" id="liveRun">—</div><div class="k" id="liveState"></div></div>
+        <div class="mt2"><div class="k">أطول استمرار اليوم</div><div class="v ltr" id="liveBest">—</div></div>
+        <div class="mt2"><div class="k">مدة الجلسة</div><div class="v ltr"><span class="rec-dot" id="recDot" style="visibility:hidden"></span> <span id="sessTime">00:00</span></div></div>
+      </div>
       <div class="row">
-        <label class="switch"><input type="checkbox" id="measOn"> التسجيل والتحليل بالمايك</label>
+        <label class="switch"><input type="checkbox" id="measOn"> التسجيل بالمايك</label>
         <div class="meter" aria-hidden="true"><i id="meterBar"></i></div>
       </div>
-      <div class="sess">
-        <span class="rec-dot" id="recDot" style="visibility:hidden"></span>
-        <span class="timer ltr" id="sessTime">00:00</span>
-        <span class="small muted" id="sessInfo"></span>
-        <button class="btn primary" id="sessSave" style="margin-right:auto">إنهاء وعرض التحليل</button>
-      </div>
+      <button class="btn primary" id="sessSave">إنهاء الجلسة</button>
       <details>
-        <summary>إعدادات التحليل</summary>
+        <summary>الإعدادات</summary>
         <div class="stack">
+          <label class="f" style="max-width:260px">يعتبر توقف إذا سكتّ أكثر من
+            <select id="stopSel"><option value="3">3 ثواني</option><option value="5">5 ثواني</option><option value="10">10 ثواني</option></select>
+          </label>
           <div class="seg" id="monSeg"><button data-mon="speaker">بدون سماعة</button><button data-mon="phones">مع سماعة</button></div>
           <div class="small muted" id="monHint"></div>
-          <div class="row"><button class="btn ghost" id="calBtn">معايرة يدوية</button><span class="small ltr muted" id="calInfo"></span></div>
         </div>
       </details>
     </div>
@@ -307,28 +316,29 @@ audio{height:36px;max-width:220px}
       <span class="name" id="rName"></span>
       <span class="small muted" id="rMeta" style="margin-right:auto"></span>
     </div>
-    <div class="overall" id="rOverall"></div>
-    <div class="res" id="rItems"></div>
-    <div class="tip" id="rTip"></div>
+    <div id="rSummary"></div>
   </div>
   <div class="card stack" id="rTimeCard">
-    <div class="row"><h2 style="margin:0">الجلسة على الخط الزمني</h2><span class="small muted" style="margin-right:auto">اضغط على أي مكان عشان تسمعه</span></div>
+    <div class="row"><h2 style="margin:0">الجلسة</h2><span class="small muted" style="margin-right:auto">الأخضر عزف، والعلامات الحمرا توقفات. اضغط على أي توقف وتسمع اللي قبله.</span></div>
     <div id="rTimeline"></div>
-    <div class="row" id="rWorst"></div>
+    <div class="chips" id="rStops"></div>
     <audio id="rAudio" controls hidden style="width:100%;max-width:none"></audio>
   </div>
-  <div class="card stack" id="rFatigue" hidden>
-    <h2 style="margin:0">التعب خلال الجلسة</h2>
-    <div id="rSegs"></div>
+  <div class="card stack" id="rTempoCard">
+    <h2 style="margin:0">حسب السرعة</h2>
+    <div id="rTempos"></div>
   </div>
   <div class="card stack">
-    <h2 style="margin:0">ملاحظاتك</h2><p class="small muted" style="margin:0">التقرير انحفظ تلقائياً في السجل. هنا تضيف ملاحظاتك.</p>
-    <div class="row">
-      <label class="f">أعلى سرعة عزفتها نظيف (BPM)<input type="number" id="fMax" class="ltr" min="30" max="300"></label>
-      <label class="switch"><input type="checkbox" id="fRelax" checked> عزفتها مرتاح وبدون شد</label>
+    <h2 style="margin:0">تقييمك</h2>
+    <div class="row"><span class="small">كيف كان التمرين؟</span><div class="seg" id="feelSeg"><button data-f="easy">مرتاح</button><button data-f="ok">متوسط</button><button data-f="hard">صعب</button></div></div>
+    <div class="row" id="dynBox"><span class="small">الداينامك اللي تمرنت عليه:</span>
+      <label class="switch"><input type="checkbox" value="p"> بيانو</label>
+      <label class="switch"><input type="checkbox" value="n"> طبيعي</label>
+      <label class="switch"><input type="checkbox" value="f"> عالي</label>
     </div>
-    <label class="f">ملاحظات<textarea id="fNotes"></textarea></label>
-    <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn ghost" id="fFeedback">التقييم مو دقيق</button><button class="btn danger" id="fDrop" style="margin-right:auto">حذف الجلسة</button></div>
+    <label class="f">ملاحظاتك<textarea id="fNotes"></textarea></label>
+    <p class="small muted" style="margin:0">الجلسة انحفظت تلقائياً في السجل.</p>
+    <div class="row"><button class="btn primary" id="fSave">حفظ</button><button class="btn danger" id="fDrop" style="margin-right:auto">حذف الجلسة</button></div>
   </div>
 </section>
 
@@ -345,9 +355,9 @@ audio{height:36px;max-width:220px}
       <h2 style="margin:0">التطور</h2>
       <select id="chartEx" style="margin-right:auto;min-width:240px" aria-label="اختر التمرين"></select>
     </div>
-    <h3>منحنى السرعة <span class="small muted">(أعلى سرعة نظيفة كل يوم)</span></h3>
+    <h3>منحنى السرعة <span class="small muted">(أعلى سرعة استمريت عليها 20 ثانية على الأقل)</span></h3>
     <div class="chartbox" id="chartSpeed"></div>
-    <h3 style="margin-top:14px">منحنى الثبات <span class="small muted">(كل ما نزل المنحنى كان توقيتك أثبت)</span></h3>
+    <h3 style="margin-top:14px">منحنى الاستمرار <span class="small muted">(أطول فترة بدون توقف كل يوم)</span></h3>
     <div class="chartbox" id="chartStab"></div>
     <div class="small muted" id="chartNote"></div>
   </div>
@@ -450,9 +460,8 @@ function tokHTML(t,i){const c=t.s==="∧"?"d":t.s==="∨"?"u":"p";
 
 
 function recordsFor(id){
-  const r={bpm:0,std:null};
-  S.sessions.forEach(s=>{if(s.exId!==id) return; if(s.relaxed!==false) r.bpm=Math.max(r.bpm,s.max||0);
-    if(s.meas&&s.meas.n>=16&&(r.std==null||s.meas.std<r.std)) r.std=s.meas.std;});
+  const r={bpm:0,longest:0};
+  S.sessions.forEach(s=>{if(s.exId!==id) return; if(s.relaxed!==false) r.bpm=Math.max(r.bpm,s.max||0); if(s.cont) r.longest=Math.max(r.longest,s.cont.longest||0);});
   return r;
 }
 function levelFor(e){
@@ -608,12 +617,10 @@ function initMetro(){
   renderAuto();
 }
 
-/* ================= mic measurement ================= */
-// Two listening bands: the oud (below 700 Hz on speaker / pick attack above 1.5 kHz with headphones)
-// and, on speaker, the metronome click itself (above 1.8 kHz) for the automatic latency check.
-const MIC={expected:0,on:false,stream:null,src:null,sp:null,spC:null,level:0,pairs:[],hi:0,fr:null,cfr:null,calRaw:[],calibrating:false,checking:false};
-const calKey=()=>S.settings.monitor==="speaker"?"calib":"calibPh";
-const calVal=()=>S.settings[calKey()];
+/* ================= mic: is the oud playing? ================= */
+// The oud is heard in its own band (below 700 Hz on speaker, above 1.5 kHz with headphones),
+// so the metronome click never counts as playing. Works the same for piano, normal and loud dynamics.
+const MIC={on:false,stream:null,src:null,sp:null,level:0,fr:null,st:null,nf:0.01,hist:[],lastOn:-99,lastSound:-99,fi:0};
 async function micStart(){
   if(MIC.on) return true;
   if(!ensureCtx()) return false;
@@ -623,12 +630,11 @@ async function micStart(){
   }catch(e){toast("المايك مو متاح. افتح البرنامج من نسخته المثبتة واسمح بالمايك.");$("measOn").checked=false;S.settings.measure=false;save();return false;}
   MIC.src=ctx.createMediaStreamSource(MIC.stream);
   MIC.sink=ctx.createGain();MIC.sink.gain.value=0;MIC.sink.connect(ctx.destination);
-  MIC.sp=ctx.createScriptProcessor(1024,1,1);MIC.sp.onaudioprocess=e=>frames(e,"fr");MIC.sp.connect(MIC.sink);
-  MIC.spC=ctx.createScriptProcessor(1024,1,1);MIC.spC.onaudioprocess=e=>frames(e,"cfr");MIC.spC.connect(MIC.sink);
+  MIC.sp=ctx.createScriptProcessor(1024,1,1);MIC.sp.onaudioprocess=frames;MIC.sp.connect(MIC.sink);
   buildChains();MIC.on=true;requestAnimationFrame(meterLoop);return true;
 }
 function micStop(){
-  try{MIC.sp.disconnect();MIC.spC.disconnect();MIC.src.disconnect();(MIC.filt||[]).forEach(f=>f.disconnect());}catch(e){}
+  try{MIC.sp.disconnect();MIC.src.disconnect();(MIC.filt||[]).forEach(f=>f.disconnect());}catch(e){}
   if(!(rec&&rec.state==="recording")){try{MIC.stream.getTracks().forEach(t=>t.stop());}catch(e){}MIC.stream=null;}
   MIC.on=false;MIC.src=null;MIC.filt=null;$("meterBar").style.width="0";
 }
@@ -636,163 +642,116 @@ function buildChains(){
   if(!MIC.src) return;
   (MIC.filt||[]).forEach(f=>{try{f.disconnect();}catch(e){}});try{MIC.src.disconnect();}catch(e){}
   const mk=(type,f)=>{const b=ctx.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=0.707;return b;};
-  const spk=S.settings.monitor==="speaker";
-  const oud=spk?[mk("lowpass",700),mk("lowpass",700)]:[mk("highpass",1500)], clk=[mk("highpass",1800)];
+  const oud=S.settings.monitor==="speaker"?[mk("lowpass",700),mk("lowpass",700)]:[mk("highpass",1500)];
   let n=MIC.src;oud.forEach(f=>{n.connect(f);n=f;});n.connect(MIC.sp);
-  n=MIC.src;clk.forEach(f=>{n.connect(f);n=f;});n.connect(MIC.spC);
-  MIC.filt=oud.concat(clk);MIC.fr=null;MIC.cfr=null;MIC.st={};
+  MIC.filt=oud;MIC.st=null;
 }
-function frames(e,key){
+function frames(e){
   const x=e.inputBuffer.getChannelData(0),sr=ctx.sampleRate,N=x.length,hop=128,W=256;
-  const tBlock=e.playbackTime-N/sr; MIC.st=MIC.st||{};
-  let st=MIC.st[key]; if(!st||!MIC[key]){st=MIC.st[key]={sq:new Float32Array(W),qi:0,acc:0};MIC[key]=[];}
-  const out=MIC[key];
+  const tBlock=e.playbackTime-N/sr;
+  let st=MIC.st; if(!st) st=MIC.st={sq:new Float32Array(W),qi:0,acc:0};
   for(let h=0;h<N;h+=hop){let p=0;
     for(let i=h;i<h+hop&&i<N;i++){const v=x[i]*x[i];st.acc+=v-st.sq[st.qi];st.sq[st.qi]=v;st.qi=(st.qi+1)%W;const a=Math.abs(x[i]);if(a>p) p=a;}
-    if(key==="fr") MIC.level=Math.max(p,MIC.level*0.97);
-    out.push({t:tBlock+(h+hop-W/2)/sr,e:Math.sqrt(Math.max(st.acc,0)/W),p});}
-  if(out.length>2400) out.splice(0,800);
-}
-// strongest energy rise inside [a,b]
-function riseIn(fr,a,b,minRise,ratio){
-  let bi=-1,bd=0,emin=1;
-  for(let i=1;i<fr.length;i++){if(fr[i].t<a) continue;if(fr[i].t>b) break;emin=Math.min(emin,fr[i].e);const d=fr[i].e-fr[i-1].e;if(d>bd){bd=d;bi=i;}}
-  if(bi<0||bd<minRise||fr[bi].e<emin*ratio) return -1;
-  return bi;
-}
-// level-independent onset: 50% point between the valley before the rise and the peak after it (interpolated)
-function onsetTime(fr,bi,a,b){
-  let v=bi;while(v>1&&fr[v-1].e<=fr[v].e&&fr[v-1].t>a-0.02) v--;
-  let p=bi;while(p+1<fr.length&&fr[p+1].e>=fr[p].e&&fr[p+1].t<b+0.03) p++;
-  const lo=fr[v].e,hi=fr[p].e,th=lo+0.5*(hi-lo);let j=v;while(j<p&&fr[j+1].e<th) j++;
-  const e0=fr[j].e,n=fr[j+1];if(!n||n.e<=e0) return fr[j].t;
-  return fr[j].t+Math.min(1,(th-e0)/(n.e-e0))*(n.t-fr[j].t);
-}
-function curPat(){const ex=SES.exId&&getEx(SES.exId);return parsePat(ex?ex.pattern:"");}
-function analyse(){
-  if(!MIC.on||MIC.checking||!M.hist.length||!MIC.fr||!MIC.fr.length) return;
-  const fr=MIC.fr,lastT=fr[fr.length-1].t, cal=MIC.calibrating?0:(calVal()!=null?calVal():0.05);
-  while(MIC.hi<M.hist.length){
-    const h=M.hist[MIC.hi],pl=h.pl;
-    const a=MIC.calibrating?h.t-0.15*pl:h.t+cal-0.45*pl, b=MIC.calibrating?h.t+0.8*pl:h.t+cal+0.45*pl;
-    if(b+0.03>lastT) break;
-    MIC.hi++;
-    const countable=!MIC.calibrating&&h.bar>=1;
-    if(countable) MIC.expected++;
-    const bi=riseIn(fr,a,b,0.0012,1.3); if(bi<0) continue;
-    let pk=0;for(let i=bi;i<fr.length&&fr[i].t<fr[bi].t+0.03;i++) pk=Math.max(pk,fr[i].p);
-    const raw=onsetTime(fr,bi,a,b)-h.t;
-    if(MIC.calibrating){MIC.calRaw.push(raw);ovSub("معايرة: "+MIC.calRaw.length+" / 12");
-      if(MIC.calRaw.length>=12){const q=MIC.calRaw.slice().sort((p,r)=>p-r);S.settings[calKey()]=q[6];save();endCalib(true);}
-      continue;}
-    if(h.bar<1) continue; // first bar = warm-up
-    const toks=curPat(),tk=toks.length?toks[h.pi%toks.length]:{s:h.pi%2?"∨":"∧"};
-    MIC.pairs.push({dev:raw-cal,peak:pk,s:tk.s,t:h.t,bpm:h.bpm,bar:h.bar,pi:h.pi,run:h.run,pl:h.pl});
-    if(MIC.pairs.length>120000) MIC.pairs.splice(0,20000);
+    MIC.level=Math.max(p,MIC.level*0.97);
+    const en=Math.sqrt(Math.max(st.acc,0)/W),t=tBlock+(h+hop)/sr;
+    // noise floor: follows the quiet room, never climbs while you play
+    if(en<MIC.nf) MIC.nf=MIC.nf*0.9+en*0.1; else if(en<MIC.nf*2) MIC.nf*=1.0004;
+    const mn=MIC.hist.length?Math.min.apply(null,MIC.hist):en;
+    if(en>Math.max(MIC.nf*4,0.0006)&&en>mn*1.4&&t-MIC.lastOn>0.06) MIC.lastOn=t;   // a new stroke
+    if(en>Math.max(MIC.nf*8,0.001)) MIC.lastSound=t;                                 // still sounding
+    MIC.hist.push(en);if(MIC.hist.length>4) MIC.hist.shift();
   }
 }
-setInterval(analyse,100);
-
-/* automatic latency check (speaker mode): 8 quiet clicks, the mic hears them, no playing needed */
-function autoCheck(){
-  return new Promise(res=>{
-    if(!ensureCtx()){res(false);return;}
-    MIC.checking=true;ovOpen("لحظة… نضبط الصوت","لا تعزف لين تخلص النقرات");
-    const t0=ctx.currentTime+0.3,times=[];
-    for(let i=0;i<8;i++){const t=t0+i*0.45;times.push(t);click("A",Math.max(0.6,S.settings.vA/100),t);}
-    setTimeout(()=>{
-      const fr=MIC.cfr||[],lats=[];
-      times.forEach(t=>{const bi=riseIn(fr,t,t+0.4,0.002,2);if(bi>=0) lats.push(fr[bi].t-t);});
-      MIC.checking=false;ovClose();
-      if(lats.length>=5){lats.sort((a,b)=>a-b);const med=lats[lats.length>>1],iqr=lats[Math.floor(lats.length*0.75)]-lats[Math.floor(lats.length*0.25)];
-        if(iqr<0.02){S.settings.calib=med;save();showCal();res(true);return;}}
-      toast("ما قدرت أضبط الصوت تلقائياً. ارفع صوت التاب، أو سوّ معايرة يدوية من إعدادات القياس.");res(false);
-    },t0*1000-ctx.currentTime*1000+8*450+500);
-  });
-}
-function startCalib(){
-  MIC.saved={bpm:S.settings.bpm,sub:S.settings.sub};if(M.playing) stop();
-  setBpm(60);setSub(1);MIC.calibrating=true;MIC.calRaw=[];
-  ovOpen("معايرة يدوية","اعزف على وتر فاضي مع كل نبضة (12 نبضة)",true);start();
-}
-function endCalib(ok){
-  MIC.calibrating=false;MIC.pairs=[];MIC.expected=0;if(M.playing) stop();
-  if(MIC.saved){setBpm(MIC.saved.bpm);setSub(MIC.saved.sub);MIC.saved=null;}
-  ovClose();showCal();if(ok) toast("تمت المعايرة");
-}
-function showCal(){const c=calVal();$("calInfo").textContent=c!=null?"التأخير المحفوظ: "+Math.round(c*1000)+" ms":"ما فيه معايرة محفوظة";}
+function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
 function setMonitor(v){
   S.settings.monitor=v;save();
   if(outHP) outHP.frequency.value=v==="speaker"?1800:10;
   if(MIC.on) buildChains();
   $$("#monSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mon===v));
   $("monHint").innerHTML=v==="speaker"
-    ?"صوت المترونوم يصير حاد، والبرنامج يسمع العود في المنطقة المنخفضة بس، فما يخلط بينهم. التأخير ينضبط تلقائياً أول مرة."
-    :"البرنامج يسمع ضربة الريشة نفسها، فيكون أدق. سوّ معايرة يدوية لكل سماعة، والبلوتوث بالذات يحتاجها.";
-  MIC.pairs=[];MIC.expected=0;showCal();
+    ?"صوت المترونوم يصير حاد، والبرنامج يسمع العود في المنطقة المنخفضة بس، فما يحسب النقرة عزف."
+    :"مع السماعة المايك ما يسمع المترونوم أصلاً.";
 }
 
-/* ================= stats (robust) ================= */
-const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-const median=a=>{if(!a.length) return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
-const sdev=a=>{const m=avg(a);return Math.sqrt(avg(a.map(v=>(v-m)*(v-m))));};
-function measStats(list,expected){
-  list=list||MIC.pairs; if(list.length<8) return null;
-  const all=list.map(p=>p.dev*1000), med=median(all), mad=median(all.map(d=>Math.abs(d-med)))*1.4826;
-  const lim=Math.max(25,4*mad);
-  const keep=list.filter(p=>Math.abs(p.dev*1000-med)<=lim), outliers=list.length-keep.length;
-  if(keep.length<8) return null;
-  const devs=keep.map(p=>p.dev*1000), mean=avg(devs), std=sdev(devs);
-  const ioi=avg(keep.map(p=>(p.pl||0.25)*1000));
-  // strength balance, with significance (log amplitude difference)
-  const dn=keep.filter(p=>p.s==="∧"), up=keep.filter(p=>p.s==="∨");
-  let bal=null;
-  if(dn.length>=6&&up.length>=6){
-    const ld=dn.map(p=>Math.log(p.peak+1e-6)),lu=up.map(p=>Math.log(p.peak+1e-6));
-    const diff=avg(ld)-avg(lu),se=Math.sqrt(sdev(ld)**2/ld.length+sdev(lu)**2/lu.length)||1e-9;
-    const md=avg(dn.map(p=>p.peak)),mu=avg(up.map(p=>p.peak));
-    bal={weak:mu<md?"∨":"∧",pct:Math.round((1-Math.min(md,mu)/Math.max(md,mu))*100),sig:Math.abs(diff/se)>3};
-  }
-  // timing limp from neighbouring strokes: (∧→∨ gap) vs (∨→∧ gap)
-  const srt=keep.slice().sort((a,b)=>a.t-b.t),v=[];
-  for(let i=0;i+1<srt.length;i++){const a=srt[i],b=srt[i+1];if(a.run!==b.run||b.pi-a.pi!==1) continue;
-    const d=(b.dev-a.dev)*1000; if(a.s==="∧"&&b.s==="∨") v.push(d); else if(a.s==="∨"&&b.s==="∧") v.push(-d);}
-  let limp=null;
-  if(v.length>=12){const m=avg(v),se=sdev(v)/Math.sqrt(v.length)||1e-9;limp={ms:Math.round(Math.abs(m)),pct:Math.round(Math.abs(m)/ioi*1000)/10,late:m>0?"∨":"∧",sig:Math.abs(m/se)>3};}
-  const mD=dn.length>=4?Math.round(avg(dn.map(p=>p.dev*1000))):null, mU=up.length>=4?Math.round(avg(up.map(p=>p.dev*1000))):null;
-  let drift=null;
-  if(keep.length>=16&&keep[keep.length-1].t-keep[0].t>=20){const t0=keep[0].t,xs=keep.map(p=>(p.t-t0)/60),mx=avg(xs);let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(devs[i]-mean);den+=(x-mx)*(x-mx);});drift=den?Math.round(num/den):null;}
-  let weakBpm=null;const bk={};keep.forEach(p=>{const k=Math.round(p.bpm/5)*5;(bk[k]=bk[k]||[]).push(p.dev*1000);});
-  const ks=Object.keys(bk).filter(k=>bk[k].length>=16);
-  if(ks.length>=2){let w=null,ws=-1;ks.forEach(k=>{const s=sdev(bk[k]);if(s>ws){ws=s;w=k;}});weakBpm={bpm:+w,std:Math.round(ws)};}
-  const cover=expected?Math.min(1,list.length/expected):null;
-  return {n:keep.length,outliers,mean:Math.round(mean),std:Math.round(std),bal,limp,mD,mU,drift,weakBpm,cover,ioi:Math.round(ioi)};
+/* ================= continuity: runs, stops, per tempo ================= */
+// A "run" = playing without a stop. A stop = silence longer than the chosen seconds, or the metronome stopped.
+// Each run is cut into segments by tempo, so we know how long you lasted at 100, at 110…
+const CT={segs:[],open:null,runId:0,lastBpm:null};
+const stopSec=()=>+S.settings.stopSec||5;
+function ctNow(){return ctx?ctx.currentTime:0;}
+function lastAct(){return Math.max(MIC.lastOn,MIC.lastSound);}
+function closeSeg(at){
+  const o=CT.open;if(!o) return;
+  const e=Math.max(o.s,at);if(e-o.s>=1) CT.segs.push({s:o.s-SES.t0ctx,e:e-SES.t0ctx,bpm:o.bpm,run:o.run});
+  CT.open=null;
 }
-function meterLoop(){if(!MIC.on) return;$("meterBar").style.width=Math.min(100,Math.round(Math.sqrt(MIC.level)*140))+"%";requestAnimationFrame(meterLoop);}
+function ctTick(){
+  if(!SES.active||!MIC.on||SES.t0ctx==null) return;
+  const now=ctNow(),la=lastAct();
+  if(!M.playing){if(CT.open) closeSeg(Math.min(la,CT.stopAt||now));renderLive();return;}
+  if(CT.open){
+    if(now-la>stopSec()) closeSeg(la);                                       // silence -> stop
+    else if(S.settings.bpm!==CT.open.bpm){const run=CT.open.run;closeSeg(now);CT.open={s:now,bpm:S.settings.bpm,run};}  // tempo change, same run
+  } else if(now-MIC.lastOn<0.5&&MIC.lastOn>=(CT.playStart||0)){
+    CT.open={s:MIC.lastOn,bpm:S.settings.bpm,run:++CT.runId};
+  }
+  renderLive();
+}
+setInterval(ctTick,200);
+function runsOf(segs){
+  const m={};segs.forEach(g=>{const r=m[g.run]||(m[g.run]={run:g.run,s:g.s,e:g.e,bpms:[]});r.s=Math.min(r.s,g.s);r.e=Math.max(r.e,g.e);r.bpms.push(g.bpm);});
+  return Object.values(m).sort((a,b)=>a.s-b.s);
+}
+function liveSegs(){const L=CT.segs.slice();if(CT.open&&SES.t0ctx!=null) L.push({s:CT.open.s-SES.t0ctx,e:Math.max(CT.open.s,lastAct())-SES.t0ctx,bpm:CT.open.bpm,run:CT.open.run});return L;}
+function renderLive(){
+  if(view()!=="practice") return;
+  const segs=liveSegs(),runs=runsOf(segs);
+  const cur=CT.open?Math.max(0,ctNow()-runs[runs.length-1].s-SES.t0ctx):0;
+  const longest=runs.reduce((a,r)=>Math.max(a,r.e-r.s),0);
+  $("liveRun").textContent=CT.open?fmt(Math.max(cur,0)):"—";
+  $("liveState").textContent=!MIC.on?"":!M.playing?"المترونوم واقف":CT.open?"تعزف":"متوقف";
+  $("liveBest").textContent=longest?fmt(longest):"—";
+}
+function tempoTable(segs){
+  const m={};segs.forEach(g=>{const d=g.e-g.s;const r=m[g.bpm]||(m[g.bpm]={bpm:g.bpm,tries:0,longest:0,total:0});if(d>=3) r.tries++;r.longest=Math.max(r.longest,d);r.total+=d;});
+  return Object.values(m).filter(r=>r.total>=3).sort((a,b)=>a.bpm-b.bpm);
+}
+function summarize(segs,dur){
+  const runs=runsOf(segs),play=segs.reduce((a,g)=>a+(g.e-g.s),0);
+  const longest=runs.reduce((a,r)=>r.e-r.s>a.d?{d:r.e-r.s,r}:a,{d:0,r:null});
+  const stops=[];for(let i=1;i<runs.length;i++) stops.push({at:runs[i-1].e,len:runs[i].s-runs[i-1].e});
+  const tt=tempoTable(segs);
+  const topBpm=tt.filter(r=>r.longest>=20).reduce((a,r)=>Math.max(a,r.bpm),0);
+  return {dur,play:Math.round(play),longest:Math.round(longest.d),longestBpm:longest.r?longest.r.bpms[0]:null,runs:runs.length,stops,tempos:tt,topBpm};
+}
 
 /* ================= practice screen ================= */
-const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null};
+const SES={active:false,exId:null,secs:0,max:0,t0:null,timer:null,recId:null,recT0:null,t0ctx:null};
+function newSession(){SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;SES.t0ctx=null;CT.segs=[];CT.open=null;CT.runId=0;$("sessTime").textContent="00:00";renderLive();}
 function openPractice(id){
   const ex=getEx(id); if(!ex) return;
   if(M.playing) stop();
-  if(SES.exId!==id){if(rec) stopRec(true);SES.exId=id;SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];MIC.expected=0;}
+  if(SES.exId!==id){if(rec) stopRec(true);SES.exId=id;newSession();}
   SES.active=true;
   S.settings.num=ex.num||4;S.settings.den=ex.den||4;renderSig();setSub(ex.sub||1);
   const best=bestFor(id);setBpm(best?Math.max(ex.start||60,best-4):(ex.start||60));
-  $("pName").textContent=ex.name;$("pGroup").textContent=ex.group||"";$("pGoal").textContent=ex.target||"—";
+  $("pName").textContent=ex.name;$("pGoal").textContent=ex.target||"—";
   const st=ex.staff?autoStaff(ex):"";$("pStaff").innerHTML=st;$("pStaff").hidden=!st;
   $("pPat").innerHTML=parsePat(ex.pattern).map(tokHTML).join("");
   $("pNotes").textContent=ex.notes||"";
-  $("sessTime").textContent=fmt(SES.secs);$("measOn").checked=!!S.settings.measure;
-  renderPMeter();renderAuto();
+  $("sessTime").textContent=fmt(SES.secs);$("measOn").checked=!!S.settings.measure;$("stopSel").value=String(stopSec());
+  renderPMeter();renderAuto();renderLive();
   if(location.hash!=="#practice") location.hash="practice";
 }
 async function practiceStart(){
   if(S.settings.measure){
     const ok=await micStart();
-    if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null) await autoCheck();
-    if(ok&&!(rec&&rec.state==="recording")) await startRec();
+    if(ok){
+      if(SES.t0ctx==null) SES.t0ctx=ctx.currentTime;
+      if(!(rec&&rec.state==="recording")) await startRec();
+    }
   }
+  CT.playStart=ctx?ctx.currentTime:0;
   start();
 }
 function renderPMeter(){
@@ -803,172 +762,97 @@ function renderPMeter(){
 $("pSig").onchange=()=>{const [n,d]=$("pSig").value.split("/");setSig(+n,+d);if(SES.exId) saveExField(SES.exId,{num:+n,den:+d});renderPMeter();};
 $("pSub").onchange=()=>{setSub(+$("pSub").value);if(SES.exId) saveExField(SES.exId,{sub:+$("pSub").value});
   const ex=getEx(SES.exId);if(ex){const st=ex.staff?autoStaff(ex):"";$("pStaff").innerHTML=st;}};
-function fmt(sec){sec=Math.round(sec);return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
+$("stopSel").onchange=()=>{S.settings.stopSec=+$("stopSel").value;save();};
+function fmt(sec){sec=Math.max(0,Math.round(sec));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return (h?h+":"+String(m).padStart(2,"0"):String(m).padStart(2,"0"))+":"+String(s).padStart(2,"0");}
 function sessionPlay(on){
   if(!SES.active||view()!=="practice") return;
   if(on){SES.t0=performance.now();SES.max=Math.max(SES.max,S.settings.bpm);
     SES.timer=setInterval(()=>{$("sessTime").textContent=fmt(SES.secs+(performance.now()-SES.t0)/1000);},500);}
-  else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);}
+  else if(SES.t0!=null){SES.secs+=(performance.now()-SES.t0)/1000;SES.t0=null;clearInterval(SES.timer);$("sessTime").textContent=fmt(SES.secs);CT.stopAt=ctNow();ctTick();}
 }
-/* ================= grades & report ================= */
-const GR=[{t:"ممتاز",c:"#2F6B3A"},{t:"زين جداً",c:"#155E68"},{t:"زين",c:"#8A5A00"},{t:"يحتاج تمرين",c:"#9B2C1F"}];
-const grade=(v,lim)=>v<=lim[0]?0:v<=lim[1]?1:v<=lim[2]?2:3;
-const chip=g=>`<span class="gchip" style="background:${GR[g].c}">${GR[g].t}</span>`;
-function segStats(list,minutes){
-  if(!list.length) return [];
-  const t0=list[0].t,seg=minutes*60,out=[];
-  list.forEach(p=>{const k=Math.floor((p.t-t0)/seg);(out[k]=out[k]||[]).push(p);});
-  return out.map((L,k)=>{if(!L||L.length<24) return null;const st=measStats(L);return st?{from:k*minutes,to:(k+1)*minutes,std:st.std,mean:st.mean,bal:st.bal?{weak:st.bal.weak,pct:st.bal.pct}:null}:null;}).filter(Boolean);
-}
-// 8-bar window with the worst value of a metric -> {t,t1,from,to,val}
-function worstBy(list,fn){
-  if(list.length<32) return null;
-  const byBar={};list.forEach(p=>{(byBar[p.bar+"_"+p.run]=byBar[p.bar+"_"+p.run]||[]).push(p);});
-  const keys=Object.keys(byBar).sort((a,b)=>byBar[a][0].t-byBar[b][0].t);let best=null;
-  const stepB=Math.max(2,Math.floor(keys.length/300));
-  for(let i=0;i+7<keys.length;i+=stepB){const L=[];for(let j=i;j<i+8;j++) L.push(...byBar[keys[j]]);if(L.length<16) continue;
-    const st=measStats(L);if(!st) continue;const val=fn(st);if(val==null) continue;
-    if(!best||val>best.val) best={val,t:L[0].t,t1:L[L.length-1].t,from:L[0].bar,to:L[L.length-1].bar};}
-  return best;
-}
-function buildReport(st,ex){
-  const items=[];
-  if(!st) return {items,overall:null,quality:null,tip:"ما انقاس شي في هالجلسة. تأكد إن \"التسجيل والتحليل بالمايك\" شغّال، وإن التاب قريب من العود."};
-  const cov=st.cover!=null?Math.round(st.cover*100):null;
-  const quality=`لقط البرنامج <b class="ltr">${cov!=null?cov+"%":st.n}</b> من الضربات${st.outliers?` · تجاهل <b class="ltr">${st.outliers}</b> ضربة شاذة`:""}`;
-  if((cov!=null&&cov<70)||st.n<30){
-    return {items,overall:null,quality,tip:`القياس مو موثوق في هالجلسة، فما أعطيتك تقييم عشان ما أظلمك. جرّب: قرّب التاب من العود، وتأكد إن <b>التقسيم</b> في البرنامج نفس اللي تعزفه (مثلاً لو تعزف ∧∨ على كل نبضة، خله 2).`};
-  }
-  const gStd=grade(st.std,[12,20,30]);
-  items.push({key:"std",lab:"ثبات التوقيت",g:gStd,txt:`التذبذب حول النبضة <b class="ltr">±${st.std} ms</b>`});
-  const am=Math.abs(st.mean),gMean=grade(am,[12,22,35]);
-  items.push({key:"mean",lab:"التوقيت",g:gMean,txt:am<=12?"على النبضة":st.mean<0?`تميل تستعجل بحوالي <b class="ltr">${am} ms</b>`:`تميل تتأخر بحوالي <b class="ltr">${am} ms</b>`});
-  let gBal=null,gLimp=null;
-  const inverted=!!(ex&&parsePat(ex.pattern)[0]&&parsePat(ex.pattern)[0].s==="∨");
-  if(st.bal){
-    // the mic and the tablet position add their own error, so a small difference counts as equal
-    const within=!st.bal.sig||st.bal.pct<=10;
-    gBal=within?0:grade(st.bal.pct,[10,16,25]);
-    const it={key:"bal",lab:"توازن القوة",g:gBal,txt:within?`∧ و∨ متساويين${st.bal.pct>3?` <span class="small muted">(الفرق <span class="ltr">${st.bal.pct}%</span> ضمن هامش خطأ الجهاز)</span>`:""}`:`<span class="ltr">${st.bal.weak}</span> أضعف بـ <b class="ltr">${st.bal.pct}%</b>${inverted&&st.bal.weak==="∨"?" — وهذا تمرين يبدأ بـ ∨، فركّز إنها تكون بنفس قوة ∧":""}`};
-    if(inverted) items.unshift(it); else items.push(it);}
-  if(st.limp){gLimp=st.limp.sig?grade(st.limp.pct,[2,4,7]):0;
-    items.push({key:"limp",lab:"تساوي المسافات",g:gLimp,txt:gLimp===0?"المسافات بين الضربات متساوية":`<span class="ltr">${st.limp.late}</span> تتأخر عن مكانها بحوالي <b class="ltr">${st.limp.ms} ms</b> (<span class="ltr">${st.limp.pct}%</span> من المسافة)، فيطلع الإيقاع طويل-قصير`});}
-  if(st.drift!=null){const ad=Math.abs(st.drift);items.push({key:"drift",lab:"ثبات السرعة",g:grade(ad,[5,10,18]),txt:ad<=5?"حافظت على السرعة طول الجلسة":st.drift<0?"تسرّع مع الوقت بدون ما تحس":"تبطّئ مع الوقت"});}
-  if(st.weakBpm) items.push({key:"wbpm",lab:"أضعف سرعة",g:2,txt:`ثباتك كان أضعف حول <b class="ltr">${st.weakBpm.bpm}</b> BPM`});
-  const core=[gStd,gMean,gBal,gLimp].filter(v=>v!=null);
-  const overall=Math.max(Math.round(core.reduce((a,b)=>a+b,0)/core.length),Math.max(...core)-1);
-  let tip;
-  if(gBal!=null&&gBal>=1) tip=`المطلوب إن ∧ و∨ يكونون بنفس القوة. ركّز على ${st.bal.weak}، وجرّب تمرين الضغوط بحيث يكون الأكسنت عليها.`;
-  else if(gLimp!=null&&gLimp>=2) tip="المسافات مو متساوية. نزّل السرعة وعدّ في داخلك بالتساوي، وخلّ الريشة تمشي مثل المشي.";
-  else if(gStd>=2) tip="نزّل السرعة 8 BPM، وخل الريشة ترتاح لين يثبت التوقيت.";
-  else if(gMean>=2) tip=st.mean<0?"لا تسبق النبضة. استرخِ وخلها تجيك.":"انتبه لا تتأخر. حس بالنبضة قبل ما تضرب.";
-  else tip=`ممتاز. ارفع السرعة 4 BPM المرة الجاية${ex&&ex.target?` (هدفك ${ex.target})`:""}.`;
-  return {items,overall,quality,tip};
-}
-function timelineData(list){const step=Math.max(1,Math.ceil(list.length/500)),out=[];for(let i=0;i<list.length;i+=step){const p=list[i];out.push([Math.round(p.t*10)/10,Math.round(p.dev*1000),p.s==="∨"?1:0]);}return out;}
-function timelineSVG(pts,width){
-  const W=Math.max(320,width||900),H=170,R=60,P=24;
-  if(!pts||!pts.length) return `<div class="empty">ما فيه ضربات مقاسة.</div>`;
-  const t0=pts[0][0],t1=Math.max(t0+1,pts[pts.length-1][0]),X=t=>P+(t-t0)/(t1-t0)*(W-2*P),Y=v=>H/2-Math.max(-R,Math.min(R,v))/R*(H/2-14);
-  let g=`<rect x="${P}" y="${Y(20)}" width="${W-2*P}" height="${Y(-20)-Y(20)}" fill="#E3EFE3"/><line x1="${P}" x2="${W-P}" y1="${H/2}" y2="${H/2}" stroke="#5E554B"/>`+
-    `<text x="${P}" y="12" font-size="11" fill="#5E554B">متأخر</text><text x="${P}" y="${H-3}" font-size="11" fill="#5E554B">متقدم</text>`;
-  pts.forEach(p=>{g+=`<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="3" fill="${p[2]?"#155E68":"#8A3F12"}" opacity=".8"/>`;});
-  const mins=(t1-t0)/60,stepM=mins>60?15:mins>30?10:mins>8?2:1;
-  for(let m=stepM;m<mins;m+=stepM){const x=X(t0+m*60);g+=`<line x1="${x}" x2="${x}" y1="18" y2="${H-16}" stroke="#E2D6C4"/><text x="${x}" y="${H-3}" text-anchor="middle" font-size="11" fill="#5E554B">${m}m</text>`;}
-  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="توزيع الضربات على مدة الجلسة" style="display:block;max-width:100%;direction:ltr;background:#fff;border:1px solid #E2D6C4;border-radius:10px;cursor:pointer" data-t0="${t0}" data-t1="${t1}" data-p="${P}" data-w="${W}">${g}</svg>`;
-}
-// previous saved report + personal average for this exercise
-function history(exId,exceptId){
-  const L=S.sessions.filter(s=>s.exId===exId&&s.id!==exceptId&&s.report&&s.report.overall!=null);
-  const last=L[L.length-1]||null, recent=L.slice(-5).filter(s=>s.meas);
-  return {last,avgStd:recent.length>=2?Math.round(avg(recent.map(s=>s.meas.std))):null};
-}
-let REP=null; // {id, from:"practice"|"log"}
+
+/* ================= session report ================= */
+let REP=null; // {id, from}
 async function openReport(){
   if(M.playing) stop();
+  ctTick();if(CT.open) closeSeg(lastAct());
   await stopRec(false);
   if(SES.secs<5){toast("ابدأ التمرين أول");return;}
-  const ex=getEx(SES.exId),list=MIC.pairs.slice(),st=measStats(list,MIC.expected),r=buildReport(st,ex);
-  const worst={};
-  if(st&&r.overall!=null){
-    const w1=worstBy(list,x=>x.std);if(w1) worst.std=w1;
-    const w2=worstBy(list,x=>x.limp?x.limp.ms:null);if(w2) worst.limp=w2;
-    const w3=worstBy(list,x=>x.bal&&x.bal.weak===st.bal.weak?x.bal.pct:null);if(w3) worst.bal=w3;
-  }
-  const sess={id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:Math.round(SES.secs),max:SES.max||S.settings.bpm,relaxed:true,notes:"",
-    rec:SES.recId||null,recT0:SES.recT0||0,
-    meas:st?{n:st.n,std:st.std,mean:st.mean,bal:st.bal,limp:st.limp,drift:st.drift,cover:st.cover}:null,
-    report:{overall:r.overall,items:r.items,tip:r.tip,quality:r.quality,worst,segs:st?segStats(list,(SES.secs>1800?10:5)):[],tl:st?timelineData(list):[]}};
-  S.sessions.push(sess);
-  // keep storage small: drop timelines of very old sessions
-  const withTl=S.sessions.filter(s=>s.report&&s.report.tl&&s.report.tl.length);if(withTl.length>60) withTl.slice(0,withTl.length-60).forEach(s=>s.report.tl=[]);
-  save();
-  SES.secs=0;SES.max=0;SES.recId=null;SES.recT0=null;MIC.pairs=[];MIC.expected=0;$("sessTime").textContent="00:00";
-  renderLibrary();
-  REP={id:sess.id,from:"practice"};location.hash="report";renderReport();
+  const sum=summarize(CT.segs,Math.round(SES.secs));
+  const sess={id:uid(),exId:SES.exId,date:new Date().toISOString(),dur:sum.dur,max:sum.topBpm||SES.max||S.settings.bpm,feel:null,dyn:[],notes:"",
+    rec:SES.recId||null,recT0:(SES.recT0!=null&&SES.t0ctx!=null)?SES.recT0-SES.t0ctx:0,cont:sum,segs:CT.segs.map(g=>({s:Math.round(g.s*10)/10,e:Math.round(g.e*10)/10,bpm:g.bpm,run:g.run}))};
+  if(!MIC.on&&!CT.segs.length) sess.cont=null;
+  const before=contRecords(sess.exId);
+  S.sessions.push(sess);save();
+  const after=contRecords(sess.exId);
+  newSession();renderLibrary();
+  REP={id:sess.id,from:"practice",news:recordNews(before,after)};location.hash="report";renderReport();
+}
+function contRecords(exId){
+  const r={longest:0,byBpm:{}};
+  S.sessions.forEach(s=>{if(s.exId!==exId||!s.cont) return;r.longest=Math.max(r.longest,s.cont.longest||0);(s.cont.tempos||[]).forEach(t=>{r.byBpm[t.bpm]=Math.max(r.byBpm[t.bpm]||0,t.longest);});});
+  return r;
+}
+function recordNews(b,a){
+  const n=[];if(a.longest>b.longest&&b.longest>0) n.push(`أطول استمرار جديد: <b class="ltr">${fmt(a.longest)}</b>`);
+  Object.keys(a.byBpm).forEach(k=>{if(b.byBpm[k]&&a.byBpm[k]>b.byBpm[k]+1) n.push(`على <b class="ltr">${k}</b> استمريت <b class="ltr">${fmt(a.byBpm[k])}</b> (قبل <span class="ltr">${fmt(b.byBpm[k])}</span>)`);});
+  return n;
 }
 function openSavedReport(id){REP={id,from:"log"};location.hash="report";renderReport();}
+function curSess(){return REP&&S.sessions.find(s=>s.id===REP.id);}
+function timelineRuns(sess,width){
+  const W=Math.max(320,width||900),H=92,P=10,dur=Math.max(1,sess.dur||1),X=t=>P+t/dur*(W-2*P);
+  let g=`<rect x="${P}" y="26" width="${W-2*P}" height="34" rx="6" fill="#F0E5D1"/>`;
+  (sess.segs||[]).forEach(s=>{g+=`<rect x="${X(s.s).toFixed(1)}" y="26" width="${Math.max(1.5,X(s.e)-X(s.s)).toFixed(1)}" height="34" fill="#2F6B3A"/>`;});
+  const runs=runsOf(sess.segs||[]);
+  for(let i=1;i<runs.length;i++){const x=X(runs[i-1].e);g+=`<line x1="${x}" x2="${x}" y1="16" y2="70" stroke="#9B2C1F" stroke-width="2"/><circle cx="${x}" cy="14" r="6" fill="#9B2C1F" data-stop="${runs[i-1].e}" style="cursor:pointer"/>`;}
+  const mins=dur/60,stepM=mins>90?30:mins>40?10:mins>12?5:mins>4?1:0.5;
+  for(let m=stepM;m<mins;m+=stepM){const x=X(m*60);g+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="11" fill="#5E554B">${m<1?Math.round(m*60)+"s":Math.round(m)+"m"}</text>`;}
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="الجلسة: فترات العزف والتوقفات" style="display:block;max-width:100%;direction:ltr;cursor:pointer" data-dur="${dur}" data-p="${P}" data-w="${W}">${g}</svg>`;
+}
 function renderReport(){
-  const sess=REP&&S.sessions.find(s=>s.id===REP.id);if(!sess) return;
-  const ex=getEx(sess.exId),r=sess.report||{items:[],tip:"",overall:null};
+  const sess=curSess();if(!sess) return;
+  const ex=getEx(sess.exId),c=sess.cont;
   $("repBack").textContent=REP.from==="log"?"→ رجوع للسجل":"→ رجوع للتمرين";$("repBack").setAttribute("href",REP.from==="log"?"#progress":"#practice");
   $("rName").textContent=ex?ex.name:"تمرين محذوف";
-  $("rMeta").innerHTML=`${fmtDay(new Date(sess.date))} · المدة <b class="ltr">${fmt(sess.dur)}</b>${sess.meas?` · <b class="ltr">${sess.meas.n}</b> ضربة`:""}`;
-  const h=history(sess.exId,sess.id);
-  let cmp="";
-  if(h.last&&r.overall!=null) cmp+=`<span class="small muted">المرة اللي قبل: ${GR[h.last.report.overall].t} ← اليوم: <b>${GR[r.overall].t}</b></span>`;
-  if(h.avgStd!=null&&sess.meas){const d=h.avgStd-sess.meas.std;cmp+=`<span class="small muted">${cmp?" · ":""}معدل ثباتك <span class="ltr">±${h.avgStd}</span>${Math.abs(d)>=2?(d>0?` · اليوم أثبت بـ <b class="ltr">${d} ms</b>`:` · اليوم أقل ثبات بـ <b class="ltr">${-d} ms</b>`):""}</span>`;}
-  $("rOverall").innerHTML=(r.overall!=null?`<span class="muted">التقييم العام</span> <span class="g" style="color:${GR[r.overall].c}">${GR[r.overall].t}</span>`:"")+(cmp?`<div style="flex-basis:100%">${cmp}</div>`:"");
-  $("rOverall").style.flexWrap="wrap";
-  const W=r.worst||{};
-  $("rItems").innerHTML=(r.quality?`<div class="small muted">${r.quality}</div>`:"")+r.items.map(i=>`<div class="it"><span class="lab">${i.lab}</span><span class="txt">${i.txt}</span>${W[i.key]&&sess.rec&&i.g>0?`<button class="btn ghost" data-listen="${i.key}" style="min-height:36px">اسمع</button>`:""}${chip(i.g)}</div>`).join("");
-  $("rTip").innerHTML=r.tip||"";$("rTip").hidden=!r.tip;
-  $("rTimeCard").hidden=!(r.tl&&r.tl.length);
-  if(r.tl&&r.tl.length){$("rTimeline").innerHTML=timelineSVG(r.tl,$("rTimeline").clientWidth||900);
-    $("rWorst").innerHTML=W.std?`<span>أكثر مقطع فيه تذبذب: المازورات <b class="ltr">${W.std.from+1}–${W.std.to+1}</b></span>${sess.rec?`<button class="btn ghost" data-listen="std">اسمعه</button>`:""}`:"";}
-  const segs=r.segs||[];$("rFatigue").hidden=segs.length<2;
-  if(segs.length>=2){const a=segs[0].std,b=segs[segs.length-1].std;
-    $("rSegs").innerHTML=`<table><thead><tr><th>الوقت</th><th>الثبات</th><th>التوقيت</th><th>توازن القوة</th></tr></thead><tbody>${segs.map(x=>`<tr><td>${x.from}–${x.to} دقيقة</td><td>${chip(grade(x.std,[12,20,30]))} <span class="ltr">±${x.std} ms</span></td><td class="num">${x.mean>0?"+":""}${x.mean} ms</td><td>${x.bal?(x.bal.pct<=8?"متوازنة":`<span class="ltr">${x.bal.weak}</span> −${x.bal.pct}%`):"—"}</td></tr>`).join("")}</tbody></table>`+
-      (b-a>=6?`<p class="small" style="margin:8px 0 0">ثباتك نزل من <b class="ltr">±${a}</b> في البداية إلى <b class="ltr">±${b}</b> في الآخر. خذ استراحة قصيرة كل فترة.</p>`:`<p class="small muted" style="margin:8px 0 0">ثباتك كان متقارب طول الجلسة.</p>`);}
-  $("fMax").value=sess.max||"";$("fRelax").checked=sess.relaxed!==false;$("fNotes").value=sess.notes||"";
-  $("fFeedback").textContent=sess.feedback?"✓ سجلت إن التقييم مو دقيق":"التقييم مو دقيق";
-  $("fDrop").textContent="حذف الجلسة";
+  $("rMeta").innerHTML=`${fmtDay(new Date(sess.date))} · مدة الجلسة <b class="ltr">${fmt(sess.dur)}</b>`;
+  if(!c){$("rSummary").innerHTML=`<div class="empty">ما انقاس الاستمرار في هالجلسة لأن المايك كان مطفي.</div>`;$("rTempoCard").hidden=true;$("rTimeCard").hidden=true;}
+  else{
+    const tile=(n,k)=>`<div class="card tile"><div class="n ltr">${n}</div><div class="k">${k}</div></div>`;
+    $("rSummary").innerHTML=`<div class="grid4">${tile(fmt(c.longest),"أطول استمرار بدون توقف"+(c.longestBpm?` (على ${c.longestBpm})`:""))}${tile(fmt(c.play),"وقت العزف الفعلي")}${tile(c.stops.length,"عدد التوقفات")}${tile(c.runs,"عدد المحاولات")}</div>`+
+      ((REP.news&&REP.news.length)?`<div class="tip" style="margin-top:10px">${REP.news.join("<br>")}</div>`:"");
+    $("rTimeCard").hidden=false;$("rTimeline").innerHTML=timelineRuns(sess,$("rTimeline").clientWidth||900);
+    $("rStops").innerHTML=c.stops.length?c.stops.map((s,i)=>`<button class="chip" data-stop="${s.at}">توقف ${i+1}: <span class="ltr">${fmt(s.at)}</span> · <span class="ltr">${Math.round(s.len)}s</span></button>`).join(""):`<span class="small muted">ما فيه توقفات. استمريت طول الجلسة.</span>`;
+    $("rTempoCard").hidden=!c.tempos.length;
+    const rec=contRecords(sess.exId);
+    $("rTempos").innerHTML=`<table><thead><tr><th>السرعة</th><th>عدد المحاولات</th><th>أطول استمرار</th><th>المجموع</th><th>أفضل شي سجلته على هالسرعة</th></tr></thead><tbody>${c.tempos.map(t=>`<tr><td class="num">${t.bpm} BPM</td><td class="num">${t.tries}</td><td class="num">${fmt(t.longest)}</td><td class="num">${fmt(t.total)}</td><td class="num">${rec.byBpm[t.bpm]?fmt(rec.byBpm[t.bpm]):"—"}</td></tr>`).join("")}</tbody></table>`;
+  }
+  $$("#feelSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===sess.feel));
+  $$("#dynBox input").forEach(i=>i.checked=(sess.dyn||[]).includes(i.value));
+  $("fNotes").value=sess.notes||"";
   $("rAudio").hidden=true;$("rAudio").removeAttribute("src");
 }
-async function playAt(t,dur){
-  const sess=REP&&S.sessions.find(s=>s.id===REP.id);
+async function playAt(t){
+  const sess=curSess();
   if(!sess||!sess.rec){toast("ما فيه تسجيل صوتي لهالجلسة");return;}
   try{const b=await getRec(sess.rec);if(!b){toast("التسجيل مو موجود في هذا الجهاز");return;}const a=$("rAudio");if(!a.getAttribute("src")) a.src=URL.createObjectURL(b);a.hidden=false;
-    a.currentTime=Math.max(0,t-(sess.recT0||0)-0.5);await a.play();if(dur){clearTimeout(playAt._t);playAt._t=setTimeout(()=>a.pause(),(dur+1)*1000);}}catch(e){toast("ما قدرت أشغّل التسجيل");}
+    a.currentTime=Math.max(0,t-(sess.recT0||0));await a.play();}catch(e){toast("ما قدرت أشغّل التسجيل");}
 }
-$("rTimeline").addEventListener("click",e=>{const svg=e.target.closest("svg");if(!svg||!REP) return;
-  const r=svg.getBoundingClientRect(),W=+svg.dataset.w,P=+svg.dataset.p,x=(e.clientX-r.left)*W/r.width;
-  const t=+svg.dataset.t0+(x-P)/(W-2*P)*(+svg.dataset.t1-+svg.dataset.t0);playAt(t,4);});
-$("v-report").addEventListener("click",e=>{const b=e.target.closest("[data-listen]");if(!b) return;const sess=S.sessions.find(s=>s.id===REP.id);const w=sess&&sess.report&&sess.report.worst[b.dataset.listen];if(w) playAt(w.t,Math.min(20,w.t1-w.t+1));});
-function curSess(){return REP&&S.sessions.find(s=>s.id===REP.id);}
+$("rTimeline").addEventListener("click",e=>{
+  const dot=e.target.closest("[data-stop]");if(dot){playAt(+dot.dataset.stop-8);return;}
+  const svg=e.target.closest("svg");if(!svg) return;const r=svg.getBoundingClientRect(),W=+svg.dataset.w,P=+svg.dataset.p,x=(e.clientX-r.left)*W/r.width;
+  playAt((x-P)/(W-2*P)*(+svg.dataset.dur));});
+$("rStops").addEventListener("click",e=>{const b=e.target.closest("[data-stop]");if(b) playAt(+b.dataset.stop-8);});
+$("feelSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b) return;$$("#feelSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));});
 $("fSave").onclick=()=>{const sess=curSess();if(!sess) return;
-  const before=recordsFor(sess.exId);
-  sess.max=+$("fMax").value||sess.max;sess.relaxed=$("fRelax").checked;sess.notes=$("fNotes").value.trim();save();
-  const after=recordsFor(sess.exId),news=[];
-  if(after.bpm>before.bpm&&before.bpm>0) news.push("أعلى سرعة "+after.bpm);
-  toast(news.length?"رقم قياسي جديد: "+news.join(" · "):"انحفظت");
-  renderLibrary();renderProgress();location.hash=REP.from==="log"?"progress":"practice";
-};
-$("fFeedback").onclick=()=>{const sess=curSess();if(!sess) return;sess.feedback=!sess.feedback;save();renderReport();if(sess.feedback) toast("انحفظت ملاحظتك. قل لي وش اللي ما كان دقيق عشان أضبطه");};
-$("fDrop").onclick=()=>openConfirm("تحذف هذي الجلسة وتقريرها؟",()=>{const sess=curSess();S.sessions=S.sessions.filter(s=>s!==sess);save();renderLibrary();renderProgress();toast("انحذفت الجلسة");location.hash=REP.from==="log"?"progress":"practice";REP=null;});
+  const f=document.querySelector("#feelSeg button[aria-pressed='true']");
+  sess.feel=f?f.dataset.f:null;sess.dyn=$$("#dynBox input").filter(i=>i.checked).map(i=>i.value);sess.notes=$("fNotes").value.trim();save();
+  toast("انحفظ");renderLibrary();renderProgress();location.hash=REP.from==="log"?"progress":"practice";};
+$("fDrop").onclick=()=>openConfirm("تحذف هذي الجلسة؟",()=>{const sess=curSess();S.sessions=S.sessions.filter(s=>s!==sess);save();renderLibrary();renderProgress();toast("انحذفت الجلسة");location.hash=REP.from==="log"?"progress":"practice";REP=null;});
 $("sessSave").onclick=openReport;
-$("measOn").onchange=async()=>{S.settings.measure=$("measOn").checked;save();
-  if(S.settings.measure){const ok=await micStart();if(ok&&S.settings.monitor==="speaker"&&S.settings.calib==null&&!M.playing) autoCheck();}
-  else micStop();};
+$("measOn").onchange=async()=>{S.settings.measure=$("measOn").checked;save();if(S.settings.measure) await micStart(); else micStop();};
 $("monSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) setMonitor(b.dataset.mon);});
-$("calBtn").onclick=async()=>{if(!(await micStart())) return;startCalib();};
 $("pGoalEdit").onclick=()=>goalDialog(SES.exId);
-
-
-/* ================= overlay ================= */
-function ovOpen(t,s,cancel){$("ovT").textContent=t;$("ovS").innerHTML=esc(s)+(cancel?`<br><button class="btn" id="ovCancel" style="margin-top:12px">إلغاء</button>`:"");$("overlay").classList.add("open");if(cancel) $("ovCancel").onclick=()=>endCalib(false);}
-function ovSub(s){const e=$("ovS");if(e.firstChild) e.firstChild.textContent=s;}
-function ovClose(){$("overlay").classList.remove("open");}
 
 /* ================= recording ================= */
 let rec=null,recChunks=[],recStream=null;
@@ -977,7 +861,6 @@ async function putRec(id,blob){const db=await idb();return new Promise((res,rej)
 async function getRec(id){const db=await idb();return new Promise((res,rej)=>{const r=db.transaction("recs").objectStore("recs").get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function startRec(){
   try{
-    if(rec&&rec.state==="paused"){rec.resume();$("recDot").style.visibility="visible";return;}
     recStream=MIC.on&&MIC.stream?MIC.stream:await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
     recChunks=[];const opt={};try{if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) opt.mimeType="audio/webm;codecs=opus";}catch(e){}
     opt.audioBitsPerSecond=32000;
@@ -995,25 +878,20 @@ function stopRec(discard){
   });
 }
 
-
 /* ================= library ================= */
 function renderLibrary(){
-  const exs=allEx(),groups={};exs.forEach(e=>{const g=e.group||"تمارين خاصة";(groups[g]=groups[g]||[]).push(e);});
-  let h="";
-  Object.keys(groups).forEach(g=>{
-    h+=`<div class="group-title">${esc(g)} <span class="tag ltr">${groups[g].length}</span></div><div class="cards">`;
-    groups[g].forEach(e=>{const r=recordsFor(e.id),pct=e.target?Math.min(100,Math.round(r.bpm/e.target*100)):0,lv=levelFor(e);
-      const toks=parsePat(e.pattern).slice(0,10).map(t=>`<span style="color:${t.s==="∧"?"#8A3F12":t.s==="∨"?"#155E68":"#221C16"}">${esc(t.s)}${t.a?"&gt;":""}</span>`).join("");
-      h+=`<div class="card ex">
-        <div class="row"><span class="t">${esc(e.name)}</span><span class="tag" style="margin-right:auto;background:#fff;border:1.5px solid ${lv.c};color:${lv.c}">${lv.t}</span></div>
-        <div class="mini">${toks}</div>
-        <div class="row small"><span>الهدف <b class="ltr">${e.target||"—"}</b> BPM</span><span>أفضل سرعة <b class="ltr">${r.bpm||"—"}</b></span>${r.std!=null?`<span>ثبات <b class="ltr">±${r.std}</b></span>`:""}<span class="muted ltr" style="margin-right:auto">${pct}%</span></div>
-        <div class="prog" aria-hidden="true"><i style="width:${pct}%"></i></div>
-        <div class="row"><button class="btn primary" data-go="${e.id}">تمرّن</button><button class="btn ghost" data-goal="${e.id}">الهدف</button><button class="btn ghost" data-edit="${e.id}">تعديل</button>${e.seed?"":`<button class="btn danger" data-del="${e.id}">حذف</button>`}</div>
-      </div>`;});
-    h+="</div>";
-  });
-  $("libList").innerHTML=h;
+  const exs=allEx();
+  let h=`<div class="cards">`;
+  exs.forEach(e=>{const r=recordsFor(e.id),pct=e.target?Math.min(100,Math.round(r.bpm/e.target*100)):0,lv=levelFor(e);
+    const toks=parsePat(e.pattern).slice(0,10).map(t=>`<span style="color:${t.s==="∧"?"#8A3F12":t.s==="∨"?"#155E68":"#221C16"}">${esc(t.s)}${t.a?"&gt;":""}</span>`).join("");
+    h+=`<div class="card ex">
+      <div class="row"><span class="t">${esc(e.name)}</span><span class="tag" style="margin-right:auto;background:#fff;border:1.5px solid ${lv.c};color:${lv.c}">${lv.t}</span></div>
+      <div class="mini">${toks}</div>
+      <div class="row small"><span>الهدف <b class="ltr">${e.target||"—"}</b> BPM</span><span>أعلى سرعة <b class="ltr">${r.bpm||"—"}</b></span>${r.longest?`<span>أطول استمرار <b class="ltr">${fmt(r.longest)}</b></span>`:""}<span class="muted ltr" style="margin-right:auto">${pct}%</span></div>
+      <div class="prog" aria-hidden="true"><i style="width:${pct}%"></i></div>
+      <div class="row"><button class="btn primary" data-go="${e.id}">تمرّن</button><button class="btn ghost" data-goal="${e.id}">الهدف</button><button class="btn ghost" data-edit="${e.id}">تعديل</button>${e.seed?"":`<button class="btn danger" data-del="${e.id}">حذف</button>`}</div>
+    </div>`;});
+  $("libList").innerHTML=h+`</div>`;
 }
 function saveExField(id,obj){
   const ex=getEx(id);if(!ex) return;
@@ -1037,8 +915,7 @@ function exForm(ex){
   openModal(`<h2 id="mTitle">${ex.id?"تعديل التمرين":"تمرين جديد"}</h2>
    ${isSeed?`<p class="small muted" style="margin:0">هذا من تمارين الورشة: تقدر تعدّل الملاحظات. السرعات من زر "الهدف".</p>`:`
    <label class="f">اسم التمرين<input type="text" id="eName" value="${esc(ex.name)}"></label>
-   <div class="row"><label class="f" style="flex:1">المجموعة<input type="text" id="eGroup" list="glist" value="${esc(ex.group)}"><datalist id="glist">${groups.map(g=>`<option value="${esc(g)}">`).join("")}</datalist></label>
-   <label class="f" style="flex:1">النوع<select id="eType">${["ريشة","يد يسرى","مقام","قطعة","إيقاع","أخرى"].map(t=>`<option ${t===ex.type?"selected":""}>${t}</option>`).join("")}</select></label></div>
+   <div class="row"><label class="f" style="flex:1">النوع<select id="eType">${["ريشة","يد يسرى","مقام","قطعة","إيقاع","أخرى"].map(t=>`<option ${t===ex.type?"selected":""}>${t}</option>`).join("")}</select></label></div>
    <label class="f">نمط الريشة<input type="text" id="ePat" class="ltr" value="${esc(ex.pattern)}"></label>
    <div class="inserts">${["∧","∨",">","P","|"].map(s=>`<button type="button" data-ins="${s}">${s}</button>`).join("")}<button type="button" data-ins=" " style="min-width:72px;font-size:14px">مسافة</button><button type="button" data-ins="⌫" aria-label="مسح">⌫</button></div>
    <p class="small muted" style="margin:0">كل ضربة مفصولة بمسافة. أضف <b>&gt;</b> للأكسنت، و<b>|</b> ثم اسم النغمة أو رقم الإصبع. مثال: <span class="ltr">∧|0 ∨&gt;|1</span></p>
@@ -1054,7 +931,7 @@ function exForm(ex){
     if(isSeed){saveExField(ex.id,{notes});}
     else{const name=$("eName").value.trim();if(!name){toast("اكتب اسم التمرين");return;}
       const [n,d]=$("eSig").value.split("/");let a=+$("eStart").value||60,b=+$("eTarget").value||120;if(a>b){const t=a;a=b;b=t;}
-      const obj={id:ex.id||uid(),name,group:$("eGroup").value.trim()||"تمارين خاصة",type:$("eType").value,pattern:$("ePat").value.trim()||"∧ ∨",num:+n,den:+d,sub:+$("eSub").value,start:a,target:b,notes};
+      const obj={id:ex.id||uid(),name,group:"التمارين",type:$("eType").value,pattern:$("ePat").value.trim()||"∧ ∨",num:+n,den:+d,sub:+$("eSub").value,start:a,target:b,notes};
       const i=S.custom.findIndex(c=>c.id===obj.id); if(i>=0) S.custom[i]=obj; else S.custom.push(obj);}
     save();closeModal();renderLibrary();renderProgress();toast("انحفظ التمرين");
   };
@@ -1089,9 +966,9 @@ function renderProgress(){
   if(prev&&withS.some(e=>e.id===prev)) sel.value=prev;
   drawCharts(sel.value);
   const list=S.sessions.slice().reverse().slice(0,30);
-  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>أعلى BPM</th><th>الثبات</th><th>الريشة</th><th>التقييم</th><th>ملاحظات</th><th></th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId);
-    const bal=s.meas&&s.meas.bal?(s.meas.bal.pct<=10?"متوازنة":`<span class="ltr">${s.meas.bal.weak}</span> −<span class="ltr">${s.meas.bal.pct}%</span>`):"—";
-    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${s.max||"—"}</td><td class="num">${s.meas?"±"+s.meas.std+" ms":"—"}</td><td>${bal}</td><td>${s.report&&s.report.overall!=null?chip(s.report.overall):"—"}${s.feedback?` <span class="small muted">(مو دقيق)</span>`:""}</td><td class="small">${esc(s.notes||"")}</td><td>${s.report?`<button class="btn ghost" data-rep="${s.id}" style="min-height:36px">التقرير</button>`:""}${s.rec&&!s.report?`<button class="btn ghost" data-play="${s.rec}" style="min-height:36px">استماع</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واحفظ الجلسة، وبيطلع سجلك هنا.</div>`;
+  const FEEL={easy:"مرتاح",ok:"متوسط",hard:"صعب"};
+  $("sessTable").innerHTML=list.length?`<table><thead><tr><th>التاريخ</th><th>التمرين</th><th>المدة</th><th>وقت العزف</th><th>أطول استمرار</th><th>التوقفات</th><th>أعلى سرعة</th><th>إحساسك</th><th>ملاحظات</th><th></th><th></th></tr></thead><tbody>${list.map(s=>{const ex=getEx(s.exId),c=s.cont;
+    return `<tr><td>${fmtDay(new Date(s.date))}</td><td>${esc(ex?ex.name:"تمرين محذوف")}</td><td class="num">${fmt(s.dur||0)}</td><td class="num">${c?fmt(c.play):"—"}</td><td class="num">${c?fmt(c.longest):"—"}</td><td class="num">${c?c.stops.length:"—"}</td><td class="num">${s.max||"—"}</td><td>${s.feel?FEEL[s.feel]:"—"}</td><td class="small">${esc(s.notes||"")}</td><td>${c?`<button class="btn ghost" data-rep="${s.id}" style="min-height:36px">التفاصيل</button>`:""}</td><td><button class="btn ghost" data-sdel="${s.id}" style="min-height:36px" aria-label="حذف الجلسة">×</button></td></tr>`;}).join("")}</tbody></table>`:`<div class="empty">ابدأ تمرين من المكتبة واخلص الجلسة، وبيطلع سجلك هنا.</div>`;
 }
 $("chartEx").addEventListener("change",e=>drawCharts(e.target.value));
 $("sessTable").addEventListener("click",async e=>{
@@ -1126,11 +1003,11 @@ function drawCharts(id){
   const sp={},stb={};
   S.sessions.filter(s=>s.exId===id).forEach(s=>{const d=new Date(s.date);d.setHours(0,0,0,0);const k=d.getTime();
     if(s.relaxed!==false) sp[k]=Math.max(sp[k]||0,s.max||0);
-    if(s.meas&&s.meas.n>=16) stb[k]=stb[k]==null?s.meas.std:Math.min(stb[k],s.meas.std);});
+    if(s.cont&&s.cont.longest) stb[k]=Math.max(stb[k]||0,Math.round(s.cont.longest/6)/10);});
   const toPts=o=>Object.keys(o).map(Number).sort((a,b)=>a-b).map(k=>({t:k,v:o[k]})).filter(p=>p.v>0||p.v===0);
   const ps=toPts(sp),pt=toPts(stb);
   lineChart($("chartSpeed"),ps,{color:"#8A3F12",ref:ex.target||null,refLabel:"الهدف "+(ex.target||""),pad:10,minStep:10,fmt:v=>v+" BPM",aria:"منحنى السرعة لتمرين "+ex.name,empty:"ما فيه جلسات محفوظة لهالتمرين."});
-  lineChart($("chartStab"),pt,{color:"#155E68",ref:null,pad:5,minStep:5,fmt:v=>"±"+v+" ms",aria:"منحنى الثبات لتمرين "+ex.name,empty:"يطلع هنا لما تحفظ جلسات مع القياس بالمايك."});
+  lineChart($("chartStab"),pt,{color:"#155E68",ref:null,pad:1,minStep:1,fmt:v=>v+" دقيقة",aria:"منحنى الاستمرار لتمرين "+ex.name,empty:"يطلع هنا لما تخلص جلسات والمايك شغّال."});
   $("chartNote").innerHTML=ps.length>1?`من <b class="ltr">${ps[0].v}</b> إلى <b class="ltr">${ps[ps.length-1].v}</b> BPM في <b class="ltr">${ps.length}</b> يوم تمرين`:"";
 }
 $("copyData").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(S));toast("انسخت البيانات. الصقها في ملاحظة واحفظها");}catch(e){
@@ -1164,7 +1041,7 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 initMetro();setMonitor(S.settings.monitor||"speaker");renderLibrary();route();
-if(/[?&]selftest\b/.test(location.search)) window.__t={MIC,SES,openReport,measStats};
+if(/[?&]selftest\b/.test(location.search)) window.__t={MIC,SES,CT,M,openReport,summarize};
 try{if("serviceWorker" in navigator&&!/claude\.ai|claudeusercontent/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
 })();
 </script>
